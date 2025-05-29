@@ -63,22 +63,17 @@ if (isset($_GET['reset'])) {
 
 // ---------- Progress laden/initialisieren ----------
 $progress = loadProgress($kartensetPfad);
-// Automatisch zurücksetzen, wenn keine Paare mehr zu vergleichen sind (also: Set abgeschlossen):
-if (
-    (isset($progress['antworten']) && isset($progress['paare']))
-    && count($progress['paare']) === 0
-    && count($progress['antworten']) > 0
-) {
+// Reset nur wenn explizit gewünscht
+if (isset($_GET['reset'])) {
     resetProgress($kartensetPfad);
-    $progress = loadProgress($kartensetPfad);
+    header("Location: compare.php?set=".urlencode($kartensetPfad));
+    exit;
 }
 
-$paare = $progress['paare'] ?? alleVergleichspaare($ids, $WIEDERHOLUNGEN);
-$antworten = $progress['antworten'] ?? [];
-$instruktion_gelesen = $progress['instruktion_gelesen'] ?? false;
+$progress = loadProgress($kartensetPfad);
 
-// Falls Progress gar nicht initialisiert war (neu!), setze Paare initial:
-if (!isset($progress['paare']) || !is_array($progress['paare']) || count($progress['paare']) === 0) {
+// Initialisieren falls noch kein Fortschritt vorhanden (nur beim allerersten Start!)
+if (!isset($progress['paare']) || !is_array($progress['paare']) || !isset($progress['antworten'])) {
     $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
     $progress['paare'] = $paare;
     $progress['antworten'] = [];
@@ -86,7 +81,12 @@ if (!isset($progress['paare']) || !is_array($progress['paare']) || count($progre
     saveProgress($kartensetPfad, $progress);
     $antworten = [];
     $instruktion_gelesen = false;
+} else {
+    $paare = $progress['paare'];
+    $antworten = $progress['antworten'];
+    $instruktion_gelesen = $progress['instruktion_gelesen'] ?? false;
 }
+
 
 // ---------- Session-Export (JSON) ----------
 if (isset($_GET['export_json'])) {
