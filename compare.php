@@ -1,8 +1,5 @@
 <?php
-// ------- PARAMETER ---------
-$WIEDERHOLUNGEN = 2; // Anzahl Wiederholungen pro Paarvergleich
-$INSTRUKTIONS_TEXT = "Hier siehst du jeweils zwei Karten im Vergleich. Wähle pro Paar, was für dich wichtiger ist! Jedes Paar wird mehrfach angezeigt – manchmal in unterschiedlicher Reihenfolge.";
-// ------- ENDE PARAMETER ----
+$WIEDERHOLUNGEN = 2; // Wie oft jedes Paar verglichen wird
 
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
@@ -10,12 +7,14 @@ include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
-// ---------- Hilfsfunktion ----------
-function now_millis() {
-    return round(microtime(true) * 1000);
+// Fortschritt für dieses Set zurücksetzen, falls reset=1 im Querystring
+if (isset($_GET['reset'])) {
+    resetProgress($kartensetPfad);
+    header("Location: compare.php?set=" . urlencode($kartensetPfad));
+    exit;
 }
 
-// ---------- Kartenset laden ----------
+// Kartenset laden
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     header("Location: index.php?error=no_set");
     exit;
@@ -29,7 +28,6 @@ foreach($daten as $zeile) {
 }
 $ids = array_keys($karten);
 
-// ---------- Tiefenprüfung: Mindestens zwei Karten nötig! ----------
 if (count($ids) < 2) {
     ?>
     <!DOCTYPE html>
@@ -53,26 +51,9 @@ if (count($ids) < 2) {
     exit;
 }
 
-// ---------- Progress Reset bei "Neustart" (immer bei neuem Set-Aufruf) ----------
-if (isset($_GET['reset'])) {
-    resetProgress($kartensetPfad);
-    // Um Weiterleitung zu erzwingen (ohne reset-Param):
-    header("Location: compare.php?set=".urlencode($kartensetPfad));
-    exit;
-}
-
-// ---------- Progress laden/initialisieren ----------
-$progress = loadProgress($kartensetPfad);
-// Reset nur wenn explizit gewünscht
-if (isset($_GET['reset'])) {
-    resetProgress($kartensetPfad);
-    header("Location: compare.php?set=".urlencode($kartensetPfad));
-    exit;
-}
-
+// Progress laden/initialisieren NUR falls noch NICHT vorhanden
 $progress = loadProgress($kartensetPfad);
 
-// Initialisieren falls noch kein Fortschritt vorhanden (nur beim allerersten Start!)
 if (!isset($progress['paare']) || !is_array($progress['paare']) || !isset($progress['antworten'])) {
     $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
     $progress['paare'] = $paare;
@@ -87,8 +68,7 @@ if (!isset($progress['paare']) || !is_array($progress['paare']) || !isset($progr
     $instruktion_gelesen = $progress['instruktion_gelesen'] ?? false;
 }
 
-
-// ---------- Session-Export (JSON) ----------
+// Session-Export (JSON)
 if (isset($_GET['export_json'])) {
     header('Content-Type: application/json');
     header('Content-Disposition: attachment; filename="rankifmy_session.json"');
@@ -101,10 +81,11 @@ if (isset($_GET['export_json'])) {
     exit;
 }
 
-// ---------- Antwortverarbeitung ----------
+// Antwortverarbeitung
+function now_millis() { return round(microtime(true) * 1000); }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['instruktion_gelesen'])) {
-        // Instruktion bestätigt
         $progress['instruktion_gelesen'] = true;
         saveProgress($kartensetPfad, $progress);
         header("Location: compare.php?set=".urlencode($kartensetPfad));
@@ -127,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ---------- Fortschritt ----------
+// Fortschritt
 $gesamt = count(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
 ?>
@@ -202,13 +183,10 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
             <h4><?=t('finished')?></h4>
             <p>
                 <a href="results.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-success"><?=t('see_results')?></a>
-                <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&export_json=1" class="btn btn-outline-secondary">JSON-Export</a>
-                <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1" class="btn btn-sm btn-outline-primary ms-2"><?=t('instructions_continue') ?? "Nochmal starten"?></a>
             </p>
         </div>
     <?php else: ?>
         <?php
-        // Aktuelles Paar – Randomisierung der Reihenfolge:
         $aktuellesPaar = $paare[0];
         $show_left = rand(0,1) ? 'normal' : 'swapped';
         if($show_left === 'swapped') $aktuellesPaar = array_reverse($aktuellesPaar);
