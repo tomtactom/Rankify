@@ -1,29 +1,35 @@
 <?php
-// ABSOLUT KEIN LEERZEICHEN VOR DIESER ZEILE! Keine BOM, keine Kommentare!
+// ------- PARAMETER (anpassbar) ---------
+$WIEDERHOLUNGEN = 2; // Anzahl Wiederholungen pro Paarvergleich
+$INSTRUKTIONS_TEXT = "Hier siehst du gleich immer zwei Karten im direkten Vergleich. Wähle pro Paar, was für dich wichtiger ist! Jede Paarung wird mehrfach angezeigt – manchmal in unterschiedlicher Reihenfolge.";
+// ------- ENDE PARAMETER ---------
+
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
+// ---------- Hilfsfunktionen ----------
+function now_millis() {
+    return round(microtime(true) * 1000);
+}
 
-// --- Kartenset laden ---
+// ---------- Kartenset laden ----------
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     header("Location: index.php?error=no_set");
     exit;
 }
 $daten = array_map(function($line){ return str_getcsv($line, ';'); }, file('data/'.$kartensetPfad));
 $kopf = array_shift($daten);
-
 $karten = [];
 foreach($daten as $zeile) {
-    // Sicherstellen, dass jede Zeile drei Felder hat!
     if (count($zeile) < 3) continue;
     $karten[$zeile[0]] = ['id'=>$zeile[0],'title'=>$zeile[1],'subtitle'=>$zeile[2]];
 }
 $ids = array_keys($karten);
 
-// --- Tiefenprüfung: Mindestens zwei Karten nötig! ---
+// ---------- Tiefenprüfung: Mindestens zwei Karten nötig! ----------
 if (count($ids) < 2) {
     ?>
     <!DOCTYPE html>
@@ -47,26 +53,53 @@ if (count($ids) < 2) {
     exit;
 }
 
-// --- Session laden / Paare erstellen ---
+// ---------- Session/Progress laden ----------
 $progress = loadProgress($kartensetPfad);
-$paare = $progress['paare'] ?? alleVergleichspaare($ids);
+$paare = $progress['paare'] ?? alleVergleichspaare($ids, $WIEDERHOLUNGEN);
 $antworten = $progress['antworten'] ?? [];
+$instruktion_gelesen = $progress['instruktion_gelesen'] ?? false;
 
-// --- Antwort verarbeiten (immer VOR Output!) ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id1'], $_POST['id2'], $_POST['bewertung'])) {
-    $antworten[] = [
-        'id1' => $_POST['id1'],
-        'id2' => $_POST['id2'],
-        'bewertung' => (int)$_POST['bewertung'],
-    ];
-    array_shift($paare);
-    saveProgress($kartensetPfad, ['paare' => $paare, 'antworten' => $antworten]);
-    header("Location: compare.php?set=".urlencode($kartensetPfad));
+// ---------- Session-Export (JSON) ----------
+if (isset($_GET['export_json'])) {
+    header('Content-Type: application/json');
+    header('Content-Disposition: attachment; filename="rankifmy_session.json"');
+    echo json_encode([
+        'kartenset' => $kartensetPfad,
+        'antworten' => $antworten,
+        'paare' => $paare,
+        'zeitpunkt' => date('c'),
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-// --- Fortschritt ---
-$gesamt = count(alleVergleichspaare($ids));
+// ---------- Antwortverarbeitung ----------
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['instruktion_gelesen'])) {
+        // Instruktion bestätigt
+        $progress['instruktion_gelesen'] = true;
+        saveProgress($kartensetPfad, $progress);
+        header("Location: compare.php?set=".urlencode($kartensetPfad));
+        exit;
+    } elseif (isset($_POST['id1'], $_POST['id2'], $_POST['bewertung'], $_POST['show_left'], $_POST['zeit_start'])) {
+        $antworten[] = [
+            'id1' => $_POST['id1'],
+            'id2' => $_POST['id2'],
+            'bewertung' => (int)$_POST['bewertung'],
+            'show_left' => $_POST['show_left'],
+            'zeit_start' => intval($_POST['zeit_start']),
+            'zeit_ende' => now_millis(),
+        ];
+        array_shift($paare);
+        $progress['paare'] = $paare;
+        $progress['antworten'] = $antworten;
+        saveProgress($kartensetPfad, $progress);
+        header("Location: compare.php?set=".urlencode($kartensetPfad));
+        exit;
+    }
+}
+
+// ---------- Fortschritt ----------
+$gesamt = count(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
 ?>
 <!DOCTYPE html>
@@ -91,10 +124,19 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
         .vs-badge { font-size: 1.2rem; background: #b8cdfc; color: #2951a7; border-radius: 50%; padding: .7rem 1.2rem;}
         @media (max-width: 768px) { .compare-hero { gap: 0.7rem; flex-direction: column; } .compare-hero-logo { width: 46px; height: 46px; font-size: 1.15rem; } .card-compare { margin-bottom: 1.5rem; } }
     </style>
+    <script>
+        let zeit_start;
+        window.onload = function() {
+            zeit_start = Date.now();
+            var inp = document.getElementById("zeit_start");
+            if(inp) inp.value = zeit_start;
+        };
+    </script>
 </head>
 <body>
 <?php include 'navbar.php'; ?>
 <div class="container py-3">
+
     <!-- Hero Section -->
     <div class="compare-hero">
         <div class="compare-hero-logo" aria-label="Logo">R</div>
@@ -113,22 +155,41 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
         </div>
     </div>
 
+    <!-- Instruktionsphase -->
+    <?php if (!$instruktion_gelesen): ?>
+        <form method="post">
+            <div class="alert alert-info" style="font-size:1.15em;">
+                <b><?=t('instructions_title') ?? "Instruktionen"?></b><br>
+                <?=t('instructions_text') ?? $INSTRUKTIONS_TEXT?>
+            </div>
+            <button class="btn btn-primary" name="instruktion_gelesen" value="1"><?=t('instructions_continue') ?? "Starten"?></button>
+        </form>
+        </div></body></html>
+        <?php exit; ?>
+    <?php endif; ?>
+
     <?php if (empty($paare)): ?>
         <div class="alert alert-success mt-4">
             <h4><?=t('finished')?></h4>
             <p>
                 <a href="results.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-success"><?=t('see_results')?></a>
+                <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&export_json=1" class="btn btn-outline-secondary">JSON-Export</a>
             </p>
         </div>
     <?php else: ?>
         <?php
+        // Aktuelles Paar – Randomisierung der Reihenfolge:
         $aktuellesPaar = $paare[0];
+        $show_left = rand(0,1) ? 'normal' : 'swapped';
+        if($show_left === 'swapped') $aktuellesPaar = array_reverse($aktuellesPaar);
         $karte1 = $karten[$aktuellesPaar[0]];
         $karte2 = $karten[$aktuellesPaar[1]];
         ?>
-        <form method="post" class="mb-5">
+        <form method="post" class="mb-5" autocomplete="off">
             <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
             <input type="hidden" name="id2" value="<?=htmlspecialchars($karte2['id'])?>">
+            <input type="hidden" name="show_left" value="<?=htmlspecialchars($show_left)?>">
+            <input type="hidden" name="zeit_start" id="zeit_start" value="">
             <div class="row align-items-center">
                 <div class="col-md-5 mb-3">
                     <div class="card card-compare h-100">
@@ -165,4 +226,3 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
 </div>
 </body>
 </html>
-s

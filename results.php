@@ -3,224 +3,148 @@ $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
-include 'inc/methods.php';
-
-$kartensetPfad = $_GET['set'] ?? '';
-if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
-    ?>
-    <!DOCTYPE html>
-    <html lang="<?=getLanguage()?>">
-    <head>
-        <meta charset="UTF-8">
-        <title><?=t('error_not_found')?> – Rankifmy</title>
-        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    </head>
-    <body>
-    <?php include 'navbar.php'; ?>
-    <div class="container">
-        <div class="alert alert-danger mt-5">
-            <?=t('error_no_set')?> <br>
-            <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
-        </div>
-    </div>
-    </body>
-    </html>
-    <?php exit;
-}
-$methode = $_GET['methode'] ?? 'punkte';
+include 'inc/vergleichslogik.php';
 
 // Kartenset laden
-$daten = array_map('str_getcsv', file('data/'.$kartensetPfad));
+if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
+    header("Location: index.php?error=no_set");
+    exit;
+}
+$daten = array_map(function($line){ return str_getcsv($line, ';'); }, file('data/'.$kartensetPfad));
 $kopf = array_shift($daten);
 $karten = [];
 foreach($daten as $zeile) {
+    if (count($zeile) < 3) continue;
     $karten[$zeile[0]] = ['id'=>$zeile[0],'title'=>$zeile[1],'subtitle'=>$zeile[2]];
 }
+$ids = array_keys($karten);
 
-// Antworten laden
+// Session laden
 $progress = loadProgress($kartensetPfad);
 $antworten = $progress['antworten'] ?? [];
 
-// Falls noch keine Antworten: Hinweis
-if (empty($antworten)) {
-    ?>
-    <!DOCTYPE html>
-    <html lang="<?=getLanguage()?>">
-    <head>
-        <meta charset="UTF-8">
-        <title><?=t('ranking')?> – Rankifmy</title>
-        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    </head>
-    <body>
-    <?php include 'navbar.php'; ?>
-    <div class="container">
-        <div class="alert alert-warning mt-5">
-            <?=t('error_no_answers')?> <br>
-            <a href="compare.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-primary mt-3"><?=t('repeat_comparisons')?></a>
-            <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
-        </div>
-    </div>
-    </body>
-    </html>
-    <?php exit;
+// Statistiken und Konsistenzanalyse
+$totalVergleiche = count($antworten);
+$konsistenzPaare = [];
+$seitenPräferenz = ['normal'=>0, 'swapped'=>0];
+$antwortzeiten = [];
+
+// Konsistenz/Mehrfachpaare prüfen
+foreach($antworten as $antw) {
+    $key = $antw['id1'].'_'.$antw['id2'];
+    if (!isset($konsistenzPaare[$key])) $konsistenzPaare[$key] = [];
+    $konsistenzPaare[$key][] = $antw['bewertung'];
+    $seitenPräferenz[$antw['show_left']] = ($seitenPräferenz[$antw['show_left']] ?? 0) + 1;
+    if (isset($antw['zeit_start'], $antw['zeit_ende']) && $antw['zeit_ende'] > $antw['zeit_start'])
+        $antwortzeiten[] = $antw['zeit_ende'] - $antw['zeit_start'];
 }
-
-// Methoden-Auswahl
-switch($methode) {
-    case 'thurstone':
-        $result = thurstone($karten, $antworten);
-        $titel = t('method_thurstone');
-        $text = t('method_thurstone') . ".";
-        break;
-    case 'bradleyterry':
-        $result = bradley_terry($karten, $antworten);
-        $titel = t('method_bradleyterry');
-        $text = t('method_bradleyterry') . ".";
-        break;
-    default:
-        $result = simple_points($karten, $antworten);
-        $titel = t('method_points');
-        $text = t('method_points') . ".";
-        break;
-}
-
-$gesamtVergleiche = count($antworten);
-
-// CSV-Export
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['export_csv'])) {
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename=rankifmy_result.csv');
-    echo "Platz;Titel;Untertitel;Wert\n";
-    $platz = 1;
-    foreach($result as $id => $wert) {
-        $k = $karten[$id];
-        echo $platz . ";" . $k['title'] . ";" . $k['subtitle'] . ";" . round($wert,2) . "\n";
-        $platz++;
+// Konsistenzrate berechnen
+$konsistent = 0;
+$paare_gesamt = 0;
+$widerspruechlich = [];
+foreach ($konsistenzPaare as $paar => $bewertungen) {
+    $paare_gesamt++;
+    if (count(array_unique($bewertungen)) === 1) {
+        $konsistent++;
+    } else {
+        $widerspruechlich[$paar] = $bewertungen;
     }
-    exit;
+}
+$konsistenz_rate = $paare_gesamt ? round(100 * $konsistent / $paare_gesamt) : 100;
+
+// Bias: Seitenpräferenz
+$seitenBias = '';
+if (($seitenPräferenz['normal']+$seitenPräferenz['swapped']) > 0) {
+    $rel_normal = round(100 * $seitenPräferenz['normal'] / ($seitenPräferenz['normal']+$seitenPräferenz['swapped']));
+    $rel_swapped = 100 - $rel_normal;
+    $seitenBias = ($rel_normal > 60) ? t('bias_left') : (($rel_swapped > 60) ? t('bias_right') : '');
 }
 
-// Session-Reset
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset'])) {
-    saveProgress($kartensetPfad, []);
-    header("Location: compare.php?set=".urlencode($kartensetPfad));
-    exit;
+// Punktewertung: Jeder "Sieg" zählt (Likert 1,2: links gewinnt, 3,4: rechts gewinnt)
+$punkte = array_fill_keys($ids, 0);
+foreach($antworten as $antw) {
+    if ($antw['bewertung'] == 1 || $antw['bewertung'] == 2)
+        $punkte[$antw['id1']]++;
+    elseif ($antw['bewertung'] == 3 || $antw['bewertung'] == 4)
+        $punkte[$antw['id2']]++;
 }
+// Ranking
+arsort($punkte);
+
+// Durchschnittliche Antwortzeit
+$avg_time = $antwortzeiten ? round(array_sum($antwortzeiten)/count($antwortzeiten)/1000,2) : null;
+
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
 <head>
     <meta charset="UTF-8">
-    <title><?=$titel?> – Rankifmy</title>
+    <title>Rankifmy – <?=t('results')?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        body {
-            background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%);
-            min-height: 100vh;
-        }
-        .results-hero {
-            display: flex; align-items: center; gap: 1.3rem; margin-bottom: 2.5rem;
-        }
-        .results-hero-logo {
-            width: 58px; height: 58px; border-radius: 14px;
-            background: #fff; display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; font-weight: bold; color: #6281e3;
-            box-shadow: 0 2px 10px rgba(80,110,200,0.09);
-            border: 2px solid #e4eefe;
-        }
-        .results-hero-title {
-            font-size: 1.35rem; font-weight: 800; color: #294288; margin-bottom: .3rem;
-        }
-        .results-hero-text {
-            color: #4d68a5; font-size: 1.06rem;
-        }
-        .rankbar {
-            height: 2.5rem;
-            border-radius: 1rem;
-            background: #e7eaf6;
-            position: relative;
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 7px rgba(110,130,160,0.06);
-        }
-        .rankbar-inner {
-            height: 100%;
-            border-radius: 1rem;
-            background: linear-gradient(90deg,#0d6efd 60%,#67a6fa 100%);
-            color: white;
-            padding-left: 1rem;
-            display: flex;
-            align-items: center;
-            font-weight: bold;
-            transition: width 0.5s;
-        }
-        .method-buttons .btn { margin-right: .7rem; margin-bottom: .5rem; }
-        .my-4 .btn { margin-right: .7rem; }
-        @media (max-width: 768px) {
-            .results-hero { gap: 0.7rem; flex-direction: column; }
-            .results-hero-logo { width: 46px; height: 46px; font-size: 1.15rem; }
-            .rankbar { height: 2rem; }
-            .rankbar-inner { font-size: 0.98rem; }
-        }
+        body { background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%); min-height: 100vh;}
+        .ranking-card { border-radius: 1rem; box-shadow: 0 2px 10px rgba(70,90,130,0.07); background: #fff; margin-bottom:1.5rem;}
+        .ranking-title { font-weight: bold; color: #2b3472;}
+        .ranking-badge { background:#6281e3;color:#fff; border-radius:1rem;padding:.3em 1em;font-weight:bold;font-size:1.2em;}
+        .statblock {background:#fffde3;padding:1em;border-radius:.8em;}
+        .widerspruch {background:#fbeee8;padding:.7em;border-radius:.7em;border:1px dashed #ebac7c;}
     </style>
 </head>
 <body>
 <?php include 'navbar.php'; ?>
 <div class="container py-3">
 
-    <!-- Hero Section -->
-    <div class="results-hero">
-        <div class="results-hero-logo" aria-label="Logo">R</div>
-        <div>
-            <div class="results-hero-title"><?=t('ranking')?></div>
-            <div class="results-hero-text"><?=$text?></div>
-        </div>
+    <h2 class="mb-4"><?=t('results')?></h2>
+
+    <div class="statblock mb-4">
+        <b><?=t('summary')??'Zusammenfassung'?>:</b><br>
+        <?=t('total_pairs')?>: <b><?=count($antworten)?></b> <br>
+        <?=t('consistency')?>: <b><?=$konsistenz_rate?> %</b> (<?=$konsistent?>/<?=$paare_gesamt?> <?=t('consistent_pairs')?>)
+        <?php if($konsistenz_rate < 80): ?>
+            <span class="text-danger">&nbsp;<?=t('consistency_warning')??'Viele widersprüchliche Urteile.'?></span>
+        <?php endif; ?>
+        <br>
+        <?=t('bias')?>: <?php
+            if($seitenBias) echo "<span class='text-warning'>$seitenBias</span>";
+            else echo "<span class='text-success'>".(t('no_bias')??'Keine Seitenpräferenz.')."</span>";
+        ?><br>
+        <?=t('avg_time')?>: <?= $avg_time ? $avg_time.'s' : '-' ?>
+        <br>
+        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&export_json=1" class="btn btn-sm btn-outline-secondary mt-2"><?=t('export_data')??'Export (JSON)'?></a>
+        <a href="index.php" class="btn btn-sm btn-secondary mt-2"><?=t('back_to_sets')?></a>
     </div>
 
-    <div class="mb-3">
-        <span style="color:#6481a5; font-size:1.1rem;">
-            <b><?=$gesamtVergleiche?></b> <?=t('progress')?>.
-        </span>
-    </div>
-
-    <!-- Methoden-Auswahl -->
-    <div class="method-buttons mb-3">
-        <a href="results.php?set=<?=urlencode($kartensetPfad)?>&methode=punkte" class="btn btn-outline-primary <?php if($methode=='punkte')echo'active';?>"><?=t('model_points')?></a>
-        <a href="results.php?set=<?=urlencode($kartensetPfad)?>&methode=thurstone" class="btn btn-outline-primary <?php if($methode=='thurstone')echo'active';?>"><?=t('model_thurstone')?></a>
-        <a href="results.php?set=<?=urlencode($kartensetPfad)?>&methode=bradleyterry" class="btn btn-outline-primary <?php if($methode=='bradleyterry')echo'active';?>"><?=t('model_bradleyterry')?></a>
-    </div>
-
-    <!-- Ergebnis-Rangfolge -->
-    <?php
-    $maxVal = max($result) ?: 1;
-    $platz = 1;
-    foreach($result as $id => $wert):
-        $k = $karten[$id];
-        $breite = intval(($wert / $maxVal) * 100);
-    ?>
-    <div class="mb-2">
-        <div><b>#<?=$platz?></b> <?=htmlspecialchars($k['title'])?> <span class="text-muted">(<?=htmlspecialchars($k['subtitle'])?>)</span></div>
-        <div class="rankbar">
-            <div class="rankbar-inner" style="width: <?=$breite?>%;">
-                <?=round($wert,2)?>
+    <h3><?=t('final_ranking')??'Deine Rangfolge'?></h3>
+    <?php $platz = 1; foreach($punkte as $id=>$score): ?>
+        <div class="ranking-card p-3 mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="ranking-badge"><?=$platz++?></div>
+                <div>
+                    <div class="ranking-title"><?=htmlspecialchars($karten[$id]['title'])?></div>
+                    <div><?=htmlspecialchars($karten[$id]['subtitle'])?></div>
+                    <div class="small"><?=t('points')?>: <b><?=$score?></b></div>
+                </div>
             </div>
         </div>
-    </div>
-    <?php $platz++; endforeach; ?>
+    <?php endforeach; ?>
 
-    <!-- Aktionen -->
-    <div class="my-4">
-        <a href="index.php" class="btn btn-secondary"><?=t('back_to_sets')?></a>
-        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-outline-primary"><?=t('repeat_comparisons')?></a>
-        <form method="post" class="d-inline">
-            <button class="btn btn-outline-success" name="export_csv" value="1">CSV-Export</button>
-        </form>
-        <form method="post" class="d-inline">
-            <input type="hidden" name="reset" value="1">
-            <button class="btn btn-outline-danger" name="reset" value="1" onclick="return confirm('<?=t('reset_confirm')?>')"><?=t('reset_session')?></button>
-        </form>
-    </div>
+    <?php if(count($widerspruechlich)): ?>
+        <div class="mt-4">
+            <h5><?=t('inconsistent_pairs')??'Widersprüchliche Paare'?>:</h5>
+            <?php foreach($widerspruechlich as $paar=>$bewertungen):
+                [$id1, $id2] = explode('_', $paar);
+            ?>
+                <div class="widerspruch mb-2">
+                    <b><?=htmlspecialchars($karten[$id1]['title'])?> ↔ <?=htmlspecialchars($karten[$id2]['title'])?></b>
+                    <br>
+                    <?=t('votes')?>: <?=implode(', ', $bewertungen)?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
 </div>
 </body>
 </html>
