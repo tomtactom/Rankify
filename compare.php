@@ -12,7 +12,7 @@ if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     header("Location: index.php?error=no_set");
     exit;
 }
-$daten = array_map('str_getcsv', file('data/'.$kartensetPfad));
+$daten = array_map(function($line){ return str_getcsv($line, ';'); }, file('data/'.$kartensetPfad));
 $kopf = array_shift($daten);
 
 // DEBUGGING-AUSGABE BEGINN
