@@ -102,7 +102,6 @@ $avg_time = $antwortzeiten ? round(array_sum($antwortzeiten)/count($antwortzeite
             .avatar-badge { width:44px;height:44px;font-size:1em;}
             .lab-summary { padding:0.7em; }
         }
-
     </style>
 </head>
 <body>
