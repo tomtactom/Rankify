@@ -7,7 +7,7 @@ include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
-// Fortschritt für dieses Set zurücksetzen, falls reset=1 im Querystring
+// Reset-Logik: Nur bei explizitem Reset-Button/Link
 if (isset($_GET['reset'])) {
     resetProgress($kartensetPfad);
     header("Location: compare.php?set=" . urlencode($kartensetPfad));
@@ -28,6 +28,7 @@ foreach($daten as $zeile) {
 }
 $ids = array_keys($karten);
 
+// Mindestens zwei Karten notwendig
 if (count($ids) < 2) {
     ?>
     <!DOCTYPE html>
@@ -51,21 +52,23 @@ if (count($ids) < 2) {
     exit;
 }
 
-// Progress laden/initialisieren NUR falls noch NICHT vorhanden
+// Fortschritt laden
 $progress = loadProgress($kartensetPfad);
+$antworten = $progress['antworten'] ?? [];
+$paare = $progress['paare'] ?? null;
+$instruktion_gelesen = $progress['instruktion_gelesen'] ?? false;
 
-if (!isset($progress['paare']) || !is_array($progress['paare']) || !isset($progress['antworten'])) {
+// Initialisierung NUR falls kein Fortschritt existiert (d.h. beim allerersten Mal!)
+if (!is_array($paare)) {
     $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
-    $progress['paare'] = $paare;
-    $progress['antworten'] = [];
-    $progress['instruktion_gelesen'] = false;
-    saveProgress($kartensetPfad, $progress);
     $antworten = [];
     $instruktion_gelesen = false;
-} else {
-    $paare = $progress['paare'];
-    $antworten = $progress['antworten'];
-    $instruktion_gelesen = $progress['instruktion_gelesen'] ?? false;
+    $progress = [
+        'paare' => $paare,
+        'antworten' => $antworten,
+        'instruktion_gelesen' => $instruktion_gelesen,
+    ];
+    saveProgress($kartensetPfad, $progress);
 }
 
 // Session-Export (JSON)
@@ -86,6 +89,7 @@ function now_millis() { return round(microtime(true) * 1000); }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['instruktion_gelesen'])) {
+        $instruktion_gelesen = true;
         $progress['instruktion_gelesen'] = true;
         saveProgress($kartensetPfad, $progress);
         header("Location: compare.php?set=".urlencode($kartensetPfad));
@@ -111,6 +115,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fortschritt
 $gesamt = count(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
+
+// WENN keine Paare mehr übrig sind: direkt zur Ergebnis-Seite
+if (empty($paare)) {
+    header("Location: results.php?set=" . urlencode($kartensetPfad));
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
@@ -178,58 +188,48 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
         <?php exit; ?>
     <?php endif; ?>
 
-    <?php if (empty($paare)): ?>
-        <div class="alert alert-success mt-4">
-            <h4><?=t('finished')?></h4>
-            <p>
-                <a href="results.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-success"><?=t('see_results')?></a>
-            </p>
-        </div>
-    <?php else: ?>
-        <?php
+    <?php
         $aktuellesPaar = $paare[0];
         $show_left = rand(0,1) ? 'normal' : 'swapped';
         if($show_left === 'swapped') $aktuellesPaar = array_reverse($aktuellesPaar);
         $karte1 = $karten[$aktuellesPaar[0]];
         $karte2 = $karten[$aktuellesPaar[1]];
-        ?>
-        <form method="post" class="mb-5" autocomplete="off">
-            <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
-            <input type="hidden" name="id2" value="<?=htmlspecialchars($karte2['id'])?>">
-            <input type="hidden" name="show_left" value="<?=htmlspecialchars($show_left)?>">
-            <input type="hidden" name="zeit_start" id="zeit_start" value="">
-            <div class="row align-items-center">
-                <div class="col-md-5 mb-3">
-                    <div class="card card-compare h-100">
-                        <div class="card-body">
-                            <h5 class="card-title"><?=htmlspecialchars($karte1['title'])?></h5>
-                            <p class="card-text"><?=htmlspecialchars($karte1['subtitle'])?></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-2 text-center mb-3">
-                    <span class="vs-badge" aria-label="Vergleich">vs.</span>
-                </div>
-                <div class="col-md-5 mb-3">
-                    <div class="card card-compare h-100">
-                        <div class="card-body">
-                            <h5 class="card-title"><?=htmlspecialchars($karte2['title'])?></h5>
-                            <p class="card-text"><?=htmlspecialchars($karte2['subtitle'])?></p>
-                        </div>
+    ?>
+    <form method="post" class="mb-5" autocomplete="off">
+        <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
+        <input type="hidden" name="id2" value="<?=htmlspecialchars($karte2['id'])?>">
+        <input type="hidden" name="show_left" value="<?=htmlspecialchars($show_left)?>">
+        <input type="hidden" name="zeit_start" id="zeit_start" value="">
+        <div class="row align-items-center">
+            <div class="col-md-5 mb-3">
+                <div class="card card-compare h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><?=htmlspecialchars($karte1['title'])?></h5>
+                        <p class="card-text"><?=htmlspecialchars($karte1['subtitle'])?></p>
                     </div>
                 </div>
             </div>
-            <div class="text-center mb-4">
-                <div class="btn-group btn-group-lg d-flex flex-wrap gap-2 justify-content-center" role="group">
-                    <button type="submit" name="bewertung" value="1" class="btn btn-outline-primary flex-fill"><?=t('card1_much')?></button>
-                    <button type="submit" name="bewertung" value="2" class="btn btn-outline-primary flex-fill"><?=t('card1_some')?></button>
-                    <button type="submit" name="bewertung" value="3" class="btn btn-outline-primary flex-fill"><?=t('card2_some')?></button>
-                    <button type="submit" name="bewertung" value="4" class="btn btn-outline-primary flex-fill"><?=t('card2_much')?></button>
+            <div class="col-md-2 text-center mb-3">
+                <span class="vs-badge" aria-label="Vergleich">vs.</span>
+            </div>
+            <div class="col-md-5 mb-3">
+                <div class="card card-compare h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><?=htmlspecialchars($karte2['title'])?></h5>
+                        <p class="card-text"><?=htmlspecialchars($karte2['subtitle'])?></p>
+                    </div>
                 </div>
             </div>
-        </form>
-    <?php endif; ?>
-
+        </div>
+        <div class="text-center mb-4">
+            <div class="btn-group btn-group-lg d-flex flex-wrap gap-2 justify-content-center" role="group">
+                <button type="submit" name="bewertung" value="1" class="btn btn-outline-primary flex-fill"><?=t('card1_much')?></button>
+                <button type="submit" name="bewertung" value="2" class="btn btn-outline-primary flex-fill"><?=t('card1_some')?></button>
+                <button type="submit" name="bewertung" value="3" class="btn btn-outline-primary flex-fill"><?=t('card2_some')?></button>
+                <button type="submit" name="bewertung" value="4" class="btn btn-outline-primary flex-fill"><?=t('card2_much')?></button>
+            </div>
+        </div>
+    </form>
     <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
 </div>
 </body>
