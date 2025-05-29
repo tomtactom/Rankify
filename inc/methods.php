@@ -106,16 +106,19 @@ function eidous_normsinv($p) {
     return sqrt(-1/$d1 * log($inner));
 }
 
-function alleVergleichspaare($ids) {
+function alleVergleichspaare($ids, $wiederholungen = 1) {
     $paare = [];
     $n = count($ids);
     if ($n < 2) return [];
     for ($i = 0; $i < $n-1; $i++) {
         for ($j = $i+1; $j < $n; $j++) {
-            $paare[] = [$ids[$i], $ids[$j]];
+            for ($k = 0; $k < $wiederholungen; $k++) {
+                $paare[] = [$ids[$i], $ids[$j]];
+            }
         }
     }
     shuffle($paare);
     return $paare;
 }
+
 ?>
