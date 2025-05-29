@@ -1,11 +1,55 @@
+/* Rankifmy – custom styles for a modern, clear look */
+
 body {
-    background: #f6f7fa;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    letter-spacing: 0.01em;
 }
-.card {
+
+h1, h2, h3, .fw-bold {
+    letter-spacing: 0.02em;
+}
+
+a, .btn, .navbar-brand {
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.cardset:hover, .card-compare:hover {
+    box-shadow: 0 4px 22px rgba(80,110,180,0.13);
+    transform: translateY(-2px) scale(1.01);
+}
+
+.btn-primary, .btn-outline-primary {
+    border-radius: 1em;
+    font-weight: 600;
+    box-shadow: 0 1px 7px rgba(98,129,227,0.09);
+}
+
+.btn-primary:active, .btn-outline-primary:active {
+    transform: scale(0.98);
+}
+
+.progress, .progress-bar {
+    border-radius: 1rem;
+}
+
+.card-compare {
     border-radius: 1.2rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    transition: box-shadow 0.2s;
+    box-shadow: 0 2px 14px rgba(60,90,140,0.08);
+    background: #fff;
+    transition: box-shadow 0.18s;
 }
-.card:hover {
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+
+.vs-badge {
+    font-size: 1.2rem;
+    background: #b8cdfc;
+    color: #2951a7;
+    border-radius: 50%;
+    padding: .7rem 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .cardset-list { grid-template-columns: 1fr; }
+    .compare-hero { flex-direction: column; gap: .7em; }
+    .compare-hero-logo { width: 46px; height: 46px; font-size: 1.15rem; }
+    .card-compare { margin-bottom: 1.5rem; }
 }
