@@ -1,11 +1,14 @@
 <?php
+include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
+include 'inc/methods.php';
 
 $kartensetPfad = $_GET['set'] ?? '';
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
-    die('Kartenset nicht gefunden. <a href="index.php">Zurück</a>');
+    die(t('choose_set') . '. <a href="index.php">' . t('back_to_sets') . '</a>');
 }
+$methode = $_GET['methode'] ?? 'punkte';
 
 // Kartenset laden
 $daten = array_map('str_getcsv', file('data/'.$kartensetPfad));
@@ -19,35 +22,33 @@ foreach($daten as $zeile) {
 $progress = loadProgress($kartensetPfad);
 $antworten = $progress['antworten'] ?? [];
 
-// Punktewertung (4er Skala: viel wichtiger = 2 Punkte, etwas wichtiger = 1 Punkt)
-$punkte = [];
-foreach($karten as $id => $k) $punkte[$id] = 0;
-
-foreach($antworten as $antwort) {
-    $id1 = $antwort['id1'];
-    $id2 = $antwort['id2'];
-    $bew = $antwort['bewertung'];
-    if ($bew == 1) { // Karte 1 viel wichtiger
-        $punkte[$id1] += 2;
-    } elseif ($bew == 2) { // Karte 1 etwas wichtiger
-        $punkte[$id1] += 1;
-    } elseif ($bew == 3) { // Karte 2 etwas wichtiger
-        $punkte[$id2] += 1;
-    } elseif ($bew == 4) { // Karte 2 viel wichtiger
-        $punkte[$id2] += 2;
-    }
+// Methoden-Text übersetzbar machen
+switch($methode) {
+    case 'thurstone':
+        $result = thurstone($karten, $antworten);
+        $titel = t('method_thurstone');
+        $text = t('method_thurstone') . ".";
+        break;
+    case 'bradleyterry':
+        $result = bradley_terry($karten, $antworten);
+        $titel = t('method_bradleyterry');
+        $text = t('method_bradleyterry') . ".";
+        break;
+    default:
+        $result = simple_points($karten, $antworten);
+        $titel = t('method_points');
+        $text = t('method_points') . ".";
+        break;
 }
 
-// Rangliste absteigend sortieren
-arsort($punkte);
 $gesamtVergleiche = count($antworten);
 
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?=getLanguage()?>">
 <head>
     <meta charset="UTF-8">
-    <title>Rangreihe – Rankifmy</title>
+    <title><?=$titel?> – Rankifmy</title>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
@@ -71,45 +72,47 @@ $gesamtVergleiche = count($antworten);
     </style>
 </head>
 <body>
-<nav class="navbar navbar-light bg-light mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="index.php">Rankifmy</a>
-    </div>
-</nav>
+<?php include 'navbar.php'; ?>
 <div class="container">
-    <h1>Deine Rangreihe</h1>
-    <p>Basierend auf <b><?=$gesamtVergleiche?></b> Vergleichen (Punktewertung):</p>
-
+    <h1><?=t('ranking')?></h1>
+    <p><?=$text?></p>
+    <div class="mb-3">
+        <b><?=$gesamtVergleiche?></b> <?=t('progress')?>.
+    </div>
+    <div class="mb-3">
+        <a href="results.php?set=<?=urlencode($kartensetPfad)?>&methode=punkte" class="btn btn-outline-primary <?php if($methode=='punkte')echo'active';?>"><?=t('model_points')?></a>
+        <a href="results.php?set=<?=urlencode($kartensetPfad)?>&methode=thurstone" class="btn btn-outline-primary <?php if($methode=='thurstone')echo'active';?>"><?=t('model_thurstone')?></a>
+        <a href="results.php?set=<?=urlencode($kartensetPfad)?>&methode=bradleyterry" class="btn btn-outline-primary <?php if($methode=='bradleyterry')echo'active';?>"><?=t('model_bradleyterry')?></a>
+    </div>
     <?php
-    $maxPunkte = max($punkte) ?: 1;
+    $maxVal = max($result) ?: 1;
     $platz = 1;
-    foreach($punkte as $id => $pkt):
+    foreach($result as $id => $wert):
         $k = $karten[$id];
-        $breite = intval(($pkt / $maxPunkte) * 100);
+        $breite = intval(($wert / $maxVal) * 100);
     ?>
     <div class="mb-2">
-        <div><b>#<?=$platz?></b> <?=htmlspecialchars($k['title'])?> <span class="text-muted">(<?=$k['subtitle']?>)</span></div>
+        <div><b>#<?=$platz?></b> <?=htmlspecialchars($k['title'])?> <span class="text-muted">(<?=htmlspecialchars($k['subtitle'])?>)</span></div>
         <div class="rankbar">
             <div class="rankbar-inner" style="width: <?=$breite?>%;">
-                <?=$pkt?> Punkte
+                <?=round($wert,2)?>
             </div>
         </div>
     </div>
     <?php $platz++; endforeach; ?>
 
     <div class="my-4">
-        <a href="index.php" class="btn btn-secondary">Zurück zur Übersicht</a>
-        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-outline-primary ms-2">Vergleiche wiederholen</a>
+        <a href="index.php" class="btn btn-secondary"><?=t('back_to_sets')?></a>
+        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-outline-primary ms-2"><?=t('repeat_comparisons')?></a>
         <form method="post" class="d-inline">
             <input type="hidden" name="reset" value="1">
-            <button class="btn btn-outline-danger ms-2" name="reset" value="1" onclick="return confirm('Session wirklich löschen?')">Session zurücksetzen</button>
+            <button class="btn btn-outline-danger ms-2" name="reset" value="1" onclick="return confirm('<?=t('reset_confirm')?>')"><?=t('reset_session')?></button>
         </form>
     </div>
 </div>
 <?php
-// Session löschen
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset'])) {
-    saveProgress($kartensetPfad, []); // Session leeren
+    saveProgress($kartensetPfad, []);
     header("Location: compare.php?set=".urlencode($kartensetPfad));
     exit;
 }

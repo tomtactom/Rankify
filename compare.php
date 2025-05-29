@@ -1,11 +1,12 @@
 <?php
+include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
 $kartensetPfad = $_GET['set'] ?? '';
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
-    die('Kartenset nicht gefunden. <a href="index.php">Zurück</a>');
+    die(t('choose_set') . '. <a href="index.php">' . t('back_to_sets') . '</a>');
 }
 
 // Kartenset laden
@@ -22,16 +23,16 @@ $progress = loadProgress($kartensetPfad);
 $paare = $progress['paare'] ?? alleVergleichspaare($ids);
 $antworten = $progress['antworten'] ?? [];
 
-// Wurde eine Antwort übermittelt?
+// Antwort verarbeiten
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id1'], $_POST['id2'], $_POST['bewertung'])) {
     $antworten[] = [
         'id1' => $_POST['id1'],
         'id2' => $_POST['id2'],
         'bewertung' => (int)$_POST['bewertung'],
     ];
-    array_shift($paare); // nächstes Paar
+    array_shift($paare);
     saveProgress($kartensetPfad, ['paare' => $paare, 'antworten' => $antworten]);
-    // Seite neu laden (PRG-Pattern)
+    // Redirect für frisches Laden (PRG)
     header("Location: compare.php?set=".urlencode($kartensetPfad));
     exit;
 }
@@ -39,24 +40,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id1'], $_POST['id2'],
 // Fortschritt
 $gesamt = count(alleVergleichspaare($ids));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
-
 ?>
 <!DOCTYPE html>
-<html lang="de">
+<html lang="<?=getLanguage()?>">
 <head>
     <meta charset="UTF-8">
-    <title>Vergleichen – Rankifmy</title>
+    <title>Rankifmy</title>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-<nav class="navbar navbar-light bg-light mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="index.php">Rankifmy</a>
-    </div>
-</nav>
+<?php include 'navbar.php'; ?>
 <div class="container">
-    <h1>Paarweiser Vergleich</h1>
+    <h1><?=t('progress')?>: <?=round($fortschritt)?>%</h1>
     <div class="mb-3">
         <div class="progress" style="height:1.5rem;">
             <div class="progress-bar" role="progressbar" style="width: <?=round($fortschritt)?>%;" aria-valuenow="<?=round($fortschritt)?>" aria-valuemin="0" aria-valuemax="100">
@@ -67,8 +63,10 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
 
     <?php if (empty($paare)): ?>
         <div class="alert alert-success mt-4">
-            <h4>Fertig!</h4>
-            <p>Alle Vergleiche sind abgeschlossen. <a href="results.php?set=<?=urlencode($kartensetPfad)?>">Ergebnis ansehen</a></p>
+            <h4><?=t('finished')?></h4>
+            <p>
+                <a href="results.php?set=<?=urlencode($kartensetPfad)?>"><?=t('see_results')?></a>
+            </p>
         </div>
     <?php else: ?>
         <?php
@@ -111,10 +109,10 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
                     <button type="submit" name="bewertung" value="4" class="btn btn-outline-primary"><?=t('card2_much')?></button>
                 </div>
             </div>
-
         </form>
     <?php endif; ?>
-    <a href="index.php" class="btn btn-secondary mt-3">Zurück zur Übersicht</a>
+
+    <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
 </div>
 </body>
 </html>
