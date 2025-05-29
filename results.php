@@ -4,6 +4,53 @@ include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/methods.php';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['export_csv'])) {
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=rankifmy_result.csv');
+    echo "Platz;Titel;Untertitel;Wert\n";
+    $platz = 1;
+    foreach($result as $id => $wert) {
+        $k = $karten[$id];
+        echo $platz . ";" . $k['title'] . ";" . $k['subtitle'] . ";" . round($wert,2) . "\n";
+        $platz++;
+    }
+    exit;
+}
+
+// compare.php und results.php
+if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="<?=getLanguage()?>">
+    <head>
+        <meta charset="UTF-8">
+        <title><?=t('error_not_found')?> – Rankifmy</title>
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    </head>
+    <body>
+    <?php include 'navbar.php'; ?>
+    <div class="container">
+        <div class="alert alert-danger mt-5">
+            <?=t('error_no_set')?> <br>
+            <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
+        </div>
+    </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+if (empty($antworten)) {
+    ?>
+    <div class="alert alert-warning mt-5">
+        <?=t('error_no_answers')?> <br>
+        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-primary mt-3"><?=t('repeat_comparisons')?></a>
+        <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
+    </div>
+    <?php
+    exit;
+}
+
 $kartensetPfad = $_GET['set'] ?? '';
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     die(t('choose_set') . '. <a href="index.php">' . t('back_to_sets') . '</a>');
@@ -99,6 +146,10 @@ $gesamtVergleiche = count($antworten);
             </div>
         </div>
     </div>
+    <form method="post" class="d-inline">
+        <button class="btn btn-outline-success ms-2" name="export_csv" value="1">CSV-Export</button>
+    </form>
+
     <?php $platz++; endforeach; ?>
 
     <div class="my-4">

@@ -1,4 +1,5 @@
 <?php
+// Einfache Punktewertung: 2 Punkte für "viel wichtiger", 1 Punkt für "etwas wichtiger"
 function simple_points($karten, $antworten) {
     $punkte = [];
     foreach($karten as $id => $k) $punkte[$id] = 0;
@@ -15,8 +16,8 @@ function simple_points($karten, $antworten) {
     return $punkte;
 }
 
+// Thurstone Case V: z-Werte aus Sieganteilen (viel=1, etwas=0.5), jetzt mit Eidous & Al-Rawwash Approximation
 function thurstone($karten, $antworten) {
-    // 1. Präferenzmatrix aufbauen
     $ids = array_keys($karten);
     $matrix = [];
     foreach($ids as $i) foreach($ids as $j) $matrix[$i][$j] = 0;
@@ -32,7 +33,6 @@ function thurstone($karten, $antworten) {
         }
     }
 
-    // 2. Relativer Sieganteil (pro Paar), dann in z-Werte transformieren
     $z = [];
     foreach($ids as $i) {
         $sum = 0; $n = 0;
@@ -42,9 +42,8 @@ function thurstone($karten, $antworten) {
             $total = $matrix[$i][$j] + $matrix[$j][$i];
             if ($total > 0) {
                 $p = $wins / $total;
-                // Begrenzen um unendlich zu vermeiden
-                $p = max(0.001, min(0.999, $p));
-                $sum += normsinv($p);
+                $p = max(0.001, min(0.999, $p)); // Begrenzung gegen Inf/NaN
+                $sum += eidous_normsinv($p);
                 $n++;
             }
         }
@@ -54,49 +53,20 @@ function thurstone($karten, $antworten) {
     return $z;
 }
 
-// Inverse der Standardnormalverteilungsfunktion (approximativ)
-function normsinv($p) {
-    // Algorithmus von Peter J. Acklam (vereinfachte Version)
-    $a1 = -39.6968302866538; $a2 = 220.946098424521; $a3 = -275.928510446969;
-    $a4 = 138.357751867269; $a5 = -30.6647980661472; $a6 = 2.50662827745924;
-    $b1 = -54.4760987982241; $b2 = 161.585836858041; $b3 = -155.698979859887;
-    $b4 = 66.8013118877197; $b5 = -13.2806815528857;
-    $c1 = -0.00778489400243029; $c2 = -0.322396458041136; $c3 = -2.40075827716184;
-    $c4 = -2.54973253934373; $c5 = 4.37466414146497; $c6 = 2.93816398269878;
-    $d1 = 0.00778469570904146; $d2 = 0.32246712907004; $d3 = 2.445134137143;
-    $d4 = 3.75440866190742;
-    $p_low = 0.02425; $p_high = 1 - $p_low;
-    if ($p < $p_low) {
-        $q = sqrt(-2 * log($p));
-        return ((((( $c1 * $q + $c2 ) * $q + $c3 ) * $q + $c4 ) * $q + $c5 ) * $q + $c6 ) /
-               (((( $d1 * $q + $d2 ) * $q + $d3 ) * $q + $d4 ) * $q + 1);
-    }
-    if ($p > $p_high) {
-        $q = sqrt(-2 * log(1 - $p));
-        return -((((( $c1 * $q + $c2 ) * $q + $c3 ) * $q + $c4 ) * $q + $c5 ) * $q + $c6 ) /
-                (((( $d1 * $q + $d2 ) * $q + $d3 ) * $q + $d4 ) * $q + 1);
-    }
-    $q = $p - 0.5;
-    $r = $q * $q;
-    return ((((( $a1 * $r + $a2 ) * $r + $a3 ) * $r + $a4 ) * $r + $a5 ) * $r + $a6 ) * $q /
-           ((((( $b1 * $r + $b2 ) * $r + $b3 ) * $r + $b4 ) * $r + $b5 ) * $r + 1);
-}
-
+// Bradley-Terry-Modell: Maximum-Likelihood-Schätzung (Minorization-Maximization)
 function bradley_terry($karten, $antworten, $max_iter = 100, $epsilon = 1e-5) {
     $ids = array_keys($karten);
     $thetas = [];
-    foreach($ids as $id) $thetas[$id] = 1.0; // Initial alle gleich stark
+    foreach($ids as $id) $thetas[$id] = 1.0; // Startwerte
     $pair_counts = [];
     foreach($antworten as $a) {
         $id1 = $a['id1']; $id2 = $a['id2']; $bew = $a['bewertung'];
         if ($id1 == $id2) continue;
-        // Siegpunkt-Zuteilung
         if ($bew == 1)      $pair_counts[] = [$id1, $id2, 2, 0];
         elseif ($bew == 2)  $pair_counts[] = [$id1, $id2, 1, 0];
         elseif ($bew == 3)  $pair_counts[] = [$id2, $id1, 1, 0];
         elseif ($bew == 4)  $pair_counts[] = [$id2, $id1, 2, 0];
     }
-    // Minorization-Maximization-Iteration
     for ($iter=0; $iter<$max_iter; $iter++) {
         $prev = $thetas;
         $updates = [];
@@ -115,15 +85,24 @@ function bradley_terry($karten, $antworten, $max_iter = 100, $epsilon = 1e-5) {
             if ($den > 0) $updates[$id] = $thetas[$id] * $num / $den;
             else $updates[$id] = $thetas[$id];
         }
-        // Normieren (optional)
         $sum = array_sum($updates);
         foreach($ids as $id) $thetas[$id] = $updates[$id] / $sum;
-        // Abbruchkriterium
         $delta = 0.0;
         foreach($ids as $id) $delta = max($delta, abs($thetas[$id] - $prev[$id]));
         if ($delta < $epsilon) break;
     }
     arsort($thetas);
     return $thetas;
+}
+
+// Eidous & Al-Rawwash (2022): Präzise Inverse der Standardnormalverteilung
+function eidous_normsinv($p) {
+    // Gilt für p in [0,1], symmetrisch um 0.5
+    if ($p < 0.5) return -eidous_normsinv(1-$p);
+    // d1 wie in der Publikation
+    $d1 = 0.8039 - 0.9446 * $p + 1.5806 * pow($p,2) - 1.7824 * pow($p,4) + 1.5098 * pow($p,6) - 0.5689 * pow($p,8);
+    $inner = 1 - pow(2*($p-0.5),2);
+    if ($inner <= 0) $inner = 1e-16; // numerische Sicherheit für log(0)
+    return sqrt(-1/$d1 * log($inner));
 }
 ?>

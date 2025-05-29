@@ -4,6 +4,30 @@ include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
+// compare.php und results.php
+if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="<?=getLanguage()?>">
+    <head>
+        <meta charset="UTF-8">
+        <title><?=t('error_not_found')?> – Rankifmy</title>
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    </head>
+    <body>
+    <?php include 'navbar.php'; ?>
+    <div class="container">
+        <div class="alert alert-danger mt-5">
+            <?=t('error_no_set')?> <br>
+            <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
+        </div>
+    </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 $kartensetPfad = $_GET['set'] ?? '';
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     die(t('choose_set') . '. <a href="index.php">' . t('back_to_sets') . '</a>');

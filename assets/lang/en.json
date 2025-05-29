@@ -22,5 +22,9 @@
     "back_to_sets": "Back to overview",
     "repeat_comparisons": "Repeat comparisons",
     "reset_session": "Reset session",
-    "reset_confirm": "Really reset session?"
+    "reset_confirm": "Really reset session?",
+    "error_no_set": "No card set selected or found.",
+    "error_no_answers": "You have not made any comparisons yet.",
+    "error_not_found": "Not found.",
+    "back_to_sets": "Back to overview"
 }

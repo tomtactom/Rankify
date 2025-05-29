@@ -22,5 +22,9 @@
     "back_to_sets": "Zurück zur Übersicht",
     "repeat_comparisons": "Vergleiche wiederholen",
     "reset_session": "Session zurücksetzen",
-    "reset_confirm": "Session wirklich löschen?"
+    "reset_confirm": "Session wirklich löschen?",
+    "error_no_set": "Kein Kartenset ausgewählt oder gefunden.",
+    "error_no_answers": "Du hast noch keine Vergleiche durchgeführt.",
+    "error_not_found": "Nicht gefunden.",
+    "back_to_sets": "Zurück zur Übersicht"
 }
