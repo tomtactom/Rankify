@@ -1,8 +1,8 @@
 <?php
-// ------- PARAMETER (anpassbar) ---------
+// ------- PARAMETER ---------
 $WIEDERHOLUNGEN = 2; // Anzahl Wiederholungen pro Paarvergleich
-$INSTRUKTIONS_TEXT = "Hier siehst du gleich immer zwei Karten im direkten Vergleich. Wähle pro Paar, was für dich wichtiger ist! Jede Paarung wird mehrfach angezeigt – manchmal in unterschiedlicher Reihenfolge.";
-// ------- ENDE PARAMETER ---------
+$INSTRUKTIONS_TEXT = "Hier siehst du jeweils zwei Karten im Vergleich. Wähle pro Paar, was für dich wichtiger ist! Jedes Paar wird mehrfach angezeigt – manchmal in unterschiedlicher Reihenfolge.";
+// ------- ENDE PARAMETER ----
 
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
@@ -10,10 +10,7 @@ include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
-
-
-
-// ---------- Hilfsfunktionen ----------
+// ---------- Hilfsfunktion ----------
 function now_millis() {
     return round(microtime(true) * 1000);
 }
@@ -31,12 +28,6 @@ foreach($daten as $zeile) {
     $karten[$zeile[0]] = ['id'=>$zeile[0],'title'=>$zeile[1],'subtitle'=>$zeile[2]];
 }
 $ids = array_keys($karten);
-echo "<pre>";
-print_r($ids);
-print_r(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
-print_r($paare);
-print_r($antworten);
-echo "</pre>";
 
 // ---------- Tiefenprüfung: Mindestens zwei Karten nötig! ----------
 if (count($ids) < 2) {
@@ -62,11 +53,40 @@ if (count($ids) < 2) {
     exit;
 }
 
-// ---------- Session/Progress laden ----------
+// ---------- Progress Reset bei "Neustart" (immer bei neuem Set-Aufruf) ----------
+if (isset($_GET['reset'])) {
+    resetProgress($kartensetPfad);
+    // Um Weiterleitung zu erzwingen (ohne reset-Param):
+    header("Location: compare.php?set=".urlencode($kartensetPfad));
+    exit;
+}
+
+// ---------- Progress laden/initialisieren ----------
 $progress = loadProgress($kartensetPfad);
+// Automatisch zurücksetzen, wenn keine Paare mehr zu vergleichen sind (also: Set abgeschlossen):
+if (
+    (isset($progress['antworten']) && isset($progress['paare']))
+    && count($progress['paare']) === 0
+    && count($progress['antworten']) > 0
+) {
+    resetProgress($kartensetPfad);
+    $progress = loadProgress($kartensetPfad);
+}
+
 $paare = $progress['paare'] ?? alleVergleichspaare($ids, $WIEDERHOLUNGEN);
 $antworten = $progress['antworten'] ?? [];
 $instruktion_gelesen = $progress['instruktion_gelesen'] ?? false;
+
+// Falls Progress gar nicht initialisiert war (neu!), setze Paare initial:
+if (!isset($progress['paare']) || !is_array($progress['paare']) || count($progress['paare']) === 0) {
+    $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
+    $progress['paare'] = $paare;
+    $progress['antworten'] = [];
+    $progress['instruktion_gelesen'] = false;
+    saveProgress($kartensetPfad, $progress);
+    $antworten = [];
+    $instruktion_gelesen = false;
+}
 
 // ---------- Session-Export (JSON) ----------
 if (isset($_GET['export_json'])) {
@@ -183,6 +203,7 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
             <p>
                 <a href="results.php?set=<?=urlencode($kartensetPfad)?>" class="btn btn-success"><?=t('see_results')?></a>
                 <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&export_json=1" class="btn btn-outline-secondary">JSON-Export</a>
+                <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1" class="btn btn-sm btn-outline-primary ms-2"><?=t('instructions_continue') ?? "Nochmal starten"?></a>
             </p>
         </div>
     <?php else: ?>
