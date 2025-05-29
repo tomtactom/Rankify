@@ -10,11 +10,7 @@ include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
-//debu g
-error_log('IDs: '.print_r($ids,true));
-error_log('Paare: '.print_r(alleVergleichspaare($ids, $WIEDERHOLUNGEN),true));
-error_log('Progress-Paare: '.print_r($paare,true));
-error_log('Progress-Antworten: '.print_r($antworten,true));
+
 
 
 // ---------- Hilfsfunktionen ----------
@@ -35,6 +31,12 @@ foreach($daten as $zeile) {
     $karten[$zeile[0]] = ['id'=>$zeile[0],'title'=>$zeile[1],'subtitle'=>$zeile[2]];
 }
 $ids = array_keys($karten);
+echo "<pre>";
+print_r($ids);
+print_r(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
+print_r($paare);
+print_r($antworten);
+echo "</pre>";
 
 // ---------- Tiefenprüfung: Mindestens zwei Karten nötig! ----------
 if (count($ids) < 2) {
