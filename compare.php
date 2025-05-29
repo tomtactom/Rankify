@@ -15,16 +15,6 @@ if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
 $daten = array_map(function($line){ return str_getcsv($line, ';'); }, file('data/'.$kartensetPfad));
 $kopf = array_shift($daten);
 
-// DEBUGGING-AUSGABE BEGINN
-echo "<pre style='background:#fffbe7; color:#111; border:2px solid orange; padding:1em;'>";
-echo "<b>DEBUG: Datei geladen:</b> data/$kartensetPfad\n";
-echo "<b>Rohdaten (var_export):</b>\n";
-var_export($daten);
-echo "\n<b>Kopfzeile:</b>\n";
-var_export($kopf);
-echo "</pre>";
-// DEBUGGING-AUSGABE ENDE
-
 $karten = [];
 foreach($daten as $zeile) {
     // Sicherstellen, dass jede Zeile drei Felder hat!
