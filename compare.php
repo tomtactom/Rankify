@@ -1,4 +1,5 @@
 <?php
+$kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';

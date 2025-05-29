@@ -1,4 +1,3 @@
-<?php include_once 'inc/lang.php'; ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
     <div class="container">
         <a class="navbar-brand fw-bold" href="index.php"><?=t('title')?></a>
