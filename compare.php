@@ -1,4 +1,6 @@
 <?php
+error_log('KartensetPfad: '.$kartensetPfad);
+echo 'DEBUG: '.$kartensetPfad;
 // ABSOLUT KEIN LEERZEICHEN VOR DIESER ZEILE! Keine BOM, keine Kommentare!
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
