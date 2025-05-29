@@ -85,11 +85,24 @@ $avg_time = $antwortzeiten ? round(array_sum($antwortzeiten)/count($antwortzeite
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         body { background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%); min-height: 100vh;}
-        .ranking-card { border-radius: 1rem; box-shadow: 0 2px 10px rgba(70,90,130,0.07); background: #fff; margin-bottom:1.5rem;}
-        .ranking-title { font-weight: bold; color: #2b3472;}
-        .ranking-badge { background:#6281e3;color:#fff; border-radius:1rem;padding:.3em 1em;font-weight:bold;font-size:1.2em;}
-        .statblock {background:#fffde3;padding:1em;border-radius:.8em;}
-        .widerspruch {background:#fbeee8;padding:.7em;border-radius:.7em;border:1px dashed #ebac7c;}
+        .lab-summary { background: #fffbe9; border-radius: 1em; box-shadow:0 1px 10px rgba(180,180,120,.07); padding:1.5em; }
+        .ranking-list { margin-top:2em; }
+        .fancy-rank { background:linear-gradient(90deg,#f8f9fe 0,#fafdff 100%); border-radius:1.1em; box-shadow:0 2px 14px rgba(120,160,200,0.09);}
+        .avatar-badge { border-radius:50%; width:60px;height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center; font-size:1.6em; font-weight:800; box-shadow:0 2px 9px rgba(120,160,200,.11); position:relative;}
+        .avatar-badge .platz { position:absolute;bottom:4px;right:7px;font-size:0.7em;color:#fff;opacity:.88; }
+        .ranking-title { font-size:1.2em;font-weight:700;color:#22407c; }
+        .ranking-desc { color:#4d6789;font-size:.99em; }
+        .score-badge { font-size:1.23em;min-width:68px;text-align:right;font-family:monospace;}
+        .conflicts-box { background:#fff6f3;border:1.5px dashed #e89182;border-radius:.9em;padding:1.2em; }
+        .conflicts-title { font-weight:700; color:#d05454;}
+        .conflict-card { background:#ffe9e6; border-radius:.6em; padding:.7em .8em; margin-bottom:.3em; display:flex;align-items:center;gap:1em;}
+        .conflict-card .votes {font-size:0.97em;color:#9e4d36;}
+        .conflict-card .info {margin-left:auto;font-size:1.15em;opacity:.7;cursor:help;}
+        @media (max-width:650px){
+            .avatar-badge { width:44px;height:44px;font-size:1em;}
+            .lab-summary { padding:0.7em; }
+        }
+
     </style>
 </head>
 <body>
@@ -98,52 +111,66 @@ $avg_time = $antwortzeiten ? round(array_sum($antwortzeiten)/count($antwortzeite
 
     <h2 class="mb-4"><?=t('results')?></h2>
 
-    <div class="statblock mb-4">
-        <b><?=t('summary')??'Zusammenfassung'?>:</b><br>
-        <?=t('total_pairs')?>: <b><?=count($antworten)?></b> <br>
-        <?=t('consistency')?>: <b><?=$konsistenz_rate?> %</b> (<?=$konsistent?>/<?=$paare_gesamt?> <?=t('consistent_pairs')?>)
-        <?php if($konsistenz_rate < 80): ?>
-            <span class="text-danger">&nbsp;<?=t('consistency_warning')??'Viele widersprüchliche Urteile.'?></span>
-        <?php endif; ?>
-        <br>
-        <?=t('bias')?>: <?php
-            if($seitenBias) echo "<span class='text-warning'>$seitenBias</span>";
-            else echo "<span class='text-success'>".(t('no_bias')??'Keine Seitenpräferenz.')."</span>";
-        ?><br>
-        <?=t('avg_time')?>: <?= $avg_time ? $avg_time.'s' : '-' ?>
-        <br>
-        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&export_json=1" class="btn btn-sm btn-outline-secondary mt-2"><?=t('export_data')??'Export (JSON)'?></a>
-        <a href="index.php" class="btn btn-sm btn-secondary mt-2"><?=t('back_to_sets')?></a>
-    </div>
-
-    <h3><?=t('final_ranking')??'Deine Rangfolge'?></h3>
-    <?php $platz = 1; foreach($punkte as $id=>$score): ?>
-        <div class="ranking-card p-3 mb-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="ranking-badge"><?=$platz++?></div>
-                <div>
-                    <div class="ranking-title"><?=htmlspecialchars($karten[$id]['title'])?></div>
-                    <div><?=htmlspecialchars($karten[$id]['subtitle'])?></div>
-                    <div class="small"><?=t('points')?>: <b><?=$score?></b></div>
-                </div>
+    <div class="lab-summary mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-3">
+        <div style="font-size:1.7em;">🧪</div>
+        <div>
+            <div style="font-weight:700;"><?=t('summary')??'Zusammenfassung'?>:</div>
+            <div class="d-flex flex-wrap gap-3 mt-1 align-items-center">
+                <span><?=t('total_pairs')?>: <b><?=count($antworten)?></b></span>
+                <span><?=t('consistency')?>: <span class="badge <?=($konsistenz_rate>=90?'bg-success':($konsistenz_rate>=80?'bg-warning text-dark':'bg-danger'))?>"><?=$konsistenz_rate?> %</span></span>
+                <span><?=t('bias')?>: <?= $seitenBias ? "<span class='badge bg-warning text-dark'>$seitenBias</span>" : "<span class='badge bg-success'>".(t('no_bias')??'Keine Seitenpräferenz.')."</span>"; ?></span>
+                <span><?=t('avg_time')?>: <span class="badge bg-info text-dark"><?=$avg_time?>s</span></span>
             </div>
         </div>
-    <?php endforeach; ?>
+    </div>
+</div>
 
-    <?php if(count($widerspruechlich)): ?>
-        <div class="mt-4">
-            <h5><?=t('inconsistent_pairs')??'Widersprüchliche Paare'?>:</h5>
-            <?php foreach($widerspruechlich as $paar=>$bewertungen):
-                [$id1, $id2] = explode('_', $paar);
-            ?>
-                <div class="widerspruch mb-2">
-                    <b><?=htmlspecialchars($karten[$id1]['title'])?> ↔ <?=htmlspecialchars($karten[$id2]['title'])?></b>
-                    <br>
-                    <?=t('votes')?>: <?=implode(', ', $bewertungen)?>
+<div class="ranking-list mb-5">
+    <?php
+    $platz = 1;
+    $maxScore = max($punkte) ?: 1;
+    $farben = ['#4f8cff','#78d7f7','#72e0a0','#ffd86a','#ff8b94'];
+    foreach($punkte as $id=>$score):
+        $color = $farben[($platz-1)%count($farben)];
+        $percent = round(($score/$maxScore)*100);
+    ?>
+    <div class="ranking-card fancy-rank mb-4 p-3">
+        <div class="d-flex align-items-center gap-3">
+            <div class="avatar-badge" style="background:<?=$color?>">
+                <span style="font-size:1.3em;"><?= $platz==1?'👑':($platz==2?'🥈':($platz==3?'🥉':'🎲')) ?></span>
+                <div class="platz"><?= $platz ?></div>
+            </div>
+            <div class="flex-grow-1">
+                <div class="ranking-title"><?=htmlspecialchars($karten[$id]['title'])?></div>
+                <div class="ranking-desc"><?=htmlspecialchars($karten[$id]['subtitle'])?></div>
+                <div class="progress mt-2" style="height:12px;background:#eaf4ff;">
+                    <div class="progress-bar" style="width:<?=$percent?>%;background:<?=$color?>;transition:width 1s;">
+                        <span class="visually-hidden"><?=$percent?>%</span>
+                    </div>
                 </div>
-            <?php endforeach; ?>
+            </div>
+            <div class="score-badge ms-3" style="color:<?=$color?>"><b><?=$score?></b> <span style="font-size:0.9em;opacity:0.7;">Punkte</span></div>
         </div>
-    <?php endif; ?>
+    </div>
+    <?php $platz++; endforeach; ?>
+</div>
+
+<?php if(count($widerspruechlich)): ?>
+    <div class="conflicts-box mb-5">
+        <div class="conflicts-title mb-2"><span style="font-size:1.3em;">⚡</span> Widersprüchliche Paare:</div>
+        <?php foreach($widerspruechlich as $paar=>$bewertungen):
+            [$id1, $id2] = explode('_', $paar);
+        ?>
+            <div class="conflict-card mb-2">
+                <b><?=htmlspecialchars($karten[$id1]['title'])?> ↔ <?=htmlspecialchars($karten[$id2]['title'])?></b>
+                <span class="votes">Abstimmungen: <?=implode(', ', $bewertungen)?></span>
+                <span class="info" title="Dieses Paar wurde unterschiedlich beurteilt.">❓</span>
+            </div>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
 
 </div>
 </body>
