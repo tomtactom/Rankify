@@ -26,5 +26,6 @@
     "error_no_set": "Kein Kartenset ausgewählt oder gefunden.",
     "error_no_answers": "Du hast noch keine Vergleiche durchgeführt.",
     "error_not_found": "Nicht gefunden.",
-    "back_to_sets": "Zurück zur Übersicht"
+    "back_to_sets": "Zurück zur Übersicht",
+    "error_too_few_cards": "Das Kartenset enthält weniger als zwei Karten und kann nicht verglichen werden."
 }

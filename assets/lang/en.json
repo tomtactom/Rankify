@@ -26,5 +26,6 @@
     "error_no_set": "No card set selected or found.",
     "error_no_answers": "You have not made any comparisons yet.",
     "error_not_found": "Not found.",
-    "back_to_sets": "Back to overview"
+    "back_to_sets": "Back to overview",
+    "error_too_few_cards": "The card set contains less than two cards and cannot be compared.s"
 }

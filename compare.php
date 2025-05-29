@@ -1,12 +1,28 @@
 <?php
+// ABSOLUT KEIN LEERZEICHEN VOR DIESER ZEILE! Keine BOM, keine Kommentare!
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
-$kartensetPfad = $_GET['set'] ?? '';
+// --- Kartenset laden ---
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
+    header("Location: index.php?error=no_set");
+    exit;
+}
+$daten = array_map('str_getcsv', file('data/'.$kartensetPfad));
+$kopf = array_shift($daten);
+$karten = [];
+foreach($daten as $zeile) {
+    // Sicherstellen, dass jede Zeile drei Felder hat!
+    if (count($zeile) < 3) continue;
+    $karten[$zeile[0]] = ['id'=>$zeile[0],'title'=>$zeile[1],'subtitle'=>$zeile[2]];
+}
+$ids = array_keys($karten);
+
+// --- Tiefenprüfung: Mindestens zwei Karten nötig! ---
+if (count($ids) < 2) {
     ?>
     <!DOCTYPE html>
     <html lang="<?=getLanguage()?>">
@@ -18,31 +34,23 @@ if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     <body>
     <?php include 'navbar.php'; ?>
     <div class="container">
-        <div class="alert alert-danger mt-5">
-            <?=t('error_no_set')?> <br>
+        <div class="alert alert-warning mt-5">
+            <?=t('error_no_set')?> (<?=t('error_too_few_cards') ?? "Zu wenig Karten im Set."?>) <br>
             <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
         </div>
     </div>
     </body>
     </html>
-    <?php exit;
+    <?php
+    exit;
 }
 
-// Kartenset laden
-$daten = array_map('str_getcsv', file('data/'.$kartensetPfad));
-$kopf = array_shift($daten);
-$karten = [];
-foreach($daten as $zeile) {
-    $karten[$zeile[0]] = ['id'=>$zeile[0],'title'=>$zeile[1],'subtitle'=>$zeile[2]];
-}
-$ids = array_keys($karten);
-
-// Session laden
+// --- Session laden / Paare erstellen ---
 $progress = loadProgress($kartensetPfad);
 $paare = $progress['paare'] ?? alleVergleichspaare($ids);
 $antworten = $progress['antworten'] ?? [];
 
-// Antwort verarbeiten
+// --- Antwort verarbeiten (immer VOR Output!) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id1'], $_POST['id2'], $_POST['bewertung'])) {
     $antworten[] = [
         'id1' => $_POST['id1'],
@@ -55,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id1'], $_POST['id2'],
     exit;
 }
 
-// Fortschritt
+// --- Fortschritt ---
 $gesamt = count(alleVergleichspaare($ids));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
 ?>
@@ -68,60 +76,18 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        body {
-            background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%);
-            min-height: 100vh;
-        }
-        .progress {
-            background: #e5e9f3;
-            border-radius: 1rem;
-            box-shadow: 0 2px 8px rgba(110,130,160,0.06);
-        }
-        .progress-bar {
-            font-size: 1.11rem;
-            font-weight: bold;
-            background: linear-gradient(90deg,#6281e3 60%,#82c0ff 100%);
-        }
-        .compare-hero {
-            display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem;
-        }
-        .compare-hero-logo {
-            width: 58px; height: 58px; border-radius: 14px;
-            background: #fff; display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; font-weight: bold; color: #6281e3;
-            box-shadow: 0 2px 10px rgba(80,110,200,0.09);
-            border: 2px solid #e4eefe;
-        }
-        .compare-hero-title {
-            font-size: 1.45rem; font-weight: 800; color: #294288; margin-bottom: .4rem;
-        }
-        .compare-hero-text {
-            color: #4d68a5; font-size: 1.1rem;
-        }
-        .card-compare {
-            border-radius: 1.2rem;
-            box-shadow: 0 2px 14px rgba(60,90,140,0.08);
-            background: #fff;
-        }
-        .btn-group-lg>.btn, .btn-lg {
-            padding: 1rem 1.1rem;
-            font-size: 1.1rem;
-        }
-        .btn-outline-primary:focus, .btn-outline-primary.focus {
-            box-shadow: 0 0 0 .2rem #a5c2fa;
-        }
-        .vs-badge {
-            font-size: 1.2rem;
-            background: #b8cdfc;
-            color: #2951a7;
-            border-radius: 50%;
-            padding: .7rem 1.2rem;
-        }
-        @media (max-width: 768px) {
-            .compare-hero { gap: 0.7rem; flex-direction: column; }
-            .compare-hero-logo { width: 46px; height: 46px; font-size: 1.15rem; }
-            .card-compare { margin-bottom: 1.5rem; }
-        }
+        body { background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%); min-height: 100vh;}
+        .progress { background: #e5e9f3; border-radius: 1rem; box-shadow: 0 2px 8px rgba(110,130,160,0.06);}
+        .progress-bar { font-size: 1.11rem; font-weight: bold; background: linear-gradient(90deg,#6281e3 60%,#82c0ff 100%);}
+        .compare-hero { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem;}
+        .compare-hero-logo { width: 58px; height: 58px; border-radius: 14px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; color: #6281e3; box-shadow: 0 2px 10px rgba(80,110,200,0.09); border: 2px solid #e4eefe;}
+        .compare-hero-title { font-size: 1.45rem; font-weight: 800; color: #294288; margin-bottom: .4rem;}
+        .compare-hero-text { color: #4d68a5; font-size: 1.1rem;}
+        .card-compare { border-radius: 1.2rem; box-shadow: 0 2px 14px rgba(60,90,140,0.08); background: #fff;}
+        .btn-group-lg>.btn, .btn-lg { padding: 1rem 1.1rem; font-size: 1.1rem;}
+        .btn-outline-primary:focus, .btn-outline-primary.focus { box-shadow: 0 0 0 .2rem #a5c2fa;}
+        .vs-badge { font-size: 1.2rem; background: #b8cdfc; color: #2951a7; border-radius: 50%; padding: .7rem 1.2rem;}
+        @media (max-width: 768px) { .compare-hero { gap: 0.7rem; flex-direction: column; } .compare-hero-logo { width: 46px; height: 46px; font-size: 1.15rem; } .card-compare { margin-bottom: 1.5rem; } }
     </style>
 </head>
 <body>
@@ -197,3 +163,4 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
 </div>
 </body>
 </html>
+s

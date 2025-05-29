@@ -105,4 +105,17 @@ function eidous_normsinv($p) {
     if ($inner <= 0) $inner = 1e-16; // numerische Sicherheit für log(0)
     return sqrt(-1/$d1 * log($inner));
 }
+
+function alleVergleichspaare($ids) {
+    $paare = [];
+    $n = count($ids);
+    if ($n < 2) return [];
+    for ($i = 0; $i < $n-1; $i++) {
+        for ($j = $i+1; $j < $n; $j++) {
+            $paare[] = [$ids[$i], $ids[$j]];
+        }
+    }
+    shuffle($paare);
+    return $paare;
+}
 ?>
