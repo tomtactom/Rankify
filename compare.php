@@ -7,7 +7,7 @@ include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
-// Reset-Logik: Nur bei explizitem Reset-Button/Link
+// Reset-Logik
 if (isset($_GET['reset'])) {
     resetProgress($kartensetPfad);
     header("Location: compare.php?set=" . urlencode($kartensetPfad));
@@ -54,12 +54,12 @@ if (count($ids) < 2) {
 
 // Fortschritt laden
 $progress = loadProgress($kartensetPfad);
-$antworten = $progress['antworten'] ?? [];
-$paare = $progress['paare'] ?? null;
-$instruktion_gelesen = $progress['instruktion_gelesen'] ?? false;
+$antworten = isset($progress['antworten']) && is_array($progress['antworten']) ? $progress['antworten'] : [];
+$paare = isset($progress['paare']) && is_array($progress['paare']) ? $progress['paare'] : null;
+$instruktion_gelesen = isset($progress['instruktion_gelesen']) ? $progress['instruktion_gelesen'] : false;
 
-// Initialisierung NUR falls kein Fortschritt existiert (d.h. beim allerersten Mal!)
-if (!is_array($paare)) {
+// Initialisierung nur falls KEIN Fortschritt existiert (und nie überschreiben, falls paare bereits leer sind)
+if ($paare === null) {
     $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
     $antworten = [];
     $instruktion_gelesen = false;
@@ -69,6 +69,12 @@ if (!is_array($paare)) {
         'instruktion_gelesen' => $instruktion_gelesen,
     ];
     saveProgress($kartensetPfad, $progress);
+}
+
+// **AB HIER:** Wenn keine Paare mehr übrig sind, zur Ergebnis-Seite und **SOFORT beenden!**
+if (empty($paare)) {
+    header("Location: results.php?set=" . urlencode($kartensetPfad));
+    exit;
 }
 
 // Session-Export (JSON)
@@ -115,12 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fortschritt
 $gesamt = count(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
-
-// WENN keine Paare mehr übrig sind: direkt zur Ergebnis-Seite
-if (empty($paare)) {
-    header("Location: results.php?set=" . urlencode($kartensetPfad));
-    exit;
-}
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
