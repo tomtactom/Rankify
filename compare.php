@@ -1,5 +1,5 @@
 <?php
-$WIEDERHOLUNGEN = 2; // Wie oft jedes Paar verglichen wird
+$WIEDERHOLUNGEN = 2;
 
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
@@ -14,7 +14,6 @@ if (isset($_GET['reset'])) {
     exit;
 }
 
-// Kartenset laden
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     header("Location: index.php?error=no_set");
     exit;
@@ -28,7 +27,6 @@ foreach($daten as $zeile) {
 }
 $ids = array_keys($karten);
 
-// Mindestens zwei Karten notwendig
 if (count($ids) < 2) {
     ?>
     <!DOCTYPE html>
@@ -58,7 +56,6 @@ $antworten = isset($progress['antworten']) && is_array($progress['antworten']) ?
 $paare = isset($progress['paare']) && is_array($progress['paare']) ? $progress['paare'] : null;
 $instruktion_gelesen = isset($progress['instruktion_gelesen']) ? $progress['instruktion_gelesen'] : false;
 
-// Initialisierung nur falls KEIN Fortschritt existiert (und nie überschreiben, falls paare bereits leer sind)
 if ($paare === null) {
     $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
     $antworten = [];
@@ -71,8 +68,8 @@ if ($paare === null) {
     saveProgress($kartensetPfad, $progress);
 }
 
-// **AB HIER:** Wenn keine Paare mehr übrig sind, zur Ergebnis-Seite und **SOFORT beenden!**
-if (empty($paare)) {
+// **FIX: Weiterleitung NUR wenn paare leer UND antworten NICHT leer**
+if (empty($paare) && !empty($antworten)) {
     header("Location: results.php?set=" . urlencode($kartensetPfad));
     exit;
 }
@@ -90,7 +87,6 @@ if (isset($_GET['export_json'])) {
     exit;
 }
 
-// Antwortverarbeitung
 function now_millis() { return round(microtime(true) * 1000); }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -121,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fortschritt
 $gesamt = count(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
+
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
