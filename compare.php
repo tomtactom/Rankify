@@ -10,6 +10,13 @@ include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
 
+//debu g
+error_log('IDs: '.print_r($ids,true));
+error_log('Paare: '.print_r(alleVergleichspaare($ids, $WIEDERHOLUNGEN),true));
+error_log('Progress-Paare: '.print_r($paare,true));
+error_log('Progress-Antworten: '.print_r($antworten,true));
+
+
 // ---------- Hilfsfunktionen ----------
 function now_millis() {
     return round(microtime(true) * 1000);
