@@ -86,6 +86,7 @@ $avg_time = $antwortzeiten ? round(array_sum($antwortzeiten)/count($antwortzeite
     <style>
         body { background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%); min-height: 100vh;}
 <<<<<<< HEAD
+<<<<<<< HEAD
         .lab-summary { background: #fffbe9; border-radius: 1em; box-shadow:0 1px 10px rgba(180,180,120,.07); padding:1.5em; }
         .ranking-list { margin-top:2em; }
         .fancy-rank { background:linear-gradient(90deg,#f8f9fe 0,#fafdff 100%); border-radius:1.1em; box-shadow:0 2px 14px rgba(120,160,200,0.09);}
@@ -104,11 +105,16 @@ $avg_time = $antwortzeiten ? round(array_sum($antwortzeiten)/count($antwortzeite
             .lab-summary { padding:0.7em; }
         }
 =======
+=======
+>>>>>>> parent of 360ffdf (Update results.php)
         .ranking-card { border-radius: 1rem; box-shadow: 0 2px 10px rgba(70,90,130,0.07); background: #fff; margin-bottom:1.5rem;}
         .ranking-title { font-weight: bold; color: #2b3472;}
         .ranking-badge { background:#6281e3;color:#fff; border-radius:1rem;padding:.3em 1em;font-weight:bold;font-size:1.2em;}
         .statblock {background:#fffde3;padding:1em;border-radius:.8em;}
         .widerspruch {background:#fbeee8;padding:.7em;border-radius:.7em;border:1px dashed #ebac7c;}
+<<<<<<< HEAD
+>>>>>>> parent of 360ffdf (Update results.php)
+=======
 >>>>>>> parent of 360ffdf (Update results.php)
     </style>
 </head>
