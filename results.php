@@ -3,8 +3,20 @@ $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
+include 'inc/vergleichslogik.php';
 
-// Kartenset laden
+// Fortschritt laden
+$progress = loadProgress($kartensetPfad);
+$antworten = isset($progress['antworten']) && is_array($progress['antworten']) ? $progress['antworten'] : [];
+$paare = isset($progress['paare']) && is_array($progress['paare']) ? $progress['paare'] : null;
+
+// Wenn keine Antworten und noch Paare übrig, zum Vergleich zurück
+if ((empty($antworten) && is_array($paare) && count($paare) > 0) || $paare === null) {
+    header("Location: compare.php?set=" . urlencode($kartensetPfad));
+    exit;
+}
+
+// Karten laden
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     header("Location: index.php?error=no_set");
     exit;
@@ -18,181 +30,141 @@ foreach($daten as $zeile) {
 }
 $ids = array_keys($karten);
 
-// Fortschritt laden
-$progress = loadProgress($kartensetPfad);
-$antworten = $progress['antworten'] ?? [];
-if (count($antworten) === 0) {
-    header("Location: compare.php?set=" . urlencode($kartensetPfad));
+if (count($ids) < 2) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="<?=getLanguage()?>">
+    <head>
+        <meta charset="UTF-8">
+        <title><?=t('error_not_found')?> – Rankifmy</title>
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    </head>
+    <body>
+    <?php include 'navbar.php'; ?>
+    <div class="container">
+        <div class="alert alert-warning mt-5">
+            <?=t('error_no_set')?> (<?=t('error_too_few_cards') ?? "Zu wenig Karten im Set."?>) <br>
+            <a href="index.php" class="btn btn-secondary mt-3"><?=t('back_to_sets')?></a>
+        </div>
+    </div>
+    </body>
+    </html>
+    <?php
     exit;
 }
 
-// JSON-Export
-if (isset($_GET['export'])) {
-    header('Content-Type: application/json');
-    header('Content-Disposition: attachment; filename="rankifmy_results.json"');
-    echo json_encode([
-        'kartenset' => $kartensetPfad,
-        'antworten' => $antworten,
-        'zeitpunkt' => date('c'),
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-// Auswertung
-$punkte = array_fill_keys($ids, 0);
-$vergleichspaare = [];
-$seiten = ['links'=>0,'rechts'=>0];
-$zeiten = [];
+// Score-Berechnung: Einfache Punktewertung
+// (Erweitern für andere Modelle nach Bedarf)
+$scores = array_fill_keys($ids, 0);
 foreach($antworten as $a) {
-    // Punktesystem für einfache Wertung (kreativ anpassbar)
-    if ($a['bewertung'] <= 2) $punkte[$a['id1']]++;
-    if ($a['bewertung'] >= 3) $punkte[$a['id2']]++;
-    // Widerspruchspaare sammeln
-    $key = $a['id1'].'_'.$a['id2'];
-    if (!isset($vergleichspaare[$key])) $vergleichspaare[$key] = [];
-    $vergleichspaare[$key][] = $a['bewertung'];
-    // Seitenpräferenz
-    if (($a['show_left'] === 'normal' && $a['bewertung'] <= 2) || ($a['show_left'] === 'swapped' && $a['bewertung'] >= 3)) $seiten['links']++;
-    if (($a['show_left'] === 'normal' && $a['bewertung'] >= 3) || ($a['show_left'] === 'swapped' && $a['bewertung'] <= 2)) $seiten['rechts']++;
-    // Antwortzeiten
-    if (!empty($a['zeit_ende']) && !empty($a['zeit_start'])) {
-        $zeiten[] = ($a['zeit_ende'] - $a['zeit_start']) / 1000;
-    }
+    // 1: links viel wichtiger; 2: links etwas wichtiger; 3: rechts etwas wichtiger; 4: rechts viel wichtiger
+    if ($a['bewertung'] == 1)      $scores[$a['id1']] += 2;
+    elseif ($a['bewertung'] == 2)  $scores[$a['id1']] += 1;
+    elseif ($a['bewertung'] == 3)  $scores[$a['id2']] += 1;
+    elseif ($a['bewertung'] == 4)  $scores[$a['id2']] += 2;
 }
+arsort($scores);
 
-// Konsistenz und Widersprüche
-$konsistent = 0; $widerspruechlich = [];
-foreach($vergleichspaare as $paar=>$bew) {
-    if (count(array_unique($bew)) === 1) $konsistent++;
-    else $widerspruechlich[$paar] = $bew;
+// Für Balkenlänge
+$maxScore = max($scores);
+
+// Kleine Figuren (Gamification), du kannst PNGs nutzen!
+$figuren = [
+    0 => "🦁", // Erster Platz
+    1 => "🦉",
+    2 => "🐧",
+    3 => "🐢",
+    4 => "🐱",
+    5 => "🦊",
+    6 => "🐼"
+];
+function getFigur($rank) {
+    global $figuren;
+    return $figuren[$rank] ?? "🎲";
 }
-$gesamtpaare = count($vergleichspaare);
-$konsistenz_rate = $gesamtpaare ? round(100*$konsistent/$gesamtpaare) : 100;
-
-// Sortierung der Karten nach Punktzahl (und Titel als Tie-Breaker)
-arsort($punkte);
-
-// Seitenpräferenz
-if ($seiten['links'] > $seiten['rechts']) $seitenBias = t('left_bias') ?? 'Links-Präferenz';
-elseif ($seiten['links'] < $seiten['rechts']) $seitenBias = t('right_bias') ?? 'Rechts-Präferenz';
-else $seitenBias = false;
-
-// Antwortzeiten
-$avg_time = count($zeiten) ? number_format(array_sum($zeiten)/count($zeiten),2) : '–';
 
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
 <head>
     <meta charset="UTF-8">
-    <title>Ergebnisse – Rankifmy</title>
+    <title><?=t('results')?> – Rankifmy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        body { background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%); min-height: 100vh;}
-        .lab-summary { background: #fffbe9; border-radius: 1.2em; box-shadow:0 1px 13px rgba(180,180,120,.07); padding: 1.6em 2em; margin: 1.3em auto 1.9em auto; max-width: 740px; font-size: 1.07em;}
-        .ranking-list { display: flex; flex-direction: column; align-items: center; margin-top:2.5em; gap: 2.4em;}
-        .fancy-rank { width: 100%; max-width: 600px; background: #fcfcfd; border-radius: 2.2em; box-shadow: 0 2px 18px rgba(120,160,200,0.12); padding: 1.7em 2.2em 1.3em 1.4em; margin-bottom: 0; transition: box-shadow 0.19s, transform 0.14s; display: flex; align-items: center; min-height: 90px; position: relative; animation: fadeInUp .4s cubic-bezier(.57,.2,.27,1) both;}
-        .fancy-rank:hover { box-shadow: 0 6px 36px rgba(80,140,230,0.13); transform: translateY(-2px) scale(1.013);}
-        .avatar-badge { min-width: 72px; min-height: 72px; width: 72px; height: 72px; background: #fff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 2.1em; font-weight: 800; margin-right: 1.5em; margin-left: .1em; box-shadow: 0 2px 14px rgba(150,180,220,0.17); border: 4px solid #fafdff; position: relative; z-index: 2;}
-        .avatar-badge .platz { position: absolute; bottom: 5px; right: 11px; font-size: .68em; color: #fff; opacity: .84; font-weight: 600; background: #4561ff; border-radius: 1.2em; padding: 2px 11px; box-shadow: 0 1px 4px rgba(120,160,200,0.13);}
-        .ranking-title { font-size: 1.27em; font-weight: 800; color: #204478; margin-bottom: .2em; letter-spacing: .012em;}
-        .ranking-desc { color: #4d6789; font-size: .99em; margin-bottom: .31em; opacity: .88;}
-        .score-badge { position: absolute; right: 34px; top: 36px; background: #fff; border-radius: 1.1em; box-shadow: 0 2px 8px rgba(80,100,160,.09); padding: 6px 17px; font-size: 1.18em; font-family: monospace; font-weight: 700; opacity: .96;}
-        .progress { height: 12px; background: #eaf4ff; border-radius: 1em; margin-top: 1.0em;}
-        .progress-bar { border-radius: 1em; transition: width 1.3s cubic-bezier(.77,0,.18,1.01); font-size: 0; min-width: 7%; box-shadow: 0 1px 6px rgba(120,160,200,0.09);}
-        .fancy-rank:nth-child(1) .score-badge, .fancy-rank:nth-child(1) .progress-bar { color:#4f8cff; background:#4f8cff;}
-        .fancy-rank:nth-child(2) .score-badge, .fancy-rank:nth-child(2) .progress-bar { color:#78d7f7; background:#78d7f7;}
-        .fancy-rank:nth-child(3) .score-badge, .fancy-rank:nth-child(3) .progress-bar { color:#72e0a0; background:#72e0a0;}
-        .fancy-rank:nth-child(4) .score-badge, .fancy-rank:nth-child(4) .progress-bar { color:#ffd86a; background:#ffd86a;}
-        .fancy-rank:nth-child(5) .score-badge, .fancy-rank:nth-child(5) .progress-bar { color:#ff8b94; background:#ff8b94;}
-        .fancy-rank:nth-child(1) { border-left: 8px solid #4f8cff; }
-        .fancy-rank:nth-child(2) { border-left: 8px solid #78d7f7; }
-        .fancy-rank:nth-child(3) { border-left: 8px solid #72e0a0; }
-        .fancy-rank:nth-child(4) { border-left: 8px solid #ffd86a; }
-        .fancy-rank:nth-child(5) { border-left: 8px solid #ff8b94; }
-        @media (max-width: 850px) {
-            .fancy-rank { max-width: 96vw; padding: 1.2em 0.7em;}
-            .lab-summary { max-width:98vw;padding:1.2em 0.8em;}
+        body { background: linear-gradient(130deg,#fafdfe 0%,#e5f4fb 100%); min-height: 100vh;}
+        .results-hero { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem;}
+        .results-hero-logo { width: 62px; height: 62px; border-radius: 14px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 2.1rem; font-weight: bold; color: #20bfa9; box-shadow: 0 2px 10px rgba(60,170,200,0.09); border: 2px solid #e0faf7;}
+        .results-hero-title { font-size: 1.6rem; font-weight: 900; color: #175a66; margin-bottom: .4rem;}
+        .results-hero-text { color: #25727e; font-size: 1.12rem;}
+        .rank-card { border-radius: 1.2rem; box-shadow: 0 2px 14px rgba(60,140,90,0.08); background: #fff; margin-bottom: 1.2rem;}
+        .rank-medal { font-size:2.1rem; padding-right:1.1rem; display:inline-block; vertical-align:middle;}
+        .rank-bar { min-width:40px; height: 30px; border-radius: 2rem; background: linear-gradient(90deg,#28d7ae 0%,#8ed9f9 90%); transition: width .3s;}
+        .rank-score { font-size:1.15rem; color:#319497; font-weight:700; padding-left:1.4rem;}
+        .rank-title { font-size:1.12rem; font-weight:800; color:#124154;}
+        .rank-subtitle { font-size:1.01rem; color:#407183;}
+        .results-btns { margin-top:2.5rem; display:flex; gap:1rem; flex-wrap:wrap;}
+        .reset-btn {background:#eb485b;color:#fff;}
+        .reset-btn:hover {background:#ce3442;color:#fff;}
+        @media (max-width: 700px) {
+            .results-hero { flex-direction:column; gap:.8rem;}
+            .results-hero-logo { width:40px;height:40px; font-size:1.3rem;}
         }
-        @media (max-width: 650px) {
-            .avatar-badge { width: 44px; height: 44px; font-size: 1.2em; min-width:44px; min-height:44px;}
-            .fancy-rank { min-height: unset;}
-            .ranking-list { gap: 1.6em;}
-        }
-        @keyframes fadeInUp {
-            0% { opacity: 0; transform: translateY(18px);}
-            100% { opacity: 1; transform: none;}
-        }
-        .conflicts-box { background: #fff6f3; border: 1.5px dashed #e89182; border-radius: .9em; padding: 1.2em; max-width: 600px; margin: 2.4em auto 0 auto; box-shadow: 0 1px 10px rgba(220,140,120,0.03);}
-        .conflicts-title { font-weight:700; color:#d05454;}
-        .conflict-card { background:#ffe9e6; border-radius:.6em; padding:.7em .8em; margin-bottom:.3em; display:flex;align-items:center;gap:1em;}
-        .conflict-card .votes {font-size:0.97em;color:#9e4d36;}
-        .conflict-card .info {margin-left:auto;font-size:1.15em;opacity:.7;cursor:help;}
     </style>
 </head>
 <body>
 <?php include 'navbar.php'; ?>
 <div class="container py-3">
-    <h1 class="mb-4"><?=t('results_title') ?? 'Ergebnisse'?></h1>
 
-    <div class="lab-summary mb-4">
-        <b><?=t('summary')??'Zusammenfassung:'?></b><br>
-        Vergleiche insgesamt: <b><?=count($antworten)?></b>
-        Konsistenz: <span class="badge <?=($konsistenz_rate>=90?'bg-success':($konsistenz_rate>=80?'bg-warning text-dark':'bg-danger'))?>"><?=$konsistenz_rate?> %</span>
-        Seitenpräferenz: <?= $seitenBias ? "<span class='badge bg-warning text-dark'>$seitenBias</span>" : "<span class='badge bg-success'>".(t('no_bias')??'Keine Seitenpräferenz')."</span>"; ?>
-        Ø Antwortzeit pro Vergleich: <span class="badge bg-info text-dark"><?=$avg_time?>s</span>
-        <div class="d-flex flex-wrap gap-2 mt-2">
-            <a href="index.php" class="btn btn-secondary"><?=t('back_to_sets')?></a>
-            <a href="results.php?set=<?=urlencode($kartensetPfad)?>&export=1" class="btn btn-outline-secondary">Daten exportieren</a>
-            <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1" class="btn btn-outline-primary ms-2">Set neu starten</a>
+    <!-- Hero-Section -->
+    <div class="results-hero">
+        <div class="results-hero-logo" aria-label="Logo">R</div>
+        <div>
+            <div class="results-hero-title"><?=t('results') ?? "Dein Ergebnis"?></div>
+            <div class="results-hero-text"><?=t('results_subtitle') ?? "Deine individuelle Rangfolge aus deinen Vergleichen."?></div>
         </div>
     </div>
 
-    <div class="ranking-list mb-5">
-        <?php
-        $platz = 1;
-        $maxScore = max($punkte) ?: 1;
-        foreach($punkte as $id=>$score):
-            $percent = round(($score/$maxScore)*100);
-            $emoji = $platz==1?'👑':($platz==2?'🥈':($platz==3?'🥉':'🎲'));
+    <!-- RANGLISTE -->
+    <div class="mb-5">
+    <?php
+    $rank = 0;
+    foreach ($scores as $id => $score):
+        $karte = $karten[$id];
+        $barWidth = $maxScore > 0 ? (round($score / $maxScore * 100)) : 0;
         ?>
-        <div class="ranking-card fancy-rank mb-4 p-3">
-            <div class="d-flex align-items-center gap-3">
-                <div class="avatar-badge">
-                    <span><?= $emoji ?></span>
-                    <div class="platz"><?= $platz ?></div>
-                </div>
-                <div class="flex-grow-1">
-                    <div class="ranking-title"><?=htmlspecialchars($karten[$id]['title'])?></div>
-                    <div class="ranking-desc"><?=htmlspecialchars($karten[$id]['subtitle'])?></div>
-                    <div class="progress mt-2" style="height:12px;background:#eaf4ff;">
-                        <div class="progress-bar" style="width:<?=$percent?>%">
-                            <span class="visually-hidden"><?=$percent?>%</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="score-badge ms-3"><?=$score?> <span style="font-size:0.9em;opacity:0.7;">Punkte</span></div>
+        <div class="rank-card p-3 d-flex align-items-center">
+            <span class="rank-medal"><?=getFigur($rank)?></span>
+            <div class="flex-grow-1">
+                <div class="rank-title"><?=htmlspecialchars($karte['title'])?></div>
+                <div class="rank-subtitle"><?=htmlspecialchars($karte['subtitle'])?></div>
+                <div class="rank-bar mt-2 mb-2" style="width:<?=$barWidth?>%"></div>
             </div>
+            <span class="rank-score"><?=$score?></span>
         </div>
-        <?php $platz++; endforeach; ?>
+    <?php $rank++; endforeach; ?>
     </div>
 
-    <?php if(count($widerspruechlich)): ?>
-        <div class="conflicts-box mb-5">
-            <div class="conflicts-title mb-2"><span style="font-size:1.3em;">⚡</span> Widersprüchliche Paare:</div>
-            <?php foreach($widerspruechlich as $paar=>$bewertungen):
-                [$id1, $id2] = explode('_', $paar);
-            ?>
-                <div class="conflict-card mb-2">
-                    <b><?=htmlspecialchars($karten[$id1]['title'])?> ↔ <?=htmlspecialchars($karten[$id2]['title'])?></b>
-                    <span class="votes">Abstimmungen: <?=implode(', ', $bewertungen)?></span>
-                    <span class="info" title="Dieses Paar wurde unterschiedlich beurteilt.">❓</span>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+    <!-- BUTTONS -->
+    <div class="results-btns">
+        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1" class="btn reset-btn"><?=t('restart_set') ?? "Set neustarten"?></a>
+        <a href="index.php" class="btn btn-secondary"><?=t('back_to_sets')?></a>
+        <a href="results.php?set=<?=urlencode($kartensetPfad)?>&export_json=1" class="btn btn-info"><?=t('export_results') ?? "Ergebnisse exportieren"?></a>
+    </div>
 </div>
 </body>
 </html>
+<?php
+// Export-Funktionalität (JSON)
+if (isset($_GET['export_json'])) {
+    header('Content-Type: application/json');
+    header('Content-Disposition: attachment; filename="rankifmy_results.json"');
+    echo json_encode([
+        'kartenset' => $kartensetPfad,
+        'scores' => $scores,
+        'antworten' => $antworten,
+        'zeitpunkt' => date('c'),
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+?>
