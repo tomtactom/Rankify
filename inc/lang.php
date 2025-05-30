@@ -55,6 +55,8 @@ $t = [
         'results_subtitle' => 'Deine individuelle Rangfolge auf Basis deiner Vergleiche.',
         'restart_set' => 'Set neu starten',
         'export_results' => 'Ergebnisse exportieren',
+        'conflict_pairs_title' => 'Widersprüchliche Paare entdeckt!',
+        'conflict_pairs_explainer' => 'Für diese Kartenpaare hast du in verschiedenen Durchgängen unterschiedlich abgestimmt. Das kommt vor – vielleicht weil die Karten ähnlich sind, du dir unsicher warst oder deine Bewertung variiert hat.<br><b>Was tun?</b> Du kannst das Set neu starten und die Paare nochmal vergleichen, falls du ein eindeutigeres Ergebnis möchtest. Ansonsten zeigen wir dir trotzdem die beste Schätzung deiner Rangfolge.',
 
     ],
     'en' => [

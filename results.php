@@ -132,9 +132,41 @@ $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : nul
         .results-btns { margin-top:2.5rem; display:flex; gap:1rem; flex-wrap:wrap;}
         .reset-btn {background:#eb485b;color:#fff;}
         .reset-btn:hover {background:#ce3442;color:#fff;}
-        .conflict-box { background: #ffeae6; border:1px dashed #fd9b89; border-radius:1.1em; padding:1em; margin-top:2.5em;}
-        .conflict-title { font-weight:bold; color:#ce3442;}
-        .conflict-pair { margin-bottom:.7em;}
+        /* Konfliktbox */
+        .conflict-box {
+            background: #fff3ee;
+            border: 2px dashed #fd9b89;
+            border-radius: 1.15em;
+            padding: 1.4em 1.4em 1.1em 1.4em;
+            margin-top: 2.5em;
+            box-shadow: 0 2px 12px rgba(253,155,137,0.05);
+        }
+        .conflict-title {
+            font-weight: bold;
+            color: #e75a3d;
+            margin-bottom: .3em;
+            font-size: 1.15em;
+        }
+        .conflict-explainer {
+            background: #fff7f3;
+            border-left: 4px solid #fd9b89;
+            border-radius: .4em;
+            padding: .7em 1em;
+            margin-bottom: 1em;
+            font-size: 1em;
+            color: #ad3a22;
+        }
+        .conflict-pair-row {
+            padding: .3em .1em .2em .2em;
+            display: flex;
+            align-items: flex-start;
+        }
+        .conflict-icon {
+            font-size:1.18em;
+            color: #e7927a;
+            margin-top: 2px;
+            margin-right: 10px;
+        }
         @media (max-width: 700px) {
             .results-hero { flex-direction:column; gap:.8rem;}
             .results-hero-logo { width:40px;height:40px; font-size:1.3rem;}
@@ -149,10 +181,10 @@ $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : nul
 
     <!-- Zusammenfassung oben -->
     <div class="summary-box">
-        <b><?=t('summary') ?? "Zusammenfassung"?>:</b><br>
-        <?=t('total_comparisons') ?? "Vergleiche insgesamt"?>: <b><?=$totalVergleiche?></b>
-        &nbsp; | &nbsp;<?=t('consistency')?>: <span style="background:#ffd55b;padding:0 .4em;border-radius:.3em;"><?=$konsistenz?> %</span>
-        &nbsp; | &nbsp;<?=t('avg_time')?>: <span style="background:#b7e5f6;padding:0 .4em;border-radius:.3em;"><?=($avgTime !== null ? $avgTime."s" : "-")?></span>
+        <b><?=t('summary') ?: "Zusammenfassung"?>:</b><br>
+        <?=t('total_comparisons') ?: "Anzahl der Vergleiche"?>: <b><?=$totalVergleiche?></b>
+        &nbsp; | &nbsp;<?=t('consistency') ?: "Konsistenz"?>: <span style="background:#ffd55b;padding:0 .4em;border-radius:.3em;"><?=$konsistenz?> %</span>
+        &nbsp; | &nbsp;<?=t('avg_time') ?: "Ø Antwortzeit"?>: <span style="background:#b7e5f6;padding:0 .4em;border-radius:.3em;"><?=($avgTime !== null ? $avgTime."s" : "-")?></span>
     </div>
 
     <!-- Hero-Section -->
@@ -160,7 +192,7 @@ $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : nul
         <div class="results-hero-logo" aria-label="Logo">R</div>
         <div>
             <div class="results-hero-title"><?=t('results') ?: "Ergebnisse"?></div>
-            <div class="results-hero-text"><?=t('results_subtitle') ?: "Deine individuelle Rangfolge aus deinen Vergleichen."?></div>
+            <div class="results-hero-text"><?=t('results_subtitle') ?: "Deine individuelle Rangfolge auf Basis deiner Vergleiche."?></div>
         </div>
     </div>
 
@@ -188,29 +220,40 @@ $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : nul
 
     <!-- BUTTONS -->
     <div class="results-btns">
-        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1" class="btn reset-btn"><?=t('restart_set') ?: "Set neustarten"?></a>
+        <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1" class="btn reset-btn"><?=t('restart_set') ?: "Set neu starten"?></a>
         <a href="index.php" class="btn btn-secondary"><?=t('back_to_sets') ?: "Zurück zur Übersicht"?></a>
         <a href="results.php?set=<?=urlencode($kartensetPfad)?>&export_json=1" class="btn btn-info"><?=t('export_results') ?: "Ergebnisse exportieren"?></a>
     </div>
 
     <!-- KONFLIKTE -->
     <?php if(count($konflikte) > 0): ?>
-    <div class="conflict-box mt-5">
-        <div class="conflict-title">Widersprüchliche Paare:</div>
-        <?php foreach($konflikte as $key => $counts):
-            $parts = explode('_',$key);
-            $n1 = $karten[$parts[0]]['title'] ?? $parts[0];
-            $n2 = $karten[$parts[1]]['title'] ?? $parts[1];
-            ?>
-            <div class="conflict-pair">
-                <b><?=htmlspecialchars($n1)?> ↔ <?=htmlspecialchars($n2)?></b>
-                &nbsp; Abstimmungen:
-                <?php foreach($counts as $wert=>$anz): ?>
-                    <span><?=htmlspecialchars($wert)?> × <?=htmlspecialchars($anz)?></span>
-                <?php endforeach; ?>
+        <div class="conflict-box mt-5">
+            <div class="conflict-title mb-2">
+                <span style="font-size:1.25em;vertical-align:middle;">⚠️</span>
+                <?=t('conflict_pairs_title') ?: "Widersprüchliche Paare entdeckt!"?>
             </div>
-        <?php endforeach; ?>
-    </div>
+            <div class="conflict-explainer mb-3">
+                <?=t('conflict_pairs_explainer') ?:
+                "Für diese Kartenpaare hast du in verschiedenen Durchgängen unterschiedlich abgestimmt. Das kommt vor – vielleicht weil die Karten ähnlich sind, du dir unsicher warst oder deine Bewertung variiert hat.<br>
+                <b>Was tun?</b> Du kannst das Set neu starten und die Paare nochmal vergleichen, falls du ein eindeutigeres Ergebnis möchtest. Ansonsten zeigen wir dir trotzdem die beste Schätzung deiner Rangfolge."
+                ?>
+            </div>
+            <?php foreach($konflikte as $key => $counts):
+                $parts = explode('_',$key);
+                $n1 = $karten[$parts[0]]['title'] ?? $parts[0];
+                $n2 = $karten[$parts[1]]['title'] ?? $parts[1];
+                $countstr = [];
+                foreach($counts as $wert=>$anz) $countstr[] = "$wert×$anz";
+                ?>
+                <div class="conflict-pair-row mb-2">
+                    <span class="conflict-icon">🔄</span>
+                    <div>
+                        <b><?=htmlspecialchars($n1)?> <span style="color:#888;">&#8596;</span> <?=htmlspecialchars($n2)?></b>
+                        <span style="color:#666;font-size:.98em;">Abstimmungen: <?=implode(" · ", $countstr)?></span>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 
 </div>
