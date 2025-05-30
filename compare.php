@@ -194,6 +194,14 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
     }
 
     if (!$valide) {
+      // ==== Debug-Ausgabe: ====
+    echo "<div style='background:#fff3cd;color:#856404;padding:1.2em;margin:2em 0;border-radius:10px;font-family:monospace;'>";
+    echo "<b>Debug-Infos:</b><br>";
+    echo "<b>\$paare:</b><pre>" . htmlspecialchars(print_r($paare, true)) . "</pre>";
+    echo "<b>\$karten:</b><pre>" . htmlspecialchars(print_r($karten, true)) . "</pre>";
+    echo "<b>\$ids:</b><pre>" . htmlspecialchars(print_r($ids, true)) . "</pre>";
+    echo "</div>";
+    // ==== Ende Debug-Ausgabe ====
         ?>
         <div class="alert alert-danger mt-5">
             <b>Fehler:</b> Die Vergleichspaare sind ungültig oder unvollständig.<br>
