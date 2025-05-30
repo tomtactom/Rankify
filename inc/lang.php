@@ -38,10 +38,10 @@ $t = [
         'instructions_title' => 'Kurze Instruktion',
         'instructions_text' => 'Bitte vergleiche jeweils die beiden Karten und entscheide, welche dir wichtiger ist. Jedes Paar kann mehrmals auftauchen.',
         'instructions_continue' => 'Starten',
-        'card1_much' => 'Links: deutlich wichtiger',
-        'card1_some' => 'Links: eher wichtiger',
-        'card2_some' => 'Rechts: eher wichtiger',
-        'card2_much' => 'Rechts: deutlich wichtiger',
+        'card1_much' => 'deutlich wichtiger',
+        'card1_some' => 'eher wichtiger',
+        'card2_some' => 'eher wichtiger',
+        'card2_much' => 'deutlich wichtiger',
         'comparison_question' => 'Welches ist für dich wichtiger?',
         // Fehlertexte
         'error_no_set' => 'Kein Kartenset ausgewählt oder gefunden.',
@@ -50,6 +50,12 @@ $t = [
         // Bias
         'bias_left' => 'Du hast auffällig häufig die linke Karte bevorzugt.',
         'bias_right' => 'Du hast auffällig häufig die rechte Karte bevorzugt.',
+
+        'total_comparisons' => 'Anzahl der Vergleiche',
+        'results_subtitle' => 'Deine individuelle Rangfolge auf Basis deiner Vergleiche.',
+        'restart_set' => 'Set neu starten',
+        'export_results' => 'Ergebnisse exportieren',
+
     ],
     'en' => [
         // Navigation, General
