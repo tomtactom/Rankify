@@ -1,5 +1,4 @@
 <?php
-// --------- EXPORT zuerst prüfen, noch bevor irgendwas anderes ausgegeben wird! -----------
 if (isset($_GET['export_json']) && !headers_sent()) {
     $kartensetPfad = $_GET['set'] ?? '';
     include 'inc/lang.php';
@@ -10,7 +9,6 @@ if (isset($_GET['export_json']) && !headers_sent()) {
     $progress = loadProgress($kartensetPfad);
     $antworten = isset($progress['antworten']) && is_array($progress['antworten']) ? $progress['antworten'] : [];
 
-    // Karten laden für Export
     if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
         http_response_code(404);
         exit;
@@ -43,12 +41,15 @@ if (isset($_GET['export_json']) && !headers_sent()) {
     exit;
 }
 
-// --------- AB HIER REGULÄRE AUSGABE ---------
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
+
+if (!function_exists('langf')) {
+    function langf($text, ...$args) { return vsprintf($text, $args); }
+}
 
 // Fortschritt laden
 $progress = loadProgress($kartensetPfad);
@@ -60,7 +61,6 @@ if ((empty($antworten) && is_array($paare) && count($paare) > 0) || $paare === n
     exit;
 }
 
-// Karten laden
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     header("Location: index.php?error=no_set");
     exit;
@@ -156,9 +156,9 @@ elseif (strpos($kartensetPfad, 'thurstone/') === 0) $method = 'thurstone';
 elseif (strpos($kartensetPfad, 'bradleyterry/') === 0) $method = 'bradleyterry';
 else $method = 'punkte'; // Fallback
 
-// Erzeugung Rangreihe
-$ergebnisText_de = t("apa_ranking_head_de") . "\n";
-$ergebnisText_en = t("apa_ranking_head_en") . "\n";
+// Rangliste generieren
+$ergebnisText_de = "";
+$ergebnisText_en = "";
 $platz = 1;
 foreach($scores as $id => $score) {
     $karte = $karten[$id];
@@ -166,33 +166,32 @@ foreach($scores as $id => $score) {
     $ergebnisText_en .= "{$platz}. {$karte['title']} ({$karte['subtitle']}) – {$score} points\n";
     $platz++;
 }
-// Konflikte
-$konfliktBemerkung_de = "";
-$konfliktBemerkung_en = "";
-if (count($konflikte) > 0) {
-    $konfliktBemerkung_de = t('apa_conflict_hint_de', [], count($konflikte));
-    $konfliktBemerkung_en = t('apa_conflict_hint_en', [], count($konflikte));
-}
-// Antwortzeit
-$antwortzeitHinweis_de = ($avgTime !== null) ? t('apa_avgtime_de', [], $avgTime) : "";
-$antwortzeitHinweis_en = ($avgTime !== null) ? t('apa_avgtime_en', [], $avgTime) : "";
 
-// Gesamtausgabe (aus lang.php)
+// Alle Ausgabebestandteile korrekt ersetzen
+$vergleichsText_de = langf(t("apa_summary_de"), $totalVergleiche, $konsistenz);
+$antwortzeitHinweis_de = ($avgTime !== null) ? langf(t('apa_avgtime_de'), $avgTime) : "";
+$konfliktBemerkung_de = (count($konflikte) > 0) ? langf(t('apa_conflict_hint_de'), count($konflikte)) : "";
+
+$vergleichsText_en = langf(t("apa_summary_en"), $totalVergleiche, $konsistenz);
+$antwortzeitHinweis_en = ($avgTime !== null) ? langf(t('apa_avgtime_en'), $avgTime) : "";
+$konfliktBemerkung_en = (count($konflikte) > 0) ? langf(t('apa_conflict_hint_en'), count($konflikte)) : "";
+
+// Endgültige Ausgabe für beide Sprachen
 $fullAPA_de =
     t("apa_method_{$method}_de") . "\n\n"
-    . t("apa_summary_de", [], [$totalVergleiche, $konsistenz])
-    . "\n" . $antwortzeitHinweis_de
-    . "\n" . $konfliktBemerkung_de
-    . "\n" . $ergebnisText_de
-    . "\n" . t("apa_lit_{$method}");
+    . $vergleichsText_de . "\n"
+    . ($antwortzeitHinweis_de ? $antwortzeitHinweis_de . "\n" : "")
+    . ($konfliktBemerkung_de ? $konfliktBemerkung_de . "\n" : "")
+    . t("apa_ranking_head_de") . "\n" . $ergebnisText_de . "\n"
+    . t("apa_lit_{$method}");
 
 $fullAPA_en =
     t("apa_method_{$method}_en") . "\n\n"
-    . t("apa_summary_en", [], [$totalVergleiche, $konsistenz])
-    . "\n" . $antwortzeitHinweis_en
-    . "\n" . $konfliktBemerkung_en
-    . "\n" . $ergebnisText_en
-    . "\n" . t("apa_lit_{$method}");
+    . $vergleichsText_en . "\n"
+    . ($antwortzeitHinweis_en ? $antwortzeitHinweis_en . "\n" : "")
+    . ($konfliktBemerkung_en ? $konfliktBemerkung_en . "\n" : "")
+    . t("apa_ranking_head_en") . "\n" . $ergebnisText_en . "\n"
+    . t("apa_lit_{$method}");
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
