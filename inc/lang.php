@@ -1,127 +1,137 @@
 <?php
-// KEIN LEERZEICHEN/BOM vor dieser Zeile!
+// Sprachdatei für Rankifmy – DE & EN
 
-// Setze die Sprache aus Cookie oder Standard
-function getLanguage() {
-    if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], ['de','en'])) {
-        return $_COOKIE['lang'];
-    }
-    // Default: Deutsch
-    return 'de';
+function t($key) {
+    global $lang;
+    return $lang[$key] ?? $key;
 }
 
-$lang = getLanguage();
+// Optionale Hilfsfunktion für Platzhalter
+if (!function_exists('langf')) {
+    function langf($text, ...$args) {
+        return vsprintf($text, $args);
+    }
+}
 
-// Übersetzungen
-$t = [
-    'de' => [
-        // Navigation, Allgemein
-        'sets_overview' => 'Übersicht',
-        'progress' => 'Fortschritt',
-        'back_to_sets' => 'Zurück zur Übersicht',
-        'finished' => 'Fertig!',
-        'see_results' => 'Ergebnisse ansehen',
-        'results' => 'Ergebnisse',
-        'final_ranking' => 'Deine Rangfolge',
-        'points' => 'Punkte',
-        'export_data' => 'Daten exportieren',
-        'avg_time' => 'Ø Antwortzeit pro Vergleich',
-        'bias' => 'Seitenpräferenz',
-        'no_bias' => 'Keine Seitenpräferenz',
-        'summary' => 'Zusammenfassung',
-        'total_pairs' => 'Vergleiche insgesamt',
-        'consistent_pairs' => 'Paare konsistent',
-        'inconsistent_pairs' => 'Widersprüchliche Paare',
-        'votes' => 'Abstimmungen',
-        'consistency' => 'Konsistenz',
-        'consistency_warning' => 'Viele widersprüchliche Urteile.',
-        'instructions_title' => 'Kurze Instruktion',
-        'instructions_text' => 'Bitte vergleiche jeweils die beiden Karten und entscheide, welche dir wichtiger ist. Jedes Paar kann mehrmals auftauchen.',
-        'instructions_continue' => 'Starten',
-        'card1_much' => 'deutlich wichtiger',
-        'card1_some' => 'eher wichtiger',
-        'card2_some' => 'eher wichtiger',
-        'card2_much' => 'deutlich wichtiger',
-        'comparison_question' => 'Welches ist für dich wichtiger?',
-        // Fehlertexte
-        'error_no_set' => 'Kein Kartenset ausgewählt oder gefunden.',
-        'error_not_found' => 'Fehler',
-        'error_too_few_cards' => 'Das Kartenset enthält weniger als zwei Karten und kann nicht verglichen werden.',
-        // Bias
-        'bias_left' => 'Du hast auffällig häufig die linke Karte bevorzugt.',
-        'bias_right' => 'Du hast auffällig häufig die rechte Karte bevorzugt.',
+// ----------------------
+//      DEUTSCH
+// ----------------------
 
-        'total_comparisons' => 'Anzahl der Vergleiche',
-        'results_subtitle' => 'Deine individuelle Rangfolge auf Basis deiner Vergleiche.',
-        'restart_set' => 'Set neu starten',
-        'export_results' => 'Ergebnisse exportieren',
-        'conflict_pairs_title' => 'Widersprüchliche Paare entdeckt!',
-        'conflict_pairs_explainer' => 'Für diese Kartenpaare hast du in verschiedenen Durchgängen unterschiedlich abgestimmt. Das kommt vor – vielleicht weil die Karten ähnlich sind, du dir unsicher warst oder deine Bewertung variiert hat.<br><b>Was tun?</b> Du kannst das Set neu starten und die Paare nochmal vergleichen, falls du ein eindeutigeres Ergebnis möchtest. Ansonsten zeigen wir dir trotzdem die beste Schätzung deiner Rangfolge.',
-        'apa_method_punkte_de' => 'Die Rangfolge wurde mit einer einfachen Punktewertung aus paarweisen Vergleichen ermittelt.',
-        'apa_method_thurstone_de' => 'Die Rangfolge wurde nach Thurstone Case V mittels paarweiser Vergleiche erstellt.',
-        'apa_method_bradleyterry_de' => 'Die Rangfolge wurde mit dem Bradley-Terry-Modell aus paarweisen Vergleichen berechnet.',
-        'apa_summary_de' => 'Es wurden insgesamt %s Paarvergleiche durchgeführt. Die Konsistenz der Bewertungen beträgt %s%%.',
-        'apa_avgtime_de' => 'Durchschnittliche Antwortzeit pro Vergleich: %s Sekunden.',
-        'apa_conflict_hint_de' => 'Hinweis: Es wurden widersprüchliche Bewertungen bei %s Paaren gefunden.',
-        'apa_ranking_head_de' => 'Individuelle Rangreihe mit Punktwerten:',
-        'apa_lit_punkte' => "Literatur: Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
-        'apa_lit_thurstone' => "Literatur: Thurstone, L.L. (1927). A Law of Comparative Judgment. Psychological Review, 34, 273–286. Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
-        'apa_lit_bradleyterry' => "Literatur: Bradley, R. A., & Terry, M. E. (1952). Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons. Biometrika, 39(3/4), 324-345. Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
+$lang = [
+    // Navigation & Buttons
+    'results'           => 'Ergebnisse',
+    'results_subtitle'  => 'Deine individuelle Rangfolge auf Basis deiner Vergleiche.',
+    'back_to_sets'      => 'Zurück zur Übersicht',
+    'restart_set'       => 'Set neu starten',
+    'export_results'    => 'Ergebnisse exportieren',
+    'copy_output'       => 'Kopieren',
+    'summary'           => 'Zusammenfassung',
+    'total_comparisons' => 'Anzahl der Vergleiche',
+    'consistency'       => 'Konsistenz',
+    'avg_time'          => 'Ø Antwortzeit',
 
-    ],
-    'en' => [
-        // Navigation, General
-        'sets_overview' => 'Overview',
-        'progress' => 'Progress',
-        'back_to_sets' => 'Back to overview',
-        'finished' => 'Finished!',
-        'see_results' => 'View results',
-        'results' => 'Results',
-        'final_ranking' => 'Your ranking',
-        'points' => 'Points',
-        'export_data' => 'Export data',
-        'avg_time' => 'Ø Response time per comparison',
-        'bias' => 'Side preference',
-        'no_bias' => 'No side preference',
-        'summary' => 'Summary',
-        'total_pairs' => 'Total comparisons',
-        'consistent_pairs' => 'Consistent pairs',
-        'inconsistent_pairs' => 'Inconsistent pairs',
-        'votes' => 'Votes',
-        'consistency' => 'Consistency',
-        'consistency_warning' => 'Many inconsistent decisions.',
-        'instructions_title' => 'Short instruction',
-        'instructions_text' => 'Please compare the two cards and decide which is more important to you. Each pair can appear multiple times.',
-        'instructions_continue' => 'Start',
-        'card1_much' => 'Left: much more important',
-        'card1_some' => 'Left: rather more important',
-        'card2_some' => 'Right: rather more important',
-        'card2_much' => 'Right: much more important',
-        'comparison_question' => 'Which is more important to you?',
-        // Errors
-        'error_no_set' => 'No card set selected or found.',
-        'error_not_found' => 'Error',
-        'error_too_few_cards' => 'The card set contains less than two cards and cannot be compared.',
-        // Bias
-        'bias_left' => 'You frequently preferred the left card.',
-        'bias_right' => 'You frequently preferred the right card.',
+    // Konfliktpaare
+    'conflict_pairs_title'     => 'Widersprüchliche Paare entdeckt!',
+    'conflict_pairs_explainer' => 'Für diese Kartenpaare hast du in verschiedenen Durchgängen unterschiedlich abgestimmt. Das kommt vor – vielleicht weil die Karten ähnlich sind, du dir unsicher warst oder deine Bewertung variiert hat.<br>
+        <b>Was tun?</b> Du kannst das Set neu starten und die Paare nochmal vergleichen, falls du ein eindeutigeres Ergebnis möchtest. Ansonsten zeigen wir dir trotzdem die beste Schätzung deiner Rangfolge.',
 
-        'apa_method_punkte_en' => 'Ranking was determined using simple point scoring from pairwise comparisons.',
-        'apa_method_thurstone_en' => 'Ranking was determined by Thurstone’s Case V paired comparison model.',
-        'apa_method_bradleyterry_en' => 'Ranking was determined using the Bradley-Terry model from pairwise comparisons.',
-        'apa_summary_en' => 'A total of %s pairwise comparisons were performed. Consistency of judgments: %s%%.',
-        'apa_avgtime_en' => 'Average response time per comparison: %s seconds.',
-        'apa_conflict_hint_en' => 'Note: Conflicting ratings found for %s pairs.',
-        'apa_ranking_head_en' => 'Individual ranking (with point values):',
-        'apa_lit_punkte' => "References: Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
-        'apa_lit_thurstone' => "References: Thurstone, L.L. (1927). A Law of Comparative Judgment. Psychological Review, 34, 273–286. Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
-        'apa_lit_bradleyterry' => "References: Bradley, R. A., & Terry, M. E. (1952). Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons. Biometrika, 39(3/4), 324-345. Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
-        'copy_output' => 'Copy',
-    ]
+    // Wissenschaftlicher Ergebnis-Output (DEUTSCH)
+    'apa_results_de' =>
+        "Die individuelle Rangfolge wurde mittels %s (vgl. %s) ermittelt. Insgesamt wurden %d Paarvergleiche durchgeführt (Konsistenz der Bewertungen: %d%%, durchschnittliche Antwortzeit: %.2f Sekunden pro Vergleich).%s
+Die höchste Priorität erhielt: %s. Die vollständige Rangreihe (mit Punktwerten) findest du unten.
+%s
+Literatur: %s",
+
+    'apa_conflict_sentence_de' => " Bei %d Paaren wurden widersprüchliche Bewertungen festgestellt.",
+
+    // Methoden & Literatur
+    'method_bradleyterry_de'  => "dem Bradley-Terry-Modell",
+    'method_thurstone_de'     => "dem Thurstone Case V Modell",
+    'method_punkte_de'        => "einer einfachen Punktewertung",
+
+    'citation_bradleyterry_de' => "Bradley & Terry (1952), Eidous & Al-Rawwash (2022)",
+    'citation_thurstone_de'    => "Thurstone (1927), Eidous & Al-Rawwash (2022)",
+    'citation_punkte_de'       => "Eidous & Al-Rawwash (2022)",
+
+    'lit_bradleyterry_de' => "Bradley, R. A., & Terry, M. E. (1952). Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons. Biometrika, 39(3/4), 324-345. Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
+    'lit_thurstone_de'    => "Thurstone, L.L. (1927). A Law of Comparative Judgment. Psychological Review, 34, 273–286. Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
+    'lit_punkte_de'       => "Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
+
+    // Fehlermeldungen
+    'error_not_found'     => 'Nicht gefunden',
+    'error_no_set'        => 'Kein Kartenset gefunden.',
+    'error_too_few_cards' => 'Zu wenig Karten im Set.',
+    'finished'            => 'Fertig!',
+    'see_results'         => 'Ergebnisse anzeigen',
+    'comparison_question' => 'Welche Karte passt für dich eher?',
+
+    // Bewertungstexte (Likert)
+    'card1_much' => 'Linke Karte trifft viel mehr zu',
+    'card1_some' => 'Linke Karte trifft eher zu',
+    'card2_some' => 'Rechte Karte trifft eher zu',
+    'card2_much' => 'Rechte Karte trifft viel mehr zu',
+
+    // APA Ranking-Überschrift
+    'apa_ranking_head_de' => 'Individuelle Rangreihe mit Punktwerten:',
 ];
 
-// Übersetzungsfunktion
-function t($key) {
-    global $t, $lang;
-    return $t[$lang][$key] ?? $key;
-}
+// ----------------------
+//       ENGLISH
+// ----------------------
+
+$lang += [
+    'results'           => 'Results',
+    'results_subtitle'  => 'Your individual ranking based on your pairwise comparisons.',
+    'back_to_sets'      => 'Back to overview',
+    'restart_set'       => 'Restart set',
+    'export_results'    => 'Export results',
+    'copy_output'       => 'Copy',
+    'summary'           => 'Summary',
+    'total_comparisons' => 'Total comparisons',
+    'consistency'       => 'Consistency',
+    'avg_time'          => 'Ø response time',
+
+    // Conflicting pairs
+    'conflict_pairs_title'     => 'Conflicting pairs detected!',
+    'conflict_pairs_explainer' => 'For these pairs, you gave conflicting ratings in different runs. That happens – maybe the cards are similar, you were unsure, or your judgment varied.<br>
+        <b>What to do?</b> You can restart the set and compare the pairs again if you want a clearer result. Otherwise, we still show you the best estimate of your ranking.',
+
+    // Scientific result output (ENGLISH)
+    'apa_results_en' =>
+        "The individual ranking was determined using %s (see %s). A total of %d pairwise comparisons were conducted (consistency: %d%%, mean response time: %.2f seconds per comparison).%s
+The highest ranked value was: %s. The complete ranking (with point values) is shown below.
+%s
+References: %s",
+
+    'apa_conflict_sentence_en' => " There were conflicting judgments for %d pairs.",
+
+    // Methods & references
+    'method_bradleyterry_en'  => "the Bradley-Terry model",
+    'method_thurstone_en'     => "the Thurstone Case V model",
+    'method_punkte_en'        => "simple point scoring",
+
+    'citation_bradleyterry_en' => "Bradley & Terry (1952), Eidous & Al-Rawwash (2022)",
+    'citation_thurstone_en'    => "Thurstone (1927), Eidous & Al-Rawwash (2022)",
+    'citation_punkte_en'       => "Eidous & Al-Rawwash (2022)",
+
+    'lit_bradleyterry_en' => "Bradley, R. A., & Terry, M. E. (1952). Rank Analysis of Incomplete Block Designs: I. The Method of Paired Comparisons. Biometrika, 39(3/4), 324-345. Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
+    'lit_thurstone_en'    => "Thurstone, L.L. (1927). A Law of Comparative Judgment. Psychological Review, 34, 273–286. Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
+    'lit_punkte_en'       => "Eidous, O., & Al-Rawwash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. Computational Statistics & Data Analysis, 177, 107578. https://doi.org/10.1016/j.csda.2022.107578",
+
+    // Error messages
+    'error_not_found'     => 'Not found',
+    'error_no_set'        => 'No card set found.',
+    'error_too_few_cards' => 'Too few cards in the set.',
+    'finished'            => 'Done!',
+    'see_results'         => 'Show results',
+    'comparison_question' => 'Which card fits you better?',
+
+    // Likert button texts
+    'card1_much' => 'Left card fits much better',
+    'card1_some' => 'Left card fits better',
+    'card2_some' => 'Right card fits better',
+    'card2_much' => 'Right card fits much better',
+
+    // APA ranking headline
+    'apa_ranking_head_en' => 'Individual ranking (with point values):',
+];
