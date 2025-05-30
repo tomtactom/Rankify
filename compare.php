@@ -1,5 +1,5 @@
 <?php
-$WIEDERHOLUNGEN = 2;
+$WIEDERHOLUNGEN = 2; // Wie oft jedes Paar verglichen wird
 
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
@@ -56,6 +56,7 @@ $antworten = isset($progress['antworten']) && is_array($progress['antworten']) ?
 $paare = isset($progress['paare']) && is_array($progress['paare']) ? $progress['paare'] : null;
 $instruktion_gelesen = isset($progress['instruktion_gelesen']) ? $progress['instruktion_gelesen'] : false;
 
+// Initialisierung nur falls KEIN Fortschritt existiert (und nie überschreiben, falls paare bereits leer sind)
 if ($paare === null) {
     $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
     $antworten = [];
@@ -68,7 +69,7 @@ if ($paare === null) {
     saveProgress($kartensetPfad, $progress);
 }
 
-// **FIX: Weiterleitung NUR wenn paare leer UND antworten NICHT leer**
+// Nur weiterleiten, wenn Paare leer und Antworten vorhanden
 if (empty($paare) && !empty($antworten)) {
     header("Location: results.php?set=" . urlencode($kartensetPfad));
     exit;
@@ -117,7 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fortschritt
 $gesamt = count(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
-
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
@@ -186,11 +186,29 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
     <?php endif; ?>
 
     <?php
-        $aktuellesPaar = $paare[0];
-        $show_left = rand(0,1) ? 'normal' : 'swapped';
-        if($show_left === 'swapped') $aktuellesPaar = array_reverse($aktuellesPaar);
-        $karte1 = $karten[$aktuellesPaar[0]];
-        $karte2 = $karten[$aktuellesPaar[1]];
+    // ==== Sicherstellen, dass das nächste Paar gültig ist! ====
+    $valide = false;
+    if (isset($paare[0]) && is_array($paare[0]) && count($paare[0]) === 2 &&
+        isset($karten[$paare[0][0]]) && isset($karten[$paare[0][1]])) {
+        $valide = true;
+    }
+
+    if (!$valide) {
+        ?>
+        <div class="alert alert-danger mt-5">
+            <b>Fehler:</b> Die Vergleichspaare sind ungültig oder unvollständig.<br>
+            Bitte <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1">Set neu starten</a>.<br>
+            Falls das Problem weiterhin auftritt, prüfe die CSV-Datei und lösche ggf. die gespeicherten Sitzungsdaten dieses Sets.
+        </div>
+        </body></html>
+        <?php exit;
+    }
+
+    $aktuellesPaar = $paare[0];
+    $show_left = rand(0,1) ? 'normal' : 'swapped';
+    if($show_left === 'swapped') $aktuellesPaar = array_reverse($aktuellesPaar);
+    $karte1 = $karten[$aktuellesPaar[0]];
+    $karte2 = $karten[$aktuellesPaar[1]];
     ?>
     <form method="post" class="mb-5" autocomplete="off">
         <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
