@@ -14,6 +14,7 @@ if (isset($_GET['reset'])) {
     exit;
 }
 
+// Karten laden
 if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
     header("Location: index.php?error=no_set");
     exit;
@@ -56,8 +57,9 @@ $antworten = isset($progress['antworten']) && is_array($progress['antworten']) ?
 $paare = isset($progress['paare']) && is_array($progress['paare']) ? $progress['paare'] : null;
 $instruktion_gelesen = isset($progress['instruktion_gelesen']) ? $progress['instruktion_gelesen'] : false;
 
-// Initialisierung nur falls KEIN Fortschritt existiert (und nie überschreiben, falls paare bereits leer sind)
-if ($paare === null) {
+// == SYSTEMATISCHER KERN-FIX ==
+// Wenn $paare leer und $antworten leer, wurde das Set noch nie begonnen ODER Session war kaputt
+if ((empty($paare) || !is_array($paare)) && empty($antworten)) {
     $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
     $antworten = [];
     $instruktion_gelesen = false;
@@ -69,7 +71,7 @@ if ($paare === null) {
     saveProgress($kartensetPfad, $progress);
 }
 
-// Nur weiterleiten, wenn Paare leer und Antworten vorhanden
+// Nur weiterleiten, wenn Paare leer UND Antworten vorhanden
 if (empty($paare) && !empty($antworten)) {
     header("Location: results.php?set=" . urlencode($kartensetPfad));
     exit;
@@ -194,14 +196,13 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
     }
 
     if (!$valide) {
-      // ==== Debug-Ausgabe: ====
-    echo "<div style='background:#fff3cd;color:#856404;padding:1.2em;margin:2em 0;border-radius:10px;font-family:monospace;'>";
-    echo "<b>Debug-Infos:</b><br>";
-    echo "<b>\$paare:</b><pre>" . htmlspecialchars(print_r($paare, true)) . "</pre>";
-    echo "<b>\$karten:</b><pre>" . htmlspecialchars(print_r($karten, true)) . "</pre>";
-    echo "<b>\$ids:</b><pre>" . htmlspecialchars(print_r($ids, true)) . "</pre>";
-    echo "</div>";
-    // ==== Ende Debug-Ausgabe ====
+        // ==== Debug-Ausgabe: ====
+        echo "<div style='background:#fff3cd;color:#856404;padding:1.2em;margin:2em 0;border-radius:10px;font-family:monospace;'>";
+        echo "<b>Debug-Infos:</b><br>";
+        echo "<b>\$paare:</b><pre>" . htmlspecialchars(print_r($paare, true)) . "</pre>";
+        echo "<b>\$karten:</b><pre>" . htmlspecialchars(print_r($karten, true)) . "</pre>";
+        echo "<b>\$ids:</b><pre>" . htmlspecialchars(print_r($ids, true)) . "</pre>";
+        echo "</div>";
         ?>
         <div class="alert alert-danger mt-5">
             <b>Fehler:</b> Die Vergleichspaare sind ungültig oder unvollständig.<br>
