@@ -150,6 +150,49 @@ $zeiten = array_filter(array_map(function($a){
 }, $antworten));
 $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : null;
 
+// Methode automatisch erkennen für Sprach-Ausgabe
+if (strpos($kartensetPfad, 'punkte/') === 0)      $method = 'punkte';
+elseif (strpos($kartensetPfad, 'thurstone/') === 0) $method = 'thurstone';
+elseif (strpos($kartensetPfad, 'bradleyterry/') === 0) $method = 'bradleyterry';
+else $method = 'punkte'; // Fallback
+
+// Erzeugung Rangreihe
+$ergebnisText_de = t("apa_ranking_head_de") . "\n";
+$ergebnisText_en = t("apa_ranking_head_en") . "\n";
+$platz = 1;
+foreach($scores as $id => $score) {
+    $karte = $karten[$id];
+    $ergebnisText_de .= "{$platz}. {$karte['title']} ({$karte['subtitle']}) – {$score} Punkte\n";
+    $ergebnisText_en .= "{$platz}. {$karte['title']} ({$karte['subtitle']}) – {$score} points\n";
+    $platz++;
+}
+// Konflikte
+$konfliktBemerkung_de = "";
+$konfliktBemerkung_en = "";
+if (count($konflikte) > 0) {
+    $konfliktBemerkung_de = t('apa_conflict_hint_de', [], count($konflikte));
+    $konfliktBemerkung_en = t('apa_conflict_hint_en', [], count($konflikte));
+}
+// Antwortzeit
+$antwortzeitHinweis_de = ($avgTime !== null) ? t('apa_avgtime_de', [], $avgTime) : "";
+$antwortzeitHinweis_en = ($avgTime !== null) ? t('apa_avgtime_en', [], $avgTime) : "";
+
+// Gesamtausgabe (aus lang.php)
+$fullAPA_de =
+    t("apa_method_{$method}_de") . "\n\n"
+    . t("apa_summary_de", [], [$totalVergleiche, $konsistenz])
+    . "\n" . $antwortzeitHinweis_de
+    . "\n" . $konfliktBemerkung_de
+    . "\n" . $ergebnisText_de
+    . "\n" . t("apa_lit_{$method}");
+
+$fullAPA_en =
+    t("apa_method_{$method}_en") . "\n\n"
+    . t("apa_summary_en", [], [$totalVergleiche, $konsistenz])
+    . "\n" . $antwortzeitHinweis_en
+    . "\n" . $konfliktBemerkung_en
+    . "\n" . $ergebnisText_en
+    . "\n" . t("apa_lit_{$method}");
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
@@ -212,11 +255,25 @@ $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : nul
             margin-top: 2px;
             margin-right: 10px;
         }
+        .copy-apa-wrap {
+            margin-top: 3em;
+            margin-bottom: 1.5em;
+            background: #fafdfe;
+            border-radius: 1.1em;
+            box-shadow: 0 2px 7px rgba(90,110,150,0.07);
+            padding: 1.4em 1em 1.2em 1em;
+        }
+        .apa-btns {
+            margin-bottom: .9em;
+            gap: 0.6em;
+            display: flex;
+        }
         @media (max-width: 700px) {
             .results-hero { flex-direction:column; gap:.8rem;}
             .results-hero-logo { width:40px;height:40px; font-size:1.3rem;}
             .rank-medal {font-size:1.4rem; margin-right:.6rem;}
             .summary-box { font-size:1em;}
+            .copy-apa-wrap { padding: .9em .6em; }
         }
     </style>
 </head>
@@ -269,6 +326,43 @@ $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : nul
         <a href="index.php" class="btn btn-secondary"><?=t('back_to_sets') ?: "Zurück zur Übersicht"?></a>
         <a href="results.php?set=<?=urlencode($kartensetPfad)?>&export_json=1" class="btn btn-info"><?=t('export_results') ?: "Ergebnisse exportieren"?></a>
     </div>
+
+    <!-- APA/Copy Output -->
+    <div class="copy-apa-wrap">
+        <div class="apa-btns">
+            <button type="button" onclick="switchApaLang('de')" class="btn btn-outline-primary btn-sm" id="btnApaDe">Deutsch</button>
+            <button type="button" onclick="switchApaLang('en')" class="btn btn-outline-secondary btn-sm" id="btnApaEn">English</button>
+            <button type="button" onclick="copyAPA()" class="btn btn-success btn-sm float-end"><?=t('copy_output') ?: "Kopieren"?></button>
+        </div>
+        <textarea id="apaOutput" class="form-control" style="min-height:180px; font-size:1em; background:#fff; border-radius:1em; padding:1em;" readonly><?=trim($fullAPA_de)?></textarea>
+        <textarea id="apaOutput_en" class="form-control d-none" style="min-height:180px; font-size:1em; background:#fff; border-radius:1em; padding:1em;" readonly><?=trim($fullAPA_en)?></textarea>
+    </div>
+    <script>
+    function copyAPA() {
+        var txt = document.getElementById('apaOutput').classList.contains('d-none')
+            ? document.getElementById('apaOutput_en') : document.getElementById('apaOutput');
+        txt.select();
+        txt.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+    }
+    function switchApaLang(lang) {
+        if(lang === 'en') {
+            document.getElementById('apaOutput').classList.add('d-none');
+            document.getElementById('apaOutput_en').classList.remove('d-none');
+            document.getElementById('btnApaEn').classList.add('btn-primary');
+            document.getElementById('btnApaEn').classList.remove('btn-outline-secondary');
+            document.getElementById('btnApaDe').classList.remove('btn-primary');
+            document.getElementById('btnApaDe').classList.add('btn-outline-primary');
+        } else {
+            document.getElementById('apaOutput').classList.remove('d-none');
+            document.getElementById('apaOutput_en').classList.add('d-none');
+            document.getElementById('btnApaDe').classList.add('btn-primary');
+            document.getElementById('btnApaDe').classList.remove('btn-outline-primary');
+            document.getElementById('btnApaEn').classList.remove('btn-primary');
+            document.getElementById('btnApaEn').classList.add('btn-outline-secondary');
+        }
+    }
+    </script>
 
     <!-- KONFLIKTE -->
     <?php if(count($konflikte) > 0): ?>
