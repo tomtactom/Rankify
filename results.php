@@ -167,31 +167,50 @@ foreach($scores as $id => $score) {
     $platz++;
 }
 
-// Alle Ausgabebestandteile korrekt ersetzen
-$vergleichsText_de = langf(t("apa_summary_de"), $totalVergleiche, $konsistenz);
-$antwortzeitHinweis_de = ($avgTime !== null) ? langf(t('apa_avgtime_de'), $avgTime) : "";
-$konfliktBemerkung_de = (count($konflikte) > 0) ? langf(t('apa_conflict_hint_de'), count($konflikte)) : "";
+// Methoden-Namen/Literatur/Citation für beide Sprachen:
+$methodName_de = t('method_'.$method.'_de');
+$methodName_en = t('method_'.$method.'_en');
+$citation_de   = t('citation_'.$method.'_de');
+$citation_en   = t('citation_'.$method.'_en');
+$lit_de        = t('lit_'.$method.'_de');
+$lit_en        = t('lit_'.$method.'_en');
 
-$vergleichsText_en = langf(t("apa_summary_en"), $totalVergleiche, $konsistenz);
-$antwortzeitHinweis_en = ($avgTime !== null) ? langf(t('apa_avgtime_en'), $avgTime) : "";
-$konfliktBemerkung_en = (count($konflikte) > 0) ? langf(t('apa_conflict_hint_en'), count($konflikte)) : "";
+// Konflikt-Satz (nur falls Konflikte)
+$konfliktSatz_de = count($konflikte) > 0 ? langf(t('apa_conflict_sentence_de'), count($konflikte)) : "";
+$konfliktSatz_en = count($konflikte) > 0 ? langf(t('apa_conflict_sentence_en'), count($konflikte)) : "";
 
-// Endgültige Ausgabe für beide Sprachen
-$fullAPA_de =
-    t("apa_method_{$method}_de") . "\n\n"
-    . $vergleichsText_de . "\n"
-    . ($antwortzeitHinweis_de ? $antwortzeitHinweis_de . "\n" : "")
-    . ($konfliktBemerkung_de ? $konfliktBemerkung_de . "\n" : "")
-    . t("apa_ranking_head_de") . "\n" . $ergebnisText_de . "\n"
-    . t("apa_lit_{$method}");
+// Höchste Karte
+reset($scores);
+$firstKey = key($scores);
+$highest_de = $karten[$firstKey]['title'] . " (" . $karten[$firstKey]['subtitle'] . ")";
+$highest_en = $karten[$firstKey]['title'] . " (" . $karten[$firstKey]['subtitle'] . ")";
 
-$fullAPA_en =
-    t("apa_method_{$method}_en") . "\n\n"
-    . $vergleichsText_en . "\n"
-    . ($antwortzeitHinweis_en ? $antwortzeitHinweis_en . "\n" : "")
-    . ($konfliktBemerkung_en ? $konfliktBemerkung_en . "\n" : "")
-    . t("apa_ranking_head_en") . "\n" . $ergebnisText_en . "\n"
-    . t("apa_lit_{$method}");
+// Fließtext-Output bauen:
+$fullAPA_de = langf(
+    t('apa_results_de'),
+    $methodName_de,
+    $citation_de,
+    $totalVergleiche,
+    $konsistenz,
+    $avgTime ?: 0,
+    $konfliktSatz_de,
+    $highest_de,
+    "\n" . $ergebnisText_de,
+    $lit_de
+);
+
+$fullAPA_en = langf(
+    t('apa_results_en'),
+    $methodName_en,
+    $citation_en,
+    $totalVergleiche,
+    $konsistenz,
+    $avgTime ?: 0,
+    $konfliktSatz_en,
+    $highest_en,
+    "\n" . $ergebnisText_en,
+    $lit_en
+);
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
