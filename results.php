@@ -1,4 +1,49 @@
 <?php
+// --------- EXPORT zuerst prüfen, noch bevor irgendwas anderes ausgegeben wird! -----------
+if (isset($_GET['export_json']) && !headers_sent()) {
+    $kartensetPfad = $_GET['set'] ?? '';
+    include 'inc/lang.php';
+    include 'inc/kartenset_loader.php';
+    include 'inc/session_handler.php';
+    include 'inc/vergleichslogik.php';
+
+    $progress = loadProgress($kartensetPfad);
+    $antworten = isset($progress['antworten']) && is_array($progress['antworten']) ? $progress['antworten'] : [];
+
+    // Karten laden für Export
+    if (!$kartensetPfad || !file_exists('data/'.$kartensetPfad)) {
+        http_response_code(404);
+        exit;
+    }
+    $daten = array_map(function($line){ return str_getcsv($line, ';'); }, file('data/'.$kartensetPfad));
+    $kopf = array_shift($daten);
+    $karten = [];
+    foreach($daten as $zeile) {
+        if (count($zeile) < 3) continue;
+        $karten[$zeile[0]] = ['id'=>$zeile[0],'title'=>$zeile[1],'subtitle'=>$zeile[2]];
+    }
+    $ids = array_keys($karten);
+    $scores = array_fill_keys($ids, 0);
+    foreach($antworten as $a) {
+        if ($a['bewertung'] == 1)      $scores[$a['id1']] += 2;
+        elseif ($a['bewertung'] == 2)  $scores[$a['id1']] += 1;
+        elseif ($a['bewertung'] == 3)  $scores[$a['id2']] += 1;
+        elseif ($a['bewertung'] == 4)  $scores[$a['id2']] += 2;
+    }
+    arsort($scores);
+
+    header('Content-Type: application/json');
+    header('Content-Disposition: attachment; filename="rankifmy_results.json"');
+    echo json_encode([
+        'kartenset' => $kartensetPfad,
+        'scores' => $scores,
+        'antworten' => $antworten,
+        'zeitpunkt' => date('c'),
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+// --------- AB HIER REGULÄRE AUSGABE ---------
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
@@ -243,7 +288,7 @@ $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : nul
                 $n1 = $karten[$parts[0]]['title'] ?? $parts[0];
                 $n2 = $karten[$parts[1]]['title'] ?? $parts[1];
                 $countstr = [];
-                foreach($counts as $wert=>$anz) $countstr[] = "$wert×$anz";
+                foreach($counts as $wert=>$anz) $countstr[] = $wert . '×' . $anz;
                 ?>
                 <div class="conflict-pair-row mb-2">
                     <span class="conflict-icon">🔄</span>
@@ -259,17 +304,3 @@ $avgTime = count($zeiten) > 0 ? round(array_sum($zeiten)/count($zeiten),2) : nul
 </div>
 </body>
 </html>
-<?php
-// Export-Funktionalität (JSON)
-if (isset($_GET['export_json'])) {
-    header('Content-Type: application/json');
-    header('Content-Disposition: attachment; filename="rankifmy_results.json"');
-    echo json_encode([
-        'kartenset' => $kartensetPfad,
-        'scores' => $scores,
-        'antworten' => $antworten,
-        'zeitpunkt' => date('c'),
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    exit;
-}
-?>
