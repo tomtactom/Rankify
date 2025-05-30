@@ -64,7 +64,7 @@ $lang = [
     // ---------- Wissenschaftlicher Ergebnis-Output ----------
     'apa_results_de' =>
         "Die individuelle Rangfolge wurde mittels %s (vgl. %s) ermittelt. Insgesamt wurden %d Paarvergleiche durchgeführt (Konsistenz der Bewertungen: %d%%, durchschnittliche Antwortzeit: %.2f Sekunden pro Vergleich).%s
-Die höchste Priorität erhielt: %s. Die vollständige Rangreihe (mit Punktwerten) findest du unten.
+Die höchste Priorität erhielt: %s. Die vollständige Rangreihe (mit Punktwerten) ist unten abgebildet.
 %s
 Literatur: %s",
     'apa_results_en' =>
@@ -124,4 +124,15 @@ References: %s",
     // ---------- APA Ranking Überschrift ----------
     'apa_ranking_head_de' => 'Individuelle Rangreihe mit Punktwerten:',
     'apa_ranking_head_en' => 'Individual ranking (with point values):',
+
+    // Instruktionen
+    'instructions_title_de' => 'Kurze Anleitung',
+    'instructions_title_en' => 'Quick Instructions',
+    'instructions_text_de' =>
+    'Du siehst immer zwei Karten und entscheidest: <b>Welche passt für dich eher?</b><br>Nutze die Buttons, um anzugeben, welche Karte besser zu dir passt.',
+    'instructions_text_en' =>
+    'You will always see two cards. Decide: <b>Which one fits you better?</b><br>Use the buttons to indicate which card is more important for you.',
+    'instruction_continue_de' => 'Weiter',
+    'instruction_continue_en' => 'Continue',
+
 ];
