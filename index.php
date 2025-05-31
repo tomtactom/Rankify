@@ -86,11 +86,14 @@ usort($kartensets, function($a, $b) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- CSS & JS -->
-    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    <script src="/assets/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/theme.js"></script>
     <script src="/assets/js/lang.js"></script>
+    <!-- Bootstrap 5.3.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5.3.3 JS + Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- Progressive Enhancement / Accessibility (z.B. Schema.org, falls gewünscht) -->
     <script type="application/ld+json">
