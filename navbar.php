@@ -1,6 +1,3 @@
-<?php
-// Stelle sicher, dass Bootstrap 5 JS und CSS geladen sind (header/footer!)
-?>
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm rank-navbar" style="border-radius:0 0 1.5rem 1.5rem;">
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="index.php" style="font-size:1.3em;">
@@ -34,16 +31,20 @@
                         <span id="themeIcon" style="font-size:1.25em;">🌈</span>
                     </button>
                 </li>
-                <!-- Language Switcher (NO FLAG) -->
+                <!-- Language Switcher -->
                 <li class="nav-item mx-1">
                     <button class="btn btn-navbar btn-sm" id="langSwitcher" title="Sprache wechseln" aria-label="Sprache wechseln">
                         <span id="langLabel"><?= strtoupper(getLanguage()) ?></span>
                     </button>
                 </li>
-                <!-- Account-Icon mit Tooltip -->
+                <!-- Account-Icon mit Bild & Fallback -->
                 <li class="nav-item mx-1">
-                    <a class="btn btn-navbar btn-sm" href="account.php" title="Account/Profil" aria-label="Account/Profil">
-                        <span style="font-size:1.22em;">🙋‍♂️</span>
+                    <a class="btn btn-navbar btn-sm" href="account.php" title="Account/Profil" aria-label="Account/Profil" style="padding:0.2em;">
+                        <?php if(file_exists("assets/img/avatar.png")): ?>
+                            <img src="assets/img/avatar.png" alt="Account" width="32" height="32" style="border-radius:50%;border:1px solid #eee;">
+                        <?php else: ?>
+                            <span style="font-size:1.25em;">🙋‍♂️</span>
+                        <?php endif; ?>
                     </a>
                 </li>
             </ul>

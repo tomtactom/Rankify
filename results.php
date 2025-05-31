@@ -385,6 +385,7 @@ $apa_de_first = ($cookieLang === 'de');
         }
     </style>
     <script src="assets/js/theme.js"></script>
+    <script src="assets/js/lang.js"></script>
 </head>
 <body>
 <?php include 'navbar.php'; ?>

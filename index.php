@@ -43,6 +43,8 @@ usort($kartensets, function($a, $b) {
         .btn-cardset {margin-top:1em;}
     </style>
     <script src="assets/js/theme.js"></script>
+    <script src="assets/js/lang.js"></script>
+
 </head>
 <body>
 <?php include 'navbar.php'; ?>
