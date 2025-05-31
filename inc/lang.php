@@ -22,8 +22,9 @@ if (!function_exists('langf')) {
 // Alle Sprach-Keys für index.php, compare.php, results.php, navbar.php
 $lang = [
     // -------- Navigation, Titles, Basics --------
-    'app_title_de'           => 'Rankifmy',
-    'app_title_en'           => 'Rankifmy',
+    'app_title_de'           => 'Rankify',
+    'app_title_en'           => 'Rankify',
+    'sets_overview'          => 'Rankify',
     'slogan_de'              => 'Deine Reihenfolge, deine Entscheidung',
     'slogan_en'              => 'Your ranking, your choice',
     'navbar_results_de'      => 'Ergebnisse',
