@@ -116,10 +116,7 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
     }
 }
 body.theme-dark .navbar-collapse, [data-theme="dark"] .navbar-collapse {
-    background: #21283a !important;
-}
-body.theme-rainbow .navbar-collapse, [data-theme="rainbow"] .navbar-collapse {
-    background: #fffdfa !important;
+    color: #21283a !important;
 }
 
 /* ===== Cards & Cardset-Grid ===== */
