@@ -1,0 +1,14 @@
+id;title;subtitle
+ST1;Gestaltend (Legislative);Eigene Lösungen entwickeln, kreativ denken
+ST2;Ausführend (Executive);Klare Vorgaben und Strukturen bevorzugen
+ST3;Bewertend (Judikative);Analysieren, vergleichen und kritisch hinterfragen
+ST4;Überblickend (Global);In großen Zusammenhängen und abstrakt denken
+ST5;Detailorientiert (Lokal);Auf Details und konkrete Einzelheiten achten
+ST6;Offen (Liberal);Neues ausprobieren und unabhängig denken
+ST7;Bewahrend (Konservativ);Bewährtes schätzen und bekannte Wege wählen
+ST8;Strukturierend (Hierarchisch);Aufgaben nach Wichtigkeit ordnen und geplant arbeiten
+ST9;Fokussierend (Monarchisch);Sich auf eine Aufgabe zur Zeit konzentrieren
+ST10;Vielseitig (Oligarchisch);Mehrere gleich wichtige Aufgaben gleichzeitig bearbeiten
+ST11;Spontan (Anarchisch);Intuitiv und ohne feste Struktur handeln
+ST12;Eigenständig (Internal);Allein und unabhängig arbeiten
+ST13;Austauschend (External);Im Team arbeiten und aktiven Austausch suchen
