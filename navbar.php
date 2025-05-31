@@ -1,6 +1,3 @@
-<?php
-// navbar.php - Klassisches, cleanes Layout
-?>
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="border-radius:0 0 1.5rem 1.5rem;">
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center" href="index.php" style="font-size:1.3em;">
@@ -40,32 +37,43 @@
                         <span id="langIcon"><?=getLanguage()=='en'?'EN':'DE'?></span>
                     </button>
                 </li>
+                <!-- Avatar/Profil -->
+                <li class="nav-item ms-2">
+                    <a href="profil.php" class="nav-link p-0" style="display:inline-block;">
+                        <img src="assets/img/avatar.png" alt="Avatar" width="32" height="32" style="border-radius:50%;border:2px solid #e3e3e3;">
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
+<!-- Theme/Language Script (sicher!) -->
 <script>
-    // Theme Toggle (Light/Dark/Rainbow falls gewünscht)
-    document.getElementById('themeToggle').onclick = function(){
-        let theme = document.body.getAttribute('data-theme') || 'light';
-        let next = theme==='light'?'dark':(theme==='dark'?'rainbow':'light');
-        document.body.setAttribute('data-theme', next);
-        document.cookie = 'theme='+next+';path=/;max-age='+(365*24*60*60);
-        document.getElementById('themeIcon').textContent = next==='light'?'🌞':(next==='dark'?'🌚':'🌈');
-    };
-    // Initial Theme von Cookie
-    (function(){
+(function(){
+    // Theme Toggle
+    let themeBtn = document.getElementById('themeToggle');
+    if(themeBtn){
+        themeBtn.onclick = function(){
+            let theme = document.documentElement.getAttribute('data-theme') || 'light';
+            let next = theme==='light'?'dark':(theme==='dark'?'rainbow':'light');
+            document.documentElement.setAttribute('data-theme', next);
+            document.cookie = 'theme='+next+';path=/;max-age='+(365*24*60*60);
+            document.getElementById('themeIcon').textContent = next==='light'?'🌞':(next==='dark'?'🌚':'🌈');
+        };
+        // Icon setzen (init)
         let m = document.cookie.match(/theme=(light|dark|rainbow)/);
-        if(m) {
-            document.body.setAttribute('data-theme', m[1]);
-            document.getElementById('themeIcon').textContent = m[1]==='light'?'🌞':(m[1]==='dark'?'🌚':'🌈');
-        }
-    })();
-    // Sprache Toggle (DE/EN)
-    document.getElementById('langToggle').onclick = function(){
-        let cur = document.cookie.match(/lang=(de|en)/);
-        let lang = (cur && cur[1]==='de') ? 'en' : 'de';
-        document.cookie = 'lang='+lang+';path=/;max-age='+(365*24*60*60);
-        location.reload();
-    };
+        let theme = m?m[1]:'light';
+        document.getElementById('themeIcon').textContent = theme==='light'?'🌞':(theme==='dark'?'🌚':'🌈');
+    }
+    // Language Toggle
+    let langBtn = document.getElementById('langToggle');
+    if(langBtn){
+        langBtn.onclick = function(){
+            let cur = document.cookie.match(/lang=(de|en)/);
+            let lang = (cur && cur[1]==='de') ? 'en' : 'de';
+            document.cookie = 'lang='+lang+';path=/;max-age='+(365*24*60*60);
+            location.reload();
+        };
+    }
+})();
 </script>

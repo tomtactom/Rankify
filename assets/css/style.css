@@ -238,3 +238,25 @@ body.theme-light {
     #avatar-float-btn img { width: 48px; height: 48px;}
     #avatar-float-btn:hover { box-shadow: 0 8px 34px rgba(90,110,220,0.28);}
 }
+
+
+body, [data-theme="light"] body {
+    background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%);
+    color: #1a2026;
+}
+[data-theme="dark"] body {
+    background: #14171b;
+    color: #f2f2f2;
+}
+[data-theme="rainbow"] body {
+    background: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+    color: #1a2026;
+}
+.navbar {
+    transition: background 0.25s;
+}
+@media (max-width: 700px) {
+    .navbar-brand { font-size:1em; }
+    .navbar-text { font-size:.9em; }
+    .nav-link { font-size:.97em; }
+}

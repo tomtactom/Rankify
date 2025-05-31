@@ -1,27 +1,44 @@
-// assets/js/theme.js
+// theme.js – Für <head> jeder Seite, am besten so früh wie möglich einbinden!
+(function() {
+    // ---- 1. Theme beim Laden aus Cookie setzen (BEVOR Styles greifen!) ----
+    let m = document.cookie.match(/theme=(light|dark|rainbow)/);
+    let theme = m ? m[1] : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
 
-// Theme aus Cookie lesen
-function getTheme() {
-    return document.cookie.replace(/(?:(?:^|.*;\s*)rankifmy_theme\s*\=\s*([^;]*).*$)|^.*$/, "$1") || "light";
-}
-function setTheme(theme) {
-    document.cookie = "rankifmy_theme=" + theme + ";path=/;max-age=" + (365*24*60*60);
-    applyTheme(theme);
-}
-function applyTheme(theme) {
-    document.body.classList.remove('theme-light', 'theme-dark', 'theme-rainbow');
-    if (theme === 'dark') document.body.classList.add('theme-dark');
-    else if (theme === 'rainbow') document.body.classList.add('theme-rainbow');
-    else document.body.classList.add('theme-light');
-}
+    // ---- 2. Sprache beim Laden aus Cookie setzen (optional, falls du <html lang=""> dynamisch willst) ----
+    let l = document.cookie.match(/lang=(de|en)/);
+    let lang = l ? l[1] : 'de';
+    document.documentElement.setAttribute('lang', lang);
 
-// On page load: Set theme
-document.addEventListener("DOMContentLoaded", function() {
-    applyTheme(getTheme());
-    // Optional: Theme-Switcher Buttons aktualisieren, wenn du visuelle Indikatoren hast
-    var themeSelect = document.getElementById('theme-switcher');
-    if (themeSelect) {
-        themeSelect.value = getTheme();
-        themeSelect.onchange = function() { setTheme(this.value); }
-    }
-});
+    // ---- 3. Theme Switcher: Nach DOM-Load Switcher-Button korrekt initialisieren ----
+    document.addEventListener('DOMContentLoaded', function() {
+        // Theme-Switcher
+        let themeBtn = document.getElementById('themeToggle');
+        if(themeBtn){
+            // Icon korrekt initialisieren
+            let icon = document.getElementById('themeIcon');
+            if(icon) icon.textContent = theme==='light'?'🌞':(theme==='dark'?'🌚':'🌈');
+            themeBtn.onclick = function(){
+                let next = theme==='light' ? 'dark' : (theme==='dark' ? 'rainbow' : 'light');
+                document.documentElement.setAttribute('data-theme', next);
+                document.cookie = 'theme='+next+';path=/;max-age='+(365*24*60*60);
+                if(icon) icon.textContent = next==='light'?'🌞':(next==='dark'?'🌚':'🌈');
+                theme = next; // Update für nächste Klicks
+            };
+        }
+
+        // Sprach-Switcher
+        let langBtn = document.getElementById('langToggle');
+        if(langBtn){
+            let icon = document.getElementById('langIcon');
+            if(icon) icon.textContent = lang==='en'?'EN':'DE';
+            langBtn.onclick = function(){
+                let newLang = (lang === 'de') ? 'en' : 'de';
+                document.cookie = 'lang='+newLang+';path=/;max-age='+(365*24*60*60);
+                if(icon) icon.textContent = newLang==='en'?'EN':'DE';
+                // Empfohlene Option: reload, damit Server/Seitenlogik neue Sprache sofort verwendet
+                location.reload();
+            };
+        }
+    });
+})();
