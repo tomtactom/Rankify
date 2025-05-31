@@ -32,8 +32,9 @@ usort($kartensets, function($a, $b) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    <script src="assets/js/theme.js"></script>
-    <script src="assets/js/lang.js"></script>
+    <script src="/assets/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/js/theme.js"></script>
+    <script src="/assets/js/lang.js"></script>
     <link rel="apple-touch-icon" sizes="57x57" href="/assets/fav/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/assets/fav/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/assets/fav/apple-icon-72x72.png">
