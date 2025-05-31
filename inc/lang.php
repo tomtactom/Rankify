@@ -230,5 +230,14 @@ References: %s",
 
     'demographic_submit_de'       => 'Weiter zu den Ergebnissen',
     'demographic_submit_en'       => 'Continue to results',
+    
+    'slogan_de' => 'Deine Reihenfolge, deine Entscheidung',
+    'slogan_en' => 'Your order, your choice',
+    'sets_overview_de' => 'Übersicht',
+    'sets_overview_en' => 'Overview',
+    'faq_de' => 'FAQ',
+    'faq_en' => 'FAQ',
+    'contact_de' => 'Kontakt',
+    'contact_en' => 'Contact',
 
 ];

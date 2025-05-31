@@ -1,75 +1,76 @@
-<script>
-(function(){
-    var m = document.cookie.match(/(?:^|;) ?theme=([^;]*)/);
-    if (m && m[1]) document.body.className = m[1];
-})();
-</script>
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="border-radius:0 0 1.4rem 1.4rem;">
+<?php
+// Keine Header setzen hier!
+// Sprach-Text via t('...'), Annahme: lang.php schon inkludiert!
+?>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="border-radius:0 0 1.5rem 1.5rem;">
     <div class="container">
-        <!-- LOGO + NAME -->
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.php" style="font-size:1.25em;">
-            <img src="assets/img/rankifmy-logo.png" alt="Logo" width="36" height="36" style="border-radius:0.7em;">
-            <span style="letter-spacing:0.02em;">Rankifmy</span>
+        <!-- Logo & Slogan -->
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="index.php" style="font-size:1.3em;">
+            <img src="assets/img/rankifmy-logo.png" alt="Logo" width="36" height="36" class="me-2" style="border-radius:0.7em;">
+            Rankifmy
         </a>
-        <!-- Slogan als Tooltip -->
-        <span class="navbar-text d-none d-lg-inline ms-1"
-              style="color:#6281e3;font-size:1em;font-weight:400;"
-              title="<?=t('slogan') ?? 'Deine Reihenfolge, deine Entscheidung'?>">
-            <?=t('slogan') ?? 'Deine Reihenfolge, deine Entscheidung'?>
+        <span class="navbar-text d-none d-md-inline mx-2" style="color:#6383e0;font-size:1em;">
+            <?=t('slogan') ?: 'Deine Reihenfolge, deine Entscheidung'?>
         </span>
-        <!-- Burger Menu Icon -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavMain"
-                aria-controls="navbarNavMain" aria-expanded="false" aria-label="Navigation ein-/ausblenden">
+
+        <!-- Toggler für Mobile -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Navigation ein-/ausblenden">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse flex-grow-0" id="navbarNavMain">
+
+        <!-- Hauptnavigation -->
+        <div class="collapse navbar-collapse flex-grow-0" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center gap-1">
+
                 <li class="nav-item">
                     <a class="nav-link" href="index.php"><?=t('sets_overview') ?? 'Übersicht'?></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="results.php"><?=t('results') ?? 'Ergebnisse'?></a>
                 </li>
-                <li class="nav-item d-none d-lg-block">
-                    <a class="nav-link" href="instructions.php"><?=t('instructions_title') ?? 'Anleitung'?></a>
-                </li>
-                <li class="nav-item d-none d-lg-block">
-                    <a class="nav-link" href="about.php"><?=t('about') ?? 'Über'?></a>
-                </li>
-                <li class="nav-item d-none d-lg-block">
+                <li class="nav-item">
                     <a class="nav-link" href="faq.php"><?=t('faq') ?? 'FAQ'?></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="contact.php"><?=t('contact') ?? 'Kontakt'?></a>
+                    <a class="nav-link" href="kontakt.php"><?=t('contact') ?? 'Kontakt'?></a>
                 </li>
-                <!-- Sprachumschalter -->
-                <li class="nav-item px-1">
-                    <button id="lang-switch-btn" class="btn btn-sm btn-outline-secondary" type="button" style="min-width:2.4em;">
-                        <?=getLanguage()=='de'?'EN':'DE'?>
-                    </button>
-                </li>
-                <script>
-                document.getElementById('lang-switch-btn').onclick = function() {
-                    var nextLang = "<?=getLanguage()=='de'?'en':'de'?>";
-                    document.cookie = "lang=" + nextLang + ";path=/;max-age=31536000";
-                    location.reload();
-                };
-                </script>
-                <!-- THEME SWITCHER: Light, Dark, Rainbow -->
-                <select id="theme-switcher" style="margin-left:1em;">
-                    <option value="light">🌞</option>
-                    <option value="dark">🌚</option>
-                    <option value="rainbow">🌈</option>
-                </select>
 
-                <!-- AVATAR + FAQ/Feedback -->
+                <!-- Sprache- & Theme-Switcher -->
+                <li class="nav-item dropdown d-flex align-items-center">
+                    <!-- Sprache (kein Flaggen!) -->
+                    <select id="lang-switcher" class="form-select form-select-sm me-2" style="width:auto;min-width:70px;">
+                        <option value="de"<?=getLanguage()=='de'?' selected':''?>>Deutsch</option>
+                        <option value="en"<?=getLanguage()=='en'?' selected':''?>>English</option>
+                    </select>
+                </li>
+                <li class="nav-item d-flex align-items-center">
+                    <!-- Theme Switcher -->
+                    <select id="theme-switcher" class="form-select form-select-sm" style="width:auto;min-width:70px;">
+                        <option value="light">🌞</option>
+                        <option value="dark">🌚</option>
+                        <option value="rainbow">🌈</option>
+                    </select>
+                </li>
+                <!-- Optional User Avatar / Profil-Link -->
                 <li class="nav-item ms-2">
-                    <a class="nav-link d-flex align-items-center" href="faq.php" title="<?=t('profile_feedback') ?? 'FAQ & Feedback'?>">
-                        <img src="assets/img/avatar.png" alt="Avatar" width="30" height="30" style="border-radius:50%;box-shadow:0 2px 7px rgba(110,130,160,0.12);margin-right:0.3em;">
-                        <span class="d-none d-xl-inline"><?=t('profile') ?? 'Profil'?></span>
+                    <a href="profil.php">
+                        <img src="assets/img/user-avatar.png" alt="Avatar" width="36" height="36"
+                             style="border-radius:50%;border:1.5px solid #e2e6f0;">
                     </a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+
+<script src="assets/js/theme.js"></script>
+<script>
+    // ---- LANGUAGE SWITCH ----
+    document.getElementById('lang-switcher').addEventListener('change', function () {
+        document.cookie = "lang=" + this.value + ";path=/;max-age=" + (365*24*60*60);
+        location.reload();
+    });
+    // ---- THEME SWITCH handled in theme.js ----
+</script>
