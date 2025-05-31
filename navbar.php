@@ -103,13 +103,16 @@
                 <a class="nav-link" href="index.php"><?=t('sets_overview') ?? 'Übersicht'?></a>
             </li>
             <li class="nav-item d-none d-md-inline">
-                <a class="nav-link" href="https://rankify.tomaschmann.de" target="_blank" rel="noopener">Projekt</a>
-            </li>
-            <li class="nav-item d-none d-md-inline">
                 <a class="nav-link" href="faq.php">FAQ</a>
             </li>
             <li class="nav-item d-none d-md-inline">
-                <a class="nav-link" href="kontakt.php">Kontakt</a>
+                <a class="nav-link" href="contact.php">Kontakt</a>
+            </li>
+            <!-- Lautsprecher Emoji: 🔊  (Ton an)  /  🔇  (Ton aus) -->
+            <li class="nav-item mx-1">
+              <button id="musicToggle" class="nav-bubble" title="Musik an/aus" aria-label="Musik an/aus" style="font-size:1.33em; padding:.2em .9em;">
+                <span id="musicIcon">🔊</span>
+              </button>
             </li>
             <!-- Theme-Switcher -->
             <li class="nav-item mx-1">
