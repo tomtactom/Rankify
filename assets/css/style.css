@@ -785,3 +785,38 @@ body.theme-dark .account-btn img { border-color: #4a5f85; background: #273050; }
         font-size: 1.17em;
     }
 }
+.nav-bubble {
+  background: #f3f6fc;
+  border-radius: 2em;
+  padding: 0.32em 1.25em;
+  box-shadow: 0 2px 10px rgba(70,90,130,0.08);
+  display: flex; align-items: center; gap: 0.37em;
+  font-weight: 600;
+  font-size: 1.11em;
+  border: 1.5px solid #e4ebf8;
+  transition: background 0.24s, box-shadow 0.21s;
+}
+.nav-bubble:focus, .nav-bubble:hover {
+  background: #e5ecf8;
+  box-shadow: 0 2px 16px rgba(50, 90, 160, 0.13);
+  outline: none;
+}
+.theme-dark .nav-bubble {
+  background: #232a3d;
+  border-color: #364870;
+  color: #eaf3fb;
+}
+.theme-dark .nav-bubble:focus,
+.theme-dark .nav-bubble:hover {
+  background: #2e3550;
+}
+.nav-claim {
+  color: #6383e0;
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 1.23;
+  margin-left: .2em;
+}
+@media (max-width: 700px) {
+  .nav-claim { display: none; }
+}
