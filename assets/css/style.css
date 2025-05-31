@@ -1,5 +1,6 @@
 /* ===== Rankifmy Full Modern CSS ===== */
 
+/* === General & Base === */
 html, body {
     font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
     letter-spacing: 0.01em;
@@ -10,7 +11,7 @@ html, body {
 }
 h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
 
-/* ----- Navbar ----- */
+/* ===== Navbar ===== */
 .navbar {
     border-radius: 0 0 1.4rem 1.4rem;
     background: #fff;
@@ -62,23 +63,25 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
     color: #4164a0;
     border-radius: 2.2em;
     font-size: 1.1em;
-    padding: 0.45em 1.12em;
+    padding: 0.54em 1.23em;
     margin-left: 0.23em;
     margin-right: 0.23em;
-    box-shadow: 0 1px 8px rgba(60,90,160,0.09);
-    transition: background 0.22s, color 0.18s, box-shadow 0.22s, border 0.21s;
-    display: flex; align-items: center; gap: 0.3em;
+    box-shadow: 0 2px 13px 0 #9ac8ff17;
+    transition: background 0.32s cubic-bezier(.32,.92,.67,.93), color 0.21s, box-shadow 0.19s, transform 0.13s;
     font-weight: 600;
+    display: inline-flex; align-items: center; gap: 0.4em;
 }
-.switch-btn:focus, .lang-btn:focus {
-    background: #e4edfd;
-    color: #264180;
-    outline: 2px solid #6281e3;
+.switch-btn.selected, .lang-btn.selected,
+.switch-btn:active, .lang-btn:active {
+    background: linear-gradient(96deg,#e3e7ff 60%,#cdf6fd 100%);
+    color: #1843ad;
+    box-shadow: 0 2px 14px #cddeff40;
+    transform: scale(0.97);
 }
 .switch-btn:hover, .lang-btn:hover {
     background: #e1e9fc;
     color: #214092;
-    box-shadow: 0 2px 12px rgba(90,120,180,0.14);
+    box-shadow: 0 2px 14px #90c2ff33;
 }
 
 /* Hamburger-Menü (robust, für Bootstrap 5) */
@@ -100,19 +103,26 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
         box-shadow: 0 10px 18px rgba(100,120,200,0.08);
         padding: 1.1em 0.7em;
         margin-top: 1.1em;
-        width: 100vw;
-        left: -20vw;
-        min-width: 102vw;
-        position: absolute;
-        z-index: 1200;
+        width: 99vw;
+        left: -2vw;
+        min-width: 100vw;
+        position: fixed;
+        top: 64px;
+        z-index: 1205;
     }
     .navbar-nav { flex-direction: column !important; width: 100%; }
     .navbar-nav .nav-link, .navbar-nav .switch-btn, .navbar-nav .lang-btn {
         width: 95%; margin: 0.18em auto 0.18em auto; text-align: center;
     }
 }
+body.theme-dark .navbar-collapse, [data-theme="dark"] .navbar-collapse {
+    background: #21283a !important;
+}
+body.theme-rainbow .navbar-collapse, [data-theme="rainbow"] .navbar-collapse {
+    background: #fffdfa !important;
+}
 
-/* ----- Cards & Cardset-Grid ----- */
+/* ===== Cards & Cardset-Grid ===== */
 .cardset-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:2em;}
 .cardset {
     background: #fff;
@@ -127,7 +137,6 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
 .lang-badge { background:#f4eae2; color:#886900; border-radius:.7em; font-size:.97em; padding:.2em .7em;}
 .btn-cardset { margin-top:1em; }
 
-/* Card Hover */
 .card-compare, .cardset {
     border-radius: 1.2rem;
     box-shadow: 0 2px 14px rgba(60,90,140,0.08);
@@ -139,12 +148,10 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
     transform: translateY(-2px) scale(1.01);
 }
 
-/* ----- Compare: Likert & Progress ----- */
+/* ===== Compare: Likert & Progress ===== */
 .progress { background: #e5e9f3; border-radius: 1rem; box-shadow: 0 2px 8px rgba(110,130,160,0.06);}
 .progress-bar { font-size: 1.11rem; font-weight: bold; background: linear-gradient(90deg,#6281e3 60%,#82c0ff 100%);}
-
 .likert-vertical { display: flex; flex-direction: column; gap: 0.6em; margin: 1.3em 0 1.7em 0; align-items: stretch; }
-
 .likert-v-btn {
     font-size: 1.13em;
     padding: 1.15em 0.2em;
@@ -158,9 +165,9 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
     color: #212529;
 }
 .likert-v-btn:active, .likert-v-btn:focus { background: #f2f4f7; border-color: #7aa7d1; }
+.likert-vertical .likert-v-btn:not(:last-child) { margin-right: 1.6em; }
 
 @media (min-width: 768px) {
-    /* Ranking-Buttons auf Desktop breiter machen */
     .likert-vertical {
         flex-direction: row;
         justify-content: center;
@@ -190,9 +197,10 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
 @media (max-width: 540px) {
     .likert-vertical { max-width: 99vw; flex-direction: column; margin-left: 0; margin-right: 0;}
     .likert-v-btn { min-width: 95vw; font-size: 1.02em; max-width: 100vw; }
+    .likert-vertical .likert-v-btn:not(:last-child) { margin-right: 0; margin-bottom: 0.7em; }
 }
 
-/* ----- Results & Ranking ----- */
+/* ===== Results & Ranking ===== */
 .summary-box {
     background: #fff9e6;
     border-radius: 1.2rem;
@@ -240,8 +248,10 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
 .copy-apa-wrap { margin-top: 3em; margin-bottom: 1.5em; background: #fafdfe; border-radius: 1.1em; box-shadow: 0 2px 7px rgba(90,110,150,0.07); padding: 1.4em 1em 1.2em 1em;}
 .apa-btns { margin-bottom: .9em; gap: 0.6em; display: flex; }
 
-/* ----- Badges, Misc, etc. ----- */
+/* ===== Badges, Misc, etc. ===== */
 .vs-badge { font-size: 1.2rem; background: #b8cdfc; color: #2951a7; border-radius: 50%; padding: .7rem 1.2rem;}
+
+/* ======= THEME MODES ======= */
 
 /* ----- Darkmode Styles ----- */
 body.theme-dark, [data-theme="dark"] body {
@@ -274,6 +284,7 @@ body.theme-dark .navbar .nav-link img[alt="Avatar"], [data-theme="dark"] .navbar
     background: #232b43;
     border-color: #3655a0;
 }
+/* Dark: Cards, Boxen, Ranking */
 body.theme-dark .cardset, body.theme-dark .card-compare, [data-theme="dark"] .cardset, [data-theme="dark"] .card-compare,
 body.theme-dark .summary-box, [data-theme="dark"] .summary-box, body.theme-dark .rank-card, [data-theme="dark"] .rank-card,
 body.theme-dark .conflict-box, [data-theme="dark"] .conflict-box, body.theme-dark .copy-apa-wrap, [data-theme="dark"] .copy-apa-wrap {
@@ -294,6 +305,34 @@ body.theme-dark .likert-v-btn:active, body.theme-dark .likert-v-btn:focus, [data
 }
 body.theme-dark .modell-badge, [data-theme="dark"] .modell-badge { background: #253168; color: #dbeaff;}
 body.theme-dark .lang-badge, [data-theme="dark"] .lang-badge { background: #393024; color: #ffe9a9;}
+body.theme-dark .compare-hero-title,
+[data-theme="dark"] .compare-hero-title,
+body.theme-dark .results-hero-title,
+[data-theme="dark"] .results-hero-title,
+body.theme-dark .rank-title,
+[data-theme="dark"] .rank-title,
+body.theme-dark .rank-subtitle,
+[data-theme="dark"] .rank-subtitle,
+body.theme-dark .results-hero-text,
+[data-theme="dark"] .results-hero-text,
+body.theme-dark .cardset-title,
+[data-theme="dark"] .cardset-title {
+    color: #f5f7fa !important;
+    text-shadow: 0 1.5px 12px #0b0f1840;
+}
+body.theme-dark .rank-score,
+[data-theme="dark"] .rank-score {
+    color: #81d4fa !important;
+}
+body.theme-dark .summary-box b,
+[data-theme="dark"] .summary-box b {
+    color: #ffe788 !important;
+}
+body.theme-dark .card-compare:hover, [data-theme="dark"] .card-compare:hover,
+body.theme-dark .cardset:hover, [data-theme="dark"] .cardset:hover {
+    box-shadow: 0 4px 22px #31528e1a;
+    background: #232b43;
+}
 
 /* ----- Rainbow Mode (kräftig, animiert) ----- */
 body.theme-rainbow, [data-theme="rainbow"] body {
@@ -365,3 +404,31 @@ body.theme-rainbow .likert-v-btn:active, body.theme-rainbow .likert-v-btn:focus,
 }
 body.theme-rainbow .modell-badge, [data-theme="rainbow"] .modell-badge { background: #f9e5fc; color: #a900c8;}
 body.theme-rainbow .lang-badge, [data-theme="rainbow"] .lang-badge { background: #ffe3f0; color: #bb006a;}
+body.theme-rainbow .card-compare:hover, [data-theme="rainbow"] .card-compare:hover,
+body.theme-rainbow .cardset:hover, [data-theme="rainbow"] .cardset:hover {
+    box-shadow: 0 6px 24px #ea90e64d;
+    background: #ffe1fa;
+}
+body.theme-rainbow .compare-hero-title,
+[data-theme="rainbow"] .compare-hero-title,
+body.theme-rainbow .results-hero-title,
+[data-theme="rainbow"] .results-hero-title,
+body.theme-rainbow .cardset-title,
+[data-theme="rainbow"] .cardset-title {
+    color: #bb18be !important;
+    text-shadow: 0 2px 12px #fda6ed60;
+}
+
+/* ===== Extra: Überschriften, Details für alle Modes ===== */
+.compare-hero-title, .results-hero-title {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #175a66;
+    margin-bottom: .4rem;
+    transition: color 0.35s;
+}
+.results-hero-text, .compare-hero-text {
+    color: #25727e;
+    font-size: 1.12rem;
+    transition: color 0.33s;
+}
