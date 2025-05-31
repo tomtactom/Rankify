@@ -309,7 +309,7 @@ $apa_de_first = ($cookieLang === 'de');
     <title><?=t('results')?> – Rankifmy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-
+    <link rel="stylesheet" href="assets/css/style.css">
     <script src="assets/js/theme.js"></script>
     <script src="assets/js/lang.js"></script>
 </head>

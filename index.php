@@ -32,16 +32,6 @@ usort($kartensets, function($a, $b) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        body { background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%); min-height: 100vh;}
-        .cardset-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:2em;}
-        .cardset { background:#fff; border-radius:1.1em; box-shadow:0 2px 12px rgba(80,110,180,0.07); padding:2em 1.1em 1.5em;}
-        .cardset-title { font-size:1.22em; font-weight:bold; color:#294288;}
-        .cardset-meta { color:#7f93bc; font-size:.97em;}
-        .modell-badge {background:#e0eaff;color:#2b388f;border-radius:.7em;font-size:.95em;padding:.25em .8em;margin-right:.4em;}
-        .lang-badge {background:#f4eae2;color:#886900;border-radius:.7em;font-size:.97em;padding:.2em .7em;}
-        .btn-cardset {margin-top:1em;}
-    </style>
     <script src="assets/js/theme.js"></script>
     <script src="assets/js/lang.js"></script>
 

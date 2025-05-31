@@ -114,31 +114,6 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        body { background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%); min-height: 100vh;}
-        .progress { background: #e5e9f3; border-radius: 1rem; box-shadow: 0 2px 8px rgba(110,130,160,0.06);}
-        .progress-bar { font-size: 1.11rem; font-weight: bold; background: linear-gradient(90deg,#6281e3 60%,#82c0ff 100%);}
-        .compare-hero { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem;}
-        .compare-hero-logo { width: 58px; height: 58px; border-radius: 14px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; color: #6281e3; box-shadow: 0 2px 10px rgba(80,110,200,0.09); border: 2px solid #e4eefe;}
-        .compare-hero-title { font-size: 1.45rem; font-weight: 800; color: #294288; margin-bottom: .4rem;}
-        .compare-hero-text { color: #4d68a5; font-size: 1.1rem;}
-        .card-compare { border-radius: 1.2rem; box-shadow: 0 2px 14px rgba(60,90,140,0.08); background: #fff;}
-        .likert-vertical { display: flex; flex-direction: column; gap: 0.6em; margin: 1.3em 0 1.7em 0; align-items: stretch; }
-        .likert-v-btn {
-            font-size: 1.11em; padding: 1.05em 0.5em; border: 2px solid #d0d0d0; border-radius: 1.2em; background: #fff;
-            margin: 0.09em 0; font-weight: 500; text-align: center; transition: background .15s, border-color .15s; color: #212529;
-        }
-        .likert-v-btn:active, .likert-v-btn:focus { background: #f2f4f7; border-color: #7aa7d1;}
-        @media (max-width: 900px) {
-            .compare-hero { gap: 0.7rem; flex-direction: column; }
-            .compare-hero-logo { width: 46px; height: 46px; font-size: 1.15rem; }
-            .card-compare { margin-bottom: 1.1rem; }
-        }
-        @media (max-width: 540px) {
-            .likert-vertical { max-width: 99vw; }
-            .likert-v-btn { min-width: 95vw; font-size: 1.02em; }
-        }
-    </style>
     <script>
         let zeit_start;
         window.onload = function() {
