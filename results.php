@@ -349,7 +349,7 @@ $fullAPA_en = langf(
     <div class="copy-apa-wrap">
         <div class="apa-btns">
             <button type="button" onclick="switchApaLang('de')" class="btn btn-outline-primary btn-sm" id="btnApaDe">Deutsch</button>
-            <button type="button" onclick="switchApaLang('en')" class="btn btn-outline-secondary btn-sm" id="btnApaEn">English</button>
+            <button type="button" onclick="switchApaLang('en')" class="btn btn-outline-secondary btn-sm" id="btnApaEn" focus>English</button>
             <button type="button" onclick="copyAPA()" class="btn btn-success btn-sm float-end"><?=t('copy_output') ?: "Kopieren"?></button>
         </div>
         <textarea id="apaOutput" class="form-control" style="min-height:180px; font-size:1em; background:#fff; border-radius:1em; padding:1em;" readonly><?=trim($fullAPA_de)?></textarea>
