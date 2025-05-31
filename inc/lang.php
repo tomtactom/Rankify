@@ -70,34 +70,34 @@ $lang = [
     // -------- Bewertungstexte (Likert) - Mobile (neutral, kurz) --------
     'this_card_much_de'    => 'Voll zu',
     'this_card_some_de'    => 'Eher zu',
-    'other_card_some_de'   => 'Eher andere',
-    'other_card_much_de'   => 'Voll andere',
+    'other_card_some_de'   => 'Eher zu',
+    'other_card_much_de'   => 'Voll zu',
     'this_card_much_en'    => 'Strongly this',
     'this_card_some_en'    => 'Somewhat this',
-    'other_card_some_en'   => 'Somewhat other',
-    'other_card_much_en'   => 'Strongly other',
+    'other_card_some_en'   => 'Somewhat this',
+    'other_card_much_en'   => 'Strongly this',
 
     // -------- Bewertungstexte (Likert) - Desktop (optional) --------
-    'card1_much_de'        => 'Links: Voll zu',
-    'card1_some_de'        => 'Links: Eher zu',
-    'card2_some_de'        => 'Rechts: Eher zu',
-    'card2_much_de'        => 'Rechts: Voll zu',
-    'card1_much_en'        => 'Left: Strongly',
-    'card1_some_en'        => 'Left: Somewhat',
-    'card2_some_en'        => 'Right: Somewhat',
-    'card2_much_en'        => 'Right: Strongly',
+    'card1_much_de'        => 'Voll zu',
+    'card1_some_de'        => 'Eher zu',
+    'card2_some_de'        => 'Eher zu',
+    'card2_much_de'        => 'Voll zu',
+    'card1_much_en'        => 'Strongly',
+    'card1_some_en'        => 'Somewhat',
+    'card2_some_en'        => 'Somewhat',
+    'card2_much_en'        => 'Strongly',
 
     // -------- Instruktionen --------
     'instructions_title_de' => 'Kurze Anleitung',
     'instructions_title_en' => 'Quick Instructions',
-    'instructions_text_de'  =>
-        'Du siehst immer zwei Karten und entscheidest: <b>Welche passt für dich eher?</b><br>Nutze die Buttons, um anzugeben, welche Karte besser zu dir passt.',
-    'instructions_text_en'  =>
-        'You will always see two cards. Decide: <b>Which one fits you better?</b><br>Use the buttons to indicate which card is more important for you.',
+    'instructions_text_de'  => 'Du siehst immer zwei Karten und entscheidest: <b>Welche passt für dich eher?</b><br>Nutze die Buttons, um anzugeben, welche Karte besser zu dir passt.',
+    'instructions_text_en'  => 'You will always see two cards. Decide: <b>Which one fits you better?</b><br>Use the buttons to indicate which card is more important for you.',
     'instruction_continue_de' => 'Weiter',
     'instruction_continue_en' => 'Continue',
 
     // -------- Results/Results.php --------
+    'results_de'           => 'Ergebnisse',
+    'results_en'           => 'results',
     'results_subtitle_de'  => 'Deine individuelle Rangfolge auf Basis deiner Vergleiche.',
     'results_subtitle_en'  => 'Your individual ranking based on your pairwise comparisons.',
     'total_comparisons_de' => 'Anzahl der Vergleiche',
