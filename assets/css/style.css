@@ -299,3 +299,8 @@ body, [data-theme="light"] body {
     .rank-navbar .navbar-brand { font-size: 1.02em; }
     .nav-claim { display: none !important; }
 }
+
+.rank-navbar .navbar-nav .nav-item {
+    margin-left: 0.23em;
+    margin-right: 0.23em;
+}
