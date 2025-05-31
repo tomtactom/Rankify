@@ -51,6 +51,89 @@ if (!function_exists('langf')) {
     function langf($text, ...$args) { return vsprintf($text, $args); }
 }
 
+// ======================
+// DEMOGRAFIE HANDLING
+// ======================
+
+function hasDemographicCookie() {
+    return isset($_COOKIE['rankifmy_demografie']);
+}
+
+function getDemographicCookie() {
+    if (!hasDemographicCookie()) return null;
+    return json_decode($_COOKIE['rankifmy_demografie'], true);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['demografie'])) {
+    $data = [
+        'alter'      => trim($_POST['alter'] ?? ''),
+        'geschlecht' => $_POST['geschlecht'] ?? '',
+        'abschluss'  => $_POST['abschluss'] ?? '',
+        'ip'         => $_SERVER['REMOTE_ADDR'],
+    ];
+    // Optional: Geo-IP-API hier ergänzen
+    setcookie('rankifmy_demografie', json_encode($data), time()+365*24*3600, '/');
+    header("Location: results.php?set=" . urlencode($kartensetPfad));
+    exit;
+}
+
+if (!hasDemographicCookie()) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="<?=getLanguage()?>">
+    <head>
+        <meta charset="UTF-8">
+        <title><?=t('demographic_title') ?? 'Demografische Angaben'?></title>
+        <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+        <style>
+            body {background:linear-gradient(130deg,#fafdfe 0%,#e5f4fb 100%);}
+            .demografie-form {max-width:500px;margin:3em auto;padding:2.2em 2em;background:#fff;border-radius:1.3em;box-shadow:0 2px 14px #7aa7d14a;}
+        </style>
+    </head>
+    <body>
+    <div class="demografie-form">
+        <h2><?=t('demographic_title') ?? 'Kurz vor dem Ergebnis...'?></h2>
+        <form method="post">
+            <div class="mb-3">
+                <label for="alter" class="form-label"><?=t('demographic_age') ?? 'Wie alt bist du?'?></label>
+                <input type="number" min="6" max="99" class="form-control" name="alter" id="alter" required>
+            </div>
+            <div class="mb-3">
+                <label for="geschlecht" class="form-label"><?=t('demographic_gender') ?? 'Geschlecht'?></label>
+                <select class="form-select" name="geschlecht" id="geschlecht" required>
+                    <option value=""><?=t('demographic_nosay') ?? 'Keine Angabe'?></option>
+                    <option value="w"><?=t('demographic_female') ?? 'weiblich'?></option>
+                    <option value="m"><?=t('demographic_male') ?? 'männlich'?></option>
+                    <option value="d"><?=t('demographic_diverse') ?? 'divers'?></option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="abschluss" class="form-label"><?=t('demographic_edu') ?? 'Abschluss'?></label>
+                <select class="form-select" name="abschluss" id="abschluss" required>
+                    <option value=""><?=t('demographic_nosay') ?? 'Keine Angabe'?></option>
+                    <option value="kein"><?=t('demographic_edu_none') ?? 'Kein Abschluss'?></option>
+                    <option value="hs"><?=t('demographic_edu_haupt') ?? 'Hauptschulabschluss'?></option>
+                    <option value="re"><?=t('demographic_edu_realschule') ?? 'Mittlere Reife'?></option>
+                    <option value="abi"><?=t('demographic_edu_abi') ?? 'Abitur'?></option>
+                    <option value="beruf"><?=t('demographic_edu_voc') ?? 'Berufsausbildung'?></option>
+                    <option value="stud"><?=t('demographic_edu_studium') ?? 'Studium'?></option>
+                    <option value="phd"><?=t('demographic_edu_phd') ?? 'Promotion'?></option>
+                    <option value="sonst"><?=t('demographic_edu_other') ?? 'Sonstiger Abschluss'?></option>
+                </select>
+            </div>
+            <input type="hidden" name="demografie" value="1">
+            <button type="submit" class="btn btn-primary"><?=t('demographic_submit') ?? 'Weiter zu den Ergebnissen'?></button>
+        </form>
+    </div>
+    </body>
+    </html>
+    <?php exit;
+}
+
+// ======================
+// BISHERIGER ERGEBNIS-CODE
+// ======================
+
 // Fortschritt laden
 $progress = loadProgress($kartensetPfad);
 $antworten = isset($progress['antworten']) && is_array($progress['antworten']) ? $progress['antworten'] : [];
@@ -108,8 +191,11 @@ foreach($antworten as $a) {
 arsort($scores);
 $maxScore = max($scores);
 
-// Figuren
-$figuren = [0=>"🦁", 1=>"🦉", 2=>"🐧", 3=>"🐢", 4=>"🐱", 5=>"🦊", 6=>"🐼"];
+// Viele Figuren (SVG/Emoji)
+$figuren = [
+    0=>"🦁", 1=>"🦉", 2=>"🐧", 3=>"🐢", 4=>"🐱", 5=>"🦊", 6=>"🐼", 7=>"🐸", 8=>"🦄", 9=>"🐯",
+    10=>"🦒",11=>"🐘",12=>"🐬",13=>"🦩",14=>"🐿️",15=>"🐨",16=>"🦜",17=>"🐧",18=>"🦢",19=>"🦔"
+];
 function getFigur($rank) { global $figuren; return $figuren[$rank] ?? "🎲"; }
 
 // Meta-Auswertung (Konsistenz etc.)
@@ -211,6 +297,10 @@ $fullAPA_en = langf(
     "\n" . $ergebnisText_en,
     $lit_en
 );
+
+// Welcher Output ist Default? → aus Cookie
+$cookieLang = isset($_COOKIE['lang']) ? $_COOKIE['lang'] : getLanguage();
+$apa_de_first = ($cookieLang === 'de');
 ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
@@ -234,7 +324,7 @@ $fullAPA_en = langf(
         .rank-subtitle { font-size:1.01rem; color:#407183;}
         .rank-bar-bg {width:100%;background:#e9f4fa;height:24px; border-radius:1.5em; position:relative;}
         .rank-bar { position:absolute; left:0; top:0; height:100%; border-radius:1.5em; background: linear-gradient(90deg,#28d7ae 0%,#82d9f7 100%);}
-        .rank-score { font-size:1.13rem; color:#319497; font-weight:700; min-width: 28px; text-align: right;}
+        .rank-score { font-size:1.13rem; color:#319497; font-weight:700; min-width: 28px; text-align: right; margin-right:0.6em;}
         .results-btns { margin-top:2.5rem; display:flex; gap:1rem; flex-wrap:wrap;}
         .reset-btn {background:#eb485b;color:#fff;}
         .reset-btn:hover {background:#ce3442;color:#fff;}
@@ -352,8 +442,8 @@ $fullAPA_en = langf(
             <button type="button" onclick="switchApaLang('en')" class="btn btn-outline-secondary btn-sm" id="btnApaEn">English</button>
             <button type="button" onclick="copyAPA()" class="btn btn-success btn-sm float-end"><?=t('copy_output') ?: "Kopieren"?></button>
         </div>
-        <textarea id="apaOutput" class="form-control" style="min-height:180px; font-size:1em; background:#fff; border-radius:1em; padding:1em;" readonly><?=trim($fullAPA_de)?></textarea>
-        <textarea id="apaOutput_en" class="form-control d-none" style="min-height:180px; font-size:1em; background:#fff; border-radius:1em; padding:1em;" readonly><?=trim($fullAPA_en)?></textarea>
+        <textarea id="apaOutput" class="form-control<?=(!$apa_de_first?' d-none':'')?>" style="min-height:180px; font-size:1em; background:#fff; border-radius:1em; padding:1em;" readonly><?=trim($fullAPA_de)?></textarea>
+        <textarea id="apaOutput_en" class="form-control<?=($apa_de_first?' d-none':'')?>" style="min-height:180px; font-size:1em; background:#fff; border-radius:1em; padding:1em;" readonly><?=trim($fullAPA_en)?></textarea>
     </div>
     <script>
     function copyAPA() {
@@ -379,6 +469,12 @@ $fullAPA_en = langf(
             document.getElementById('btnApaEn').classList.remove('btn-primary');
             document.getElementById('btnApaEn').classList.add('btn-outline-secondary');
         }
+    }
+    // Default Output nach Cookie setzen:
+    window.onload = function() {
+        <?php if (!$apa_de_first): ?>
+        switchApaLang('en');
+        <?php endif; ?>
     }
     </script>
 
