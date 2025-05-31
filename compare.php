@@ -1,5 +1,5 @@
 <?php
-$WIEDERHOLUNGEN = 2;
+$WIEDERHOLUNGEN = 1;
 
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
