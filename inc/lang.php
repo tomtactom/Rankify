@@ -161,4 +161,74 @@ References: %s",
     'lit_thurstone_en'    => "Thurstone, L. L. (1927). A law of comparative judgment. Psychological Review, 34(4), 273–286. https://doi.org/10.1037/h0070288. Eidous, O. M. & Al-Rawash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. arXiv (Cornell University). https://doi.org/10.48550/arxiv.2206.12601",
     'lit_punkte_de'       => "Eidous, O. M. & Al-Rawash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. arXiv (Cornell University). https://doi.org/10.48550/arxiv.2206.12601",
     'lit_punkte_en'       => "Eidous, O. M. & Al-Rawash, M. (2022). Approximations for Standard Normal Distribution Function and Its Invertible. arXiv (Cornell University). https://doi.org/10.48550/arxiv.2206.12601",
+
+    // ===== Demografie-Formular =====
+    'demographic_title_de'   => 'Demografische Angaben',
+    'demographic_title_en'   => 'Demographic information',
+
+    'demographic_instruction_title_de' => 'Warum fragen wir nach diesen Daten?',
+    'demographic_instruction_title_en' => 'Why do we ask for this information?',
+
+    'demographic_instruction_text_de' =>
+        'Indem du uns einige anonyme Angaben machst, hilfst du mit, die Ergebnisse besser vergleichbar und nützlicher zu machen.
+        Wir möchten möglichst viele Menschen unterstützen, die eigene Rangfolge zu verstehen und einzuordnen.
+        Deine Angaben werden nur pseudonymisiert gespeichert und dienen ausschließlich wissenschaftlichen Zwecken (Empathie-Altruismus-Hypothese: Wer sich in andere hineinversetzen kann, hilft eher – und gemeinsames Vergleichen hilft uns allen).
+        Die Angabe ist freiwillig, aber jeder Beitrag stärkt den Wert dieser Auswertung für alle.
+        Wohnort wird – falls möglich – automatisch erkannt.',
+
+    'demographic_instruction_text_en' =>
+        'By providing some anonymous information, you help us make results more comparable and valuable.
+        Our goal is to support as many people as possible in understanding and interpreting their own rankings.
+        Your data is stored only in a pseudonymized way and used for scientific purposes only (Empathy-Altruism Hypothesis: The more we can understand each other, the more we help – and collective comparison benefits everyone).
+        Sharing this info is voluntary, but every answer makes these results more meaningful for all.
+        Location is detected automatically, if possible.',
+
+    'demographic_age_de'     => 'Wie alt bist du? (in Jahren)',
+    'demographic_age_en'     => 'How old are you? (in years)',
+
+    'demographic_gender_de'  => 'Welchem Geschlecht fühlst du dich zugehörig?',
+    'demographic_gender_en'  => 'Which gender do you identify with?',
+
+    'demographic_nosay_de'   => 'Keine Angabe',
+    'demographic_nosay_en'   => 'Prefer not to say',
+
+    'demographic_female_de'  => 'weiblich',
+    'demographic_female_en'  => 'female',
+
+    'demographic_male_de'    => 'männlich',
+    'demographic_male_en'    => 'male',
+
+    'demographic_diverse_de' => 'divers',
+    'demographic_diverse_en' => 'diverse',
+
+    'demographic_edu_de'     => 'Welchen höchsten Abschluss hast du?',
+    'demographic_edu_en'     => 'What is your highest degree?',
+
+    'demographic_edu_none_de'     => 'Kein Schulabschluss',
+    'demographic_edu_none_en'     => 'No school degree',
+
+    'demographic_edu_haupt_de'    => 'Hauptschulabschluss',
+    'demographic_edu_haupt_en'    => 'Lower secondary school certificate',
+
+    'demographic_edu_realschule_de' => 'Mittlere Reife / Realschulabschluss',
+    'demographic_edu_realschule_en' => 'Intermediate secondary school certificate',
+
+    'demographic_edu_abi_de'      => 'Allgemeine Hochschulreife (Abitur)',
+    'demographic_edu_abi_en'      => 'High school diploma (Abitur/A-levels)',
+
+    'demographic_edu_voc_de'      => 'Berufsausbildung (mit Abschluss)',
+    'demographic_edu_voc_en'      => 'Vocational training (with diploma)',
+
+    'demographic_edu_studium_de'  => 'Studium (Bachelor / Master / Diplom)',
+    'demographic_edu_studium_en'  => 'University degree (Bachelor/Master/Diploma)',
+
+    'demographic_edu_phd_de'      => 'Promotion (Doktorgrad)',
+    'demographic_edu_phd_en'      => 'Doctorate (PhD)',
+
+    'demographic_edu_other_de'    => 'Sonstiger Abschluss',
+    'demographic_edu_other_en'    => 'Other degree',
+
+    'demographic_submit_de'       => 'Weiter zu den Ergebnissen',
+    'demographic_submit_en'       => 'Continue to results',
+
 ];
