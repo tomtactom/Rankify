@@ -113,14 +113,14 @@ References: %s",
 
     // ---------- Bewertungstexte (Likert) ----------
     // Mobile Likert (neutral, ohne Richtungen)
-    'card_most_de'   => 'Trifft sehr zu',
-    'card_more_de'   => 'Trifft eher zu',
-    'card_less_de'   => 'Trifft eher zu',
-    'card_least_de'  => 'Trifft sehr zu',
-    'card_most_en'   => 'Fits very much',
-    'card_more_en'   => 'Fits more',
-    'card_less_en'   => 'Fits more',
-    'card_least_en'  => 'Fits very much',
+    'this_card_much_de'   => 'Trifft sehr zu',
+    'this_card_some_de'   => 'Trifft eher zu',
+    'other_card_some_de'   => 'Trifft eher zu',
+    'other_card_much_de'  => 'Trifft sehr zu',
+    'this_card_much_en'   => 'Fits very much',
+    'this_card_some_en'   => 'Fits more',
+    'other_card_some_en'   => 'Fits more',
+    'other_card_much_en'  => 'Fits very much',
 
 
     // ---------- APA Ranking Überschrift ----------
