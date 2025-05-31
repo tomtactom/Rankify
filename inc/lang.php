@@ -49,6 +49,8 @@ $lang = [
     'finished_en'            => 'Done!',
     'see_results_de'         => 'Ergebnisse anzeigen',
     'see_results_en'         => 'Show results',
+    'start_cardset_de'       => 'Kartenset starten',
+    'start_cardset_en'       => 'start cardset'
 
     // -------- Übersicht / Index --------
     'available_sets_de'      => 'Verfügbare Kartensets',
