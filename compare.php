@@ -209,12 +209,16 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
 <div class="container py-3">
     <!-- Hero Section -->
     <div class="compare-hero">
-        <div class="compare-hero-logo" aria-label="Logo">R</div>
-        <div>
-            <div class="compare-hero-title"><?=t('progress')?>: <?=round($fortschritt)?>%</div>
-            <div class="compare-hero-text"><?=t('comparison_question')?></div>
+      <div class="compare-hero-logo" aria-label="Logo">R</div>
+      <div class="compare-hero-content">
+        <div class="compare-hero-title-row">
+          <span class="compare-hero-title"><?=t('progress')?>: </span>
+          <span class="progress-chip"><?=round($fortschritt)?>%</span>
         </div>
+        <div class="compare-hero-text"><?=t('comparison_question')?></div>
+      </div>
     </div>
+
 
     <!-- Fortschritt -->
     <div class="mb-4">

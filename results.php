@@ -400,12 +400,14 @@ $apa_de_first = ($cookieLang === 'de');
     </div>
 
     <!-- Hero-Section -->
-    <div class="results-hero">
-        <div class="results-hero-logo" aria-label="Logo">R</div>
-        <div>
-            <div class="results-hero-title"><?=t('results') ?: "Ergebnisse"?></div>
-            <div class="results-hero-text"><?=t('results_subtitle') ?: "Deine individuelle Rangfolge auf Basis deiner Vergleiche."?></div>
+    <div class="compare-hero">
+      <div class="compare-hero-logo" aria-label="Logo">R</div>
+      <div class="compare-hero-content">
+        <div class="compare-hero-title-row">
+          <span class="compare-hero-title"><?=t('results') ?: "Ergebnisse"?></span>
         </div>
+        <div class="compare-hero-text"><?=t('results_subtitle') ?: "Deine individuelle Rangfolge auf Basis deiner Vergleiche."?></div>
+      </div>
     </div>
 
     <!-- RANGLISTE -->
