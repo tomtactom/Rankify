@@ -384,6 +384,7 @@ $apa_de_first = ($cookieLang === 'de');
             .copy-apa-wrap { padding: .9em .6em; }
         }
     </style>
+    <script src="assets/js/theme.js"></script>
 </head>
 <body>
 <?php include 'navbar.php'; ?>

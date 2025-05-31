@@ -42,6 +42,7 @@ usort($kartensets, function($a, $b) {
         .lang-badge {background:#f4eae2;color:#886900;border-radius:.7em;font-size:.97em;padding:.2em .7em;}
         .btn-cardset {margin-top:1em;}
     </style>
+    <script src="assets/js/theme.js"></script>
 </head>
 <body>
 <?php include 'navbar.php'; ?>

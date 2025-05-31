@@ -152,6 +152,7 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
             }
         };
     </script>
+    <script src="assets/js/theme.js"></script>
 </head>
 <body>
 <?php include 'navbar.php'; ?>

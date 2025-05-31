@@ -56,57 +56,12 @@
                 };
                 </script>
                 <!-- THEME SWITCHER: Light, Dark, Rainbow -->
-                <li class="nav-item px-1 d-none d-md-inline">
-                    <div class="btn-group" role="group" aria-label="Theme switcher">
-                        <button id="theme-light" class="btn btn-sm btn-outline-secondary" title="Helles Farbschema">
-                            <span aria-hidden="true">&#9728;</span>
-                        </button>
-                        <button id="theme-dark" class="btn btn-sm btn-outline-secondary" title="Dunkles Farbschema">
-                            <span aria-hidden="true">&#9790;</span>
-                        </button>
-                        <button id="theme-rainbow" class="btn btn-sm btn-outline-secondary" title="Rainbow Modus">
-                            <span aria-hidden="true">&#127752;</span>
-                        </button>
-                    </div>
-                    <script>
-                        // Theme-Switcher Demo (du kannst das mit echtem Theme-Management ersetzen)
-                        document.getElementById('theme-light').onclick = function(){document.body.className='';};
-                        document.getElementById('theme-dark').onclick  = function(){document.body.className='darkmode';};
-                        document.getElementById('theme-rainbow').onclick = function(){document.body.className='rainbowmode';};
-                        function setThemeCookie(theme) {
-                            document.cookie = "theme=" + theme + ";path=/;max-age=31536000"; // 1 Jahr gültig
-                        }
-                        function getThemeCookie() {
-                            let m = document.cookie.match(/(?:^|;) ?theme=([^;]*)/);
-                            return m ? m[1] : "";
-                        }
-                        function applyTheme(theme) {
-                            document.body.className = theme;
-                        }
-                        document.addEventListener("DOMContentLoaded", function() {
-                            // Theme-Buttons
-                            var themeBtns = {
-                                '':      document.getElementById('theme-light'),
-                                'darkmode': document.getElementById('theme-dark'),
-                                'rainbowmode': document.getElementById('theme-rainbow')
-                            };
-                            // Theme-Setter
-                            for (const [cls,btn] of Object.entries(themeBtns)) {
-                                if (!btn) continue;
-                                btn.onclick = function(e){
-                                    e.preventDefault();
-                                    setThemeCookie(cls);
-                                    applyTheme(cls);
-                                };
-                            }
-                            // Beim Laden Theme aus Cookie anwenden
-                            var theme = getThemeCookie();
-                            if (typeof theme === "string" && theme.length <= 15) {
-                                applyTheme(theme);
-                            }
-                        });
-                    </script>
-                </li>
+                <select id="theme-switcher" style="margin-left:1em;">
+                    <option value="light">🌞</option>
+                    <option value="dark">🌚</option>
+                    <option value="rainbow">🌈</option>
+                </select>
+
                 <!-- AVATAR + FAQ/Feedback -->
                 <li class="nav-item ms-2">
                     <a class="nav-link d-flex align-items-center" href="faq.php" title="<?=t('profile_feedback') ?? 'FAQ & Feedback'?>">

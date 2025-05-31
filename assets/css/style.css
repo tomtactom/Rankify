@@ -194,6 +194,21 @@ body.rainbowmode .navbar .nav-link img[alt="Avatar"] {
     box-shadow: 0 5px 24px rgba(235,120,220,0.13);
 }
 
+body.theme-dark {
+    background: linear-gradient(120deg, #232634 0%, #20213a 100%);
+    color: #e4e6ef;
+}
+body.theme-rainbow {
+    background: linear-gradient(120deg, #ffeb3b 0%, #ff4081 40%, #7c4dff 70%, #18ffff 100%);
+    color: #111;
+}
+body.theme-light {
+    background: linear-gradient(120deg,#e6ecf7 0%,#fafdfe 100%);
+    color: #222;
+}
+/* Passe die Navbar, Cards, etc. bei Bedarf gezielt mit body.theme-dark, ... an */
+
+
 /* ------ Mobile Optimierung ------- */
 @media (max-width: 768px) {
     .navbar-nav .nav-link, .navbar-nav .btn, .navbar-nav form {
