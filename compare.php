@@ -1,5 +1,5 @@
 <?php
-$WIEDERHOLUNGEN = 2; // Wie oft jedes Paar verglichen wird
+$WIEDERHOLUNGEN = 2;
 
 $kartensetPfad = $_GET['set'] ?? '';
 include 'inc/lang.php';
@@ -57,7 +57,6 @@ $antworten = isset($progress['antworten']) && is_array($progress['antworten']) ?
 $paare = isset($progress['paare']) && is_array($progress['paare']) ? $progress['paare'] : null;
 $instruktion_gelesen = isset($progress['instruktion_gelesen']) ? $progress['instruktion_gelesen'] : false;
 
-// == SYSTEMATISCHER KERN-FIX ==
 if ((empty($paare) || !is_array($paare)) && empty($antworten)) {
     $paare = alleVergleichspaare($ids, $WIEDERHOLUNGEN);
     $antworten = [];
@@ -70,7 +69,6 @@ if ((empty($paare) || !is_array($paare)) && empty($antworten)) {
     saveProgress($kartensetPfad, $progress);
 }
 
-// Nur weiterleiten, wenn Paare leer UND Antworten vorhanden
 if (empty($paare) && !empty($antworten)) {
     header("Location: results.php?set=" . urlencode($kartensetPfad));
     exit;
@@ -103,7 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fortschritt
 $gesamt = count(alleVergleichspaare($ids, $WIEDERHOLUNGEN));
 $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
 ?>
@@ -126,15 +123,10 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
         .card-compare { border-radius: 1.2rem; box-shadow: 0 2px 14px rgba(60,90,140,0.08); background: #fff;}
         .likert-vertical { display: flex; flex-direction: column; gap: 0.6em; margin: 1.3em 0 1.7em 0; align-items: stretch; }
         .likert-v-btn {
-            font-size: 1.11em; padding: 1.05em 0.5em; border: 2px solid #5ab3ee; border-radius: 1.2em; background: #fafdfe;
-            margin: 0.09em 0; font-weight: 500; text-align: center; transition: background .15s;
-            box-shadow: 0 1px 7px rgba(60,90,140,0.08);
+            font-size: 1.11em; padding: 1.05em 0.5em; border: 2px solid #d0d0d0; border-radius: 1.2em; background: #fff;
+            margin: 0.09em 0; font-weight: 500; text-align: center; transition: background .15s, border-color .15s; color: #212529;
         }
-        .likert-1 { color: #2466bb; font-weight: 700; background: #eef3fd;}
-        .likert-2 { color: #2a90bd;}
-        .likert-3 { color: #e98733;}
-        .likert-4 { color: #c43a1b; font-weight: 700; background: #fff0ec;}
-        .likert-v-btn:active, .likert-v-btn:focus { background: #cfeaff; border-color: #1b95c3;}
+        .likert-v-btn:active, .likert-v-btn:focus { background: #f2f4f7; border-color: #7aa7d1;}
         @media (max-width: 900px) {
             .compare-hero { gap: 0.7rem; flex-direction: column; }
             .compare-hero-logo { width: 46px; height: 46px; font-size: 1.15rem; }
@@ -151,13 +143,17 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
             zeit_start = Date.now();
             var inp = document.getElementById("zeit_start");
             if(inp) inp.value = zeit_start;
+            // Mobile: Automatisch scrollen
+            if(window.innerWidth < 800) {
+                let el = document.getElementById('vergleichsbereich');
+                if(el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
         };
     </script>
 </head>
 <body>
 <?php include 'navbar.php'; ?>
 <div class="container py-3">
-
     <!-- Hero Section -->
     <div class="compare-hero">
         <div class="compare-hero-logo" aria-label="Logo">R</div>
@@ -198,7 +194,6 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
     }
 
     if (!$valide) {
-        // ==== Debug-Ausgabe: ====
         echo "<div style='background:#fff3cd;color:#856404;padding:1.2em;margin:2em 0;border-radius:10px;font-family:monospace;'>";
         echo "<b>Debug-Infos:</b><br>";
         echo "<b>\$paare:</b><pre>" . htmlspecialchars(print_r($paare, true)) . "</pre>";
@@ -221,42 +216,73 @@ $fortschritt = $gesamt ? (100 * (count($antworten) / $gesamt)) : 0;
     $karte1 = $karten[$aktuellesPaar[0]];
     $karte2 = $karten[$aktuellesPaar[1]];
     ?>
-    <div class="d-flex flex-column align-items-center justify-content-center">
-        <!-- Karte 1 -->
-        <div class="card card-compare mb-2" style="width:100%;max-width:370px;">
-            <div class="card-body text-center">
-                <h5 class="card-title"><?=htmlspecialchars($karte1['title'])?></h5>
-                <p class="card-text"><?=htmlspecialchars($karte1['subtitle'])?></p>
-            </div>
-        </div>
 
-        <!-- Vertikale Likert-Skala -->
-        <form method="post" class="likert-vertical" autocomplete="off" style="width:100%;max-width:380px;">
-            <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
-            <input type="hidden" name="id2" value="<?=htmlspecialchars($karte2['id'])?>">
-            <input type="hidden" name="show_left" value="<?=htmlspecialchars($show_left)?>">
-            <input type="hidden" name="zeit_start" id="zeit_start" value="">
-            <button type="submit" name="bewertung" value="1" class="likert-v-btn likert-1">
-                <?=t('card1_much')?>
-            </button>
-            <button type="submit" name="bewertung" value="2" class="likert-v-btn likert-2">
-                <?=t('card1_some')?>
-            </button>
-            <button type="submit" name="bewertung" value="3" class="likert-v-btn likert-3">
-                <?=t('card2_some')?>
-            </button>
-            <button type="submit" name="bewertung" value="4" class="likert-v-btn likert-4">
-                <?=t('card2_much')?>
-            </button>
+    <div class="vergleichsbereich-wrapper" id="vergleichsbereich">
+      <!-- MOBILE: vertikal -->
+      <div class="d-block d-md-none">
+        <!-- Karte 1 oben -->
+        <div class="card card-compare mb-2" style="width:100%;max-width:370px;margin:auto;">
+          <div class="card-body text-center">
+            <h5 class="card-title"><?=htmlspecialchars($karte1['title'])?></h5>
+            <p class="card-text"><?=htmlspecialchars($karte1['subtitle'])?></p>
+          </div>
+        </div>
+        <form method="post" class="likert-vertical" autocomplete="off" style="width:100%;max-width:380px;margin:auto;">
+          <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
+          <input type="hidden" name="id2" value="<?=htmlspecialchars($karte2['id'])?>">
+          <input type="hidden" name="show_left" value="<?=htmlspecialchars($show_left)?>">
+          <input type="hidden" name="zeit_start" id="zeit_start" value="">
+          <button type="submit" name="bewertung" value="1" class="likert-v-btn"><?=t('card_most')?></button>
+          <button type="submit" name="bewertung" value="2" class="likert-v-btn"><?=t('card_more')?></button>
+          <button type="submit" name="bewertung" value="3" class="likert-v-btn"><?=t('card_less')?></button>
+          <button type="submit" name="bewertung" value="4" class="likert-v-btn"><?=t('card_least')?></button>
         </form>
-
-        <!-- Karte 2 -->
-        <div class="card card-compare mt-2" style="width:100%;max-width:370px;">
-            <div class="card-body text-center">
-                <h5 class="card-title"><?=htmlspecialchars($karte2['title'])?></h5>
-                <p class="card-text"><?=htmlspecialchars($karte2['subtitle'])?></p>
-            </div>
+        <!-- Karte 2 unten -->
+        <div class="card card-compare mt-2" style="width:100%;max-width:370px;margin:auto;">
+          <div class="card-body text-center">
+            <h5 class="card-title"><?=htmlspecialchars($karte2['title'])?></h5>
+            <p class="card-text"><?=htmlspecialchars($karte2['subtitle'])?></p>
+          </div>
         </div>
+      </div>
+      <!-- DESKTOP: horizontal -->
+      <div class="d-none d-md-block">
+        <form method="post" class="mb-5" autocomplete="off">
+          <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
+          <input type="hidden" name="id2" value="<?=htmlspecialchars($karte2['id'])?>">
+          <input type="hidden" name="show_left" value="<?=htmlspecialchars($show_left)?>">
+          <input type="hidden" name="zeit_start" id="zeit_start" value="">
+          <div class="row align-items-center">
+            <div class="col-md-5 mb-3">
+              <div class="card card-compare h-100">
+                <div class="card-body">
+                  <h5 class="card-title"><?=htmlspecialchars($karte1['title'])?></h5>
+                  <p class="card-text"><?=htmlspecialchars($karte1['subtitle'])?></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-2 text-center mb-3">
+              <span class="vs-badge" aria-label="Vergleich">vs.</span>
+            </div>
+            <div class="col-md-5 mb-3">
+              <div class="card card-compare h-100">
+                <div class="card-body">
+                  <h5 class="card-title"><?=htmlspecialchars($karte2['title'])?></h5>
+                  <p class="card-text"><?=htmlspecialchars($karte2['subtitle'])?></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mb-4">
+            <div class="btn-group btn-group-lg d-flex flex-wrap gap-2 justify-content-center" role="group">
+              <button type="submit" name="bewertung" value="1" class="btn btn-outline-primary flex-fill"><?=t('card1_much')?></button>
+              <button type="submit" name="bewertung" value="2" class="btn btn-outline-primary flex-fill"><?=t('card1_some')?></button>
+              <button type="submit" name="bewertung" value="3" class="btn btn-outline-primary flex-fill"><?=t('card2_some')?></button>
+              <button type="submit" name="bewertung" value="4" class="btn btn-outline-primary flex-fill"><?=t('card2_much')?></button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
     <div class="text-center mt-4">
         <a href="index.php" class="btn btn-secondary"><?=t('back_to_sets')?></a>
