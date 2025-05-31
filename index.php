@@ -22,8 +22,6 @@ foreach ($verzeichnisse as $modell) {
 usort($kartensets, function($a, $b) {
     return strcmp($a['displayname'], $b['displayname']);
 });
-
-include 'navbar.php';
 ?>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -54,8 +52,12 @@ document.addEventListener("DOMContentLoaded", function() {
   window.addEventListener('click', tryPlay);
 });
 </script>
-
 <audio id="bgmusic" src="assets/audio/background.mp3" autoplay loop></audio>
+<?php
+$background_audio = true; // Hiermit kann man den Mute-Button ausblenden (auf false)
+include 'navbar.php';
+?>
+
 <div class="container py-4">
 
     <h1 class="mb-4"><?=t('sets_overview')?></h1>
