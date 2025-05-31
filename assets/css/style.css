@@ -263,7 +263,7 @@ body.theme-dark .navbar, [data-theme="dark"] .navbar {
 body.theme-dark .navbar .nav-link,
 body.theme-dark .navbar .navbar-brand span,
 [data-theme="dark"] .navbar .nav-link,
-[data-theme="dark"] .navbar .navbar-brand span { color: #e4eaf9; }
+[data-theme="dark"] .navbar .navbar-brand span { color: rgba(30, 34, 54, 0.98); }
 body.theme-dark .navbar .nav-link.active,
 body.theme-dark .navbar .nav-link:hover,
 body.theme-dark .navbar .nav-link:focus,
