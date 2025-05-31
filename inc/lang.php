@@ -1,9 +1,18 @@
 <?php
 // Sprachsteuerung für Rankifmy
 
+// 1. Sprachlogik mit Cookie-Save
 function getLanguage() {
-    if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], ['de', 'en'])) return $_COOKIE['lang'];
-    if (isset($_GET['lang']) && in_array($_GET['lang'], ['de', 'en'])) return $_GET['lang'];
+    // Sprache per GET-Parameter (setzt Cookie für 1 Jahr)
+    if (isset($_GET['lang']) && in_array($_GET['lang'], ['de', 'en'])) {
+        setcookie('lang', $_GET['lang'], time() + 365*24*60*60, '/');
+        return $_GET['lang'];
+    }
+    // Cookie (vom User gesetzt)
+    if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], ['de', 'en'])) {
+        return $_COOKIE['lang'];
+    }
+    // Default
     return 'de';
 }
 

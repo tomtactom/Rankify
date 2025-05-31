@@ -1,3 +1,9 @@
+<script>
+(function(){
+    var m = document.cookie.match(/(?:^|;) ?theme=([^;]*)/);
+    if (m && m[1]) document.body.className = m[1];
+})();
+</script>
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" style="border-radius:0 0 1.4rem 1.4rem;">
     <div class="container">
         <!-- LOGO + NAME -->
@@ -63,6 +69,38 @@
                         document.getElementById('theme-light').onclick = function(){document.body.className='';};
                         document.getElementById('theme-dark').onclick  = function(){document.body.className='darkmode';};
                         document.getElementById('theme-rainbow').onclick = function(){document.body.className='rainbowmode';};
+                        function setThemeCookie(theme) {
+                            document.cookie = "theme=" + theme + ";path=/;max-age=31536000"; // 1 Jahr gültig
+                        }
+                        function getThemeCookie() {
+                            let m = document.cookie.match(/(?:^|;) ?theme=([^;]*)/);
+                            return m ? m[1] : "";
+                        }
+                        function applyTheme(theme) {
+                            document.body.className = theme;
+                        }
+                        document.addEventListener("DOMContentLoaded", function() {
+                            // Theme-Buttons
+                            var themeBtns = {
+                                '':      document.getElementById('theme-light'),
+                                'darkmode': document.getElementById('theme-dark'),
+                                'rainbowmode': document.getElementById('theme-rainbow')
+                            };
+                            // Theme-Setter
+                            for (const [cls,btn] of Object.entries(themeBtns)) {
+                                if (!btn) continue;
+                                btn.onclick = function(e){
+                                    e.preventDefault();
+                                    setThemeCookie(cls);
+                                    applyTheme(cls);
+                                };
+                            }
+                            // Beim Laden Theme aus Cookie anwenden
+                            var theme = getThemeCookie();
+                            if (typeof theme === "string" && theme.length <= 15) {
+                                applyTheme(theme);
+                            }
+                        });
                     </script>
                 </li>
                 <!-- AVATAR + FAQ/Feedback -->
