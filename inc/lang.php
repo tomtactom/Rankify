@@ -112,14 +112,16 @@ References: %s",
     'comparison_question_en' => 'Which card fits you better?',
 
     // ---------- Bewertungstexte (Likert) ----------
-    'card1_much_de' => 'Linke Karte trifft viel mehr zu',
-    'card1_some_de' => 'Linke Karte trifft eher zu',
-    'card2_some_de' => 'Rechte Karte trifft eher zu',
-    'card2_much_de' => 'Rechte Karte trifft viel mehr zu',
-    'card1_much_en' => 'Left card fits much better',
-    'card1_some_en' => 'Left card fits better',
-    'card2_some_en' => 'Right card fits better',
-    'card2_much_en' => 'Right card fits much better',
+    // Mobile Likert (neutral, ohne Richtungen)
+    'card_most_de'   => 'Trifft sehr zu',
+    'card_more_de'   => 'Trifft eher zu',
+    'card_less_de'   => 'Trifft eher zu',
+    'card_least_de'  => 'Trifft sehr zu',
+    'card_most_en'   => 'Fits very much',
+    'card_more_en'   => 'Fits more',
+    'card_less_en'   => 'Fits more',
+    'card_least_en'  => 'Fits very much',
+
 
     // ---------- APA Ranking Überschrift ----------
     'apa_ranking_head_de' => 'Individuelle Rangreihe mit Punktwerten:',
