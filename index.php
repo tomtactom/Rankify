@@ -43,7 +43,7 @@ include 'navbar.php';
                     <?php endif; ?>
                 </div>
                 <a href="compare.php?set=<?=urlencode($set['modell'].'/'.$set['filename'])?>" class="btn btn-primary btn-cardset">
-                    <?=t('progress')?> starten
+                    <?=t('progress')?>
                 </a>
             </div>
         <?php endforeach; ?>
