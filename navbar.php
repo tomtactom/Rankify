@@ -42,15 +42,19 @@
                 <li class="nav-item">
                     <a class="nav-link" href="contact.php"><?=t('contact') ?? 'Kontakt'?></a>
                 </li>
-                <!-- SPRACHWECHSEL ohne Flaggen -->
+                <!-- Sprachumschalter -->
                 <li class="nav-item px-1">
-                    <form method="get" action="" class="d-inline">
-                        <input type="hidden" name="lang" value="<?=getLanguage()=='de'?'en':'de'?>">
-                        <button type="submit" class="btn btn-sm btn-outline-secondary" style="min-width:2.4em;">
-                            <?=getLanguage()=='de'?'EN':'DE'?>
-                        </button>
-                    </form>
+                    <button id="lang-switch-btn" class="btn btn-sm btn-outline-secondary" type="button" style="min-width:2.4em;">
+                        <?=getLanguage()=='de'?'EN':'DE'?>
+                    </button>
                 </li>
+                <script>
+                document.getElementById('lang-switch-btn').onclick = function() {
+                    var nextLang = "<?=getLanguage()=='de'?'en':'de'?>";
+                    document.cookie = "lang=" + nextLang + ";path=/;max-age=31536000";
+                    location.reload();
+                };
+                </script>
                 <!-- THEME SWITCHER: Light, Dark, Rainbow -->
                 <li class="nav-item px-1 d-none d-md-inline">
                     <div class="btn-group" role="group" aria-label="Theme switcher">

@@ -3,19 +3,13 @@
 
 // 1. Sprachlogik mit Cookie-Save (nur Cookie setzen, wenn noch kein Output!)
 function getLanguage() {
-    // Sprache per GET-Parameter (setzt Cookie für 1 Jahr)
-    if (isset($_GET['lang']) && in_array($_GET['lang'], ['de', 'en'])) {
-        // Nur Cookie setzen, wenn noch keine Header gesendet wurden:
-        if (!headers_sent()) {
-            setcookie('lang', $_GET['lang'], time() + 365*24*60*60, '/');
-        }
-        return $_GET['lang'];
-    }
+    // Sprache nur über Cookie, Default = de
     if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], ['de', 'en'])) {
         return $_COOKIE['lang'];
     }
     return 'de';
 }
+
 
 function t($key) {
     global $lang;
