@@ -576,3 +576,141 @@ body.theme-rainbow .compare-hero-text,
     .compare-hero-title { font-size: 1.17rem; }
     .progress-chip { font-size: .97rem; padding: 0.31em 0.82em;}
 }
+.demografie-form {
+    max-width: 650px;
+    margin: 2.7rem auto 0 auto;
+    padding: 2.2rem 2rem 2.1rem 2rem;
+    border-radius: 1.3em;
+    background: rgba(255,255,255,0.93);
+    box-shadow: 0 6px 32px rgba(90,60,110,0.12);
+    transition: background 0.9s, box-shadow 0.7s;
+    position: relative;
+}
+.demografie-form h2 {
+    font-size: 2.1rem;
+    font-weight: 700;
+    margin-bottom: 1.3rem;
+    color: #e04d6b;
+    letter-spacing: 0.01em;
+}
+.demografie-form label {
+    font-weight: 600;
+    color: #af2663;
+    margin-bottom: 0.32em;
+    letter-spacing: 0.01em;
+}
+.demografie-form .form-control,
+.demografie-form .form-select {
+    border-radius: 1.1em;
+    font-size: 1.12em;
+    border: 1.5px solid #eee4fa;
+    background: #fff;
+    margin-bottom: 0.6em;
+    box-shadow: 0 1px 10px rgba(180,160,240,0.07);
+    padding: 0.85em 1em;
+    transition: border 0.19s, background 0.32s;
+}
+.demografie-form .form-control:focus,
+.demografie-form .form-select:focus {
+    border-color: #f898c0;
+    background: #fff7fa;
+    outline: none;
+}
+.demografie-btn {
+    font-weight: 700;
+    font-size: 1.09em;
+    padding: 0.77em 2.2em;
+    border-radius: 2em;
+    background: linear-gradient(90deg, #2196f3 0%, #f154b2 100%);
+    border: none;
+    box-shadow: 0 3px 14px rgba(200,60,150,0.13);
+    color: #fff;
+    margin-top: 1.7em;
+    transition: background 0.33s, box-shadow 0.23s, color 0.23s;
+}
+.demografie-btn:hover, .demografie-btn:focus {
+    background: linear-gradient(90deg, #f154b2 0%, #2196f3 100%);
+    color: #fff;
+    box-shadow: 0 6px 22px rgba(200,60,150,0.18);
+}
+
+/* Darkmode */
+body.theme-dark .demografie-form,
+[data-theme="dark"] .demografie-form {
+    background: rgba(27, 29, 52, 0.99);
+    box-shadow: 0 10px 40px rgba(50,40,70,0.24);
+}
+body.theme-dark .demografie-form h2,
+[data-theme="dark"] .demografie-form h2 {
+    color: #ff80b8;
+}
+body.theme-dark .demografie-form label,
+[data-theme="dark"] .demografie-form label {
+    color: #ff9ec8;
+}
+body.theme-dark .demografie-form .form-control,
+body.theme-dark .demografie-form .form-select,
+[data-theme="dark"] .demografie-form .form-control,
+[data-theme="dark"] .demografie-form .form-select {
+    background: #272849;
+    color: #fbeefd;
+    border-color: #41355d;
+}
+body.theme-dark .demografie-form .form-control:focus,
+body.theme-dark .demografie-form .form-select:focus,
+[data-theme="dark"] .demografie-form .form-control:focus,
+[data-theme="dark"] .demografie-form .form-select:focus {
+    border-color: #f898c0;
+    background: #363356;
+}
+
+/* Rainbow */
+body.theme-rainbow .demografie-form,
+[data-theme="rainbow"] .demografie-form {
+    background: linear-gradient(120deg,#ffe0ef 0%, #faffef 100%);
+    box-shadow: 0 6px 24px rgba(240,110,220,0.10);
+}
+body.theme-rainbow .demografie-form h2,
+[data-theme="rainbow"] .demografie-form h2 {
+    color: #df1c8d;
+}
+body.theme-rainbow .demografie-form label,
+[data-theme="rainbow"] .demografie-form label {
+    color: #ff70b5;
+}
+body.theme-rainbow .demografie-form .form-control,
+body.theme-rainbow .demografie-form .form-select,
+[data-theme="rainbow"] .demografie-form .form-control,
+[data-theme="rainbow"] .demografie-form .form-select {
+    background: #fff7fd;
+    color: #bb00a3;
+    border-color: #fad7ef;
+}
+body.theme-rainbow .demografie-form .form-control:focus,
+body.theme-rainbow .demografie-form .form-select:focus,
+[data-theme="rainbow"] .demografie-form .form-control:focus,
+[data-theme="rainbow"] .demografie-form .form-select:focus {
+    border-color: #ff69b4;
+    background: #fff2fa;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+    .demografie-form { padding: 1.2rem 0.6rem; }
+    .demografie-form h2 { font-size: 1.34rem; }
+}
+.demografie-hinweis {
+    color: #ad3a22;
+    font-size: 0.96em;
+    margin-bottom: 1.3em;
+    opacity: 0.82;
+    text-align: left;
+}
+body.theme-dark .demografie-hinweis,
+[data-theme="dark"] .demografie-hinweis {
+    color: #ffb8d1;
+}
+body.theme-rainbow .demografie-hinweis,
+[data-theme="rainbow"] .demografie-hinweis {
+    color: #e67cb7;
+}
