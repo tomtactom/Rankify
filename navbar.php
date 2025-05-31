@@ -108,7 +108,7 @@
             <li class="nav-item d-none d-md-inline">
                 <a class="nav-link" href="contact.php">Kontakt</a>
             </li>
-            <?php if($background_audio == true) { ?>
+            <?php if(isset($background_audio) && $background_audio == true) { ?>
             <!-- Lautsprecher Emoji: 🔊  (Ton an)  /  🔇  (Ton aus) -->
             <li class="nav-item mx-1">
               <button id="musicToggle" class="nav-bubble" title="Musik an/aus" aria-label="Musik an/aus" style="font-size:1.03em; padding:.2em .9em;">
