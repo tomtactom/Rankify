@@ -1,21 +1,12 @@
 <?php
 // Sprachsteuerung für Rankifmy
 
-// 1. Sprachlogik
 function getLanguage() {
-    // Cookie (z.B. vom User gesetzt)
-    if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], ['de', 'en'])) {
-        return $_COOKIE['lang'];
-    }
-    // Query-Parameter
-    if (isset($_GET['lang']) && in_array($_GET['lang'], ['de', 'en'])) {
-        return $_GET['lang'];
-    }
-    // Default
+    if (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], ['de', 'en'])) return $_COOKIE['lang'];
+    if (isset($_GET['lang']) && in_array($_GET['lang'], ['de', 'en'])) return $_GET['lang'];
     return 'de';
 }
 
-// 2. Übersetzungsfunktion: Sucht immer erst "key_LANG", dann fallback "key"
 function t($key) {
     global $lang;
     $langCode = getLanguage();
@@ -24,12 +15,11 @@ function t($key) {
     return $key;
 }
 
-// Optional: sprintf für sprachsensitive Texte
 if (!function_exists('langf')) {
     function langf($text, ...$args) { return vsprintf($text, $args); }
 }
 
-// 3. Das Spracharray (immer nur EIN Mal deklarieren!)
+// ------------------- ALLE KEYS -------------------
 $lang = [
     // ---------- Navigation & Buttons ----------
     'results_de'           => 'Ergebnisse',
@@ -112,16 +102,25 @@ References: %s",
     'comparison_question_en' => 'Which card fits you better?',
 
     // ---------- Bewertungstexte (Likert) ----------
-    // Mobile Likert (neutral, ohne Richtungen)
-    'this_card_much_de'   => 'Trifft sehr zu',
-    'this_card_some_de'   => 'Trifft eher zu',
-    'other_card_some_de'   => 'Trifft eher zu',
-    'other_card_much_de'  => 'Trifft sehr zu',
-    'this_card_much_en'   => 'Fits very much',
-    'this_card_some_en'   => 'Fits more',
-    'other_card_some_en'   => 'Fits more',
-    'other_card_much_en'  => 'Fits very much',
+    // Mobile (neutral, kurz)
+    'this_card_much_de'    => 'Voll zu',
+    'this_card_some_de'    => 'Eher zu',
+    'other_card_some_de'   => 'Eher andere',
+    'other_card_much_de'   => 'Voll andere',
+    'this_card_much_en'    => 'Strongly this',
+    'this_card_some_en'    => 'Somewhat this',
+    'other_card_some_en'   => 'Somewhat other',
+    'other_card_much_en'   => 'Strongly other',
 
+    // Desktop (optional, klassische Variante)
+    'card1_much_de'        => 'Links: Voll zu',
+    'card1_some_de'        => 'Links: Eher zu',
+    'card2_some_de'        => 'Rechts: Eher zu',
+    'card2_much_de'        => 'Rechts: Voll zu',
+    'card1_much_en'        => 'Left: Strongly',
+    'card1_some_en'        => 'Left: Somewhat',
+    'card2_some_en'        => 'Right: Somewhat',
+    'card2_much_en'        => 'Right: Strongly',
 
     // ---------- APA Ranking Überschrift ----------
     'apa_ranking_head_de' => 'Individuelle Rangreihe mit Punktwerten:',
@@ -131,10 +130,9 @@ References: %s",
     'instructions_title_de' => 'Kurze Anleitung',
     'instructions_title_en' => 'Quick Instructions',
     'instructions_text_de' =>
-    'Du siehst immer zwei Karten und entscheidest: <b>Welche passt für dich eher?</b><br>Nutze die Buttons, um anzugeben, welche Karte besser zu dir passt.',
+        'Du siehst immer zwei Karten und entscheidest: <b>Welche passt für dich eher?</b><br>Nutze die Buttons, um anzugeben, welche Karte besser zu dir passt.',
     'instructions_text_en' =>
-    'You will always see two cards. Decide: <b>Which one fits you better?</b><br>Use the buttons to indicate which card is more important for you.',
+        'You will always see two cards. Decide: <b>Which one fits you better?</b><br>Use the buttons to indicate which card is more important for you.',
     'instruction_continue_de' => 'Weiter',
     'instruction_continue_en' => 'Continue',
-
 ];
