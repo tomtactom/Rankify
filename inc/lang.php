@@ -230,7 +230,7 @@ References: %s",
 
     'demographic_submit_de'       => 'Weiter zu den Ergebnissen',
     'demographic_submit_en'       => 'Continue to results',
-    
+
     'slogan_de' => 'Deine Reihenfolge, deine Entscheidung',
     'slogan_en' => 'Your order, your choice',
     'sets_overview_de' => 'Übersicht',
@@ -239,5 +239,6 @@ References: %s",
     'faq_en' => 'FAQ',
     'contact_de' => 'Kontakt',
     'contact_en' => 'Contact',
-
+    'demographic_note_de' => 'Diese Angaben sind freiwillig und werden nur pseudonymisiert zur Verbesserung der Vergleichswerte verwendet.',
+    'demographic_note_en' => 'This informations are optional and they\'re only used in pseudonymized form to improve the comparative values.',
 ];

@@ -82,10 +82,11 @@ if (!hasDemographicCookie()) {
 ?>
     <div class="demografie-form">
         <h2><?=t('demographic_title') ?? 'Kurz vor dem Ergebnis...'?></h2>
+        <p class="demografie-hinweis"><?=t('demographic_note') ?? 'Diese Angaben sind freiwillig und werden nur pseudonymisiert zur Verbesserung der Vergleichswerte verwendet.'?></p>
         <form method="post">
             <div class="mb-3">
                 <label for="alter" class="form-label"><?=t('demographic_age') ?? 'Wie alt bist du?'?></label>
-                <input type="number" min="6" max="99" class="form-control" name="alter" id="alter" required>
+                <input type="number" min="6" max="99" class="form-control" name="alter" id="alter" required placeholder="z.B. 27">
             </div>
             <div class="mb-3">
                 <label for="geschlecht" class="form-label"><?=t('demographic_gender') ?? 'Geschlecht'?></label>
@@ -111,7 +112,7 @@ if (!hasDemographicCookie()) {
                 </select>
             </div>
             <input type="hidden" name="demografie" value="1">
-            <button type="submit" class="btn btn-primary"><?=t('demographic_submit') ?? 'Weiter zu den Ergebnissen'?></button>
+            <button type="submit" class="btn btn-primary demografie-btn"><?=t('demographic_submit') ?? 'Weiter zu den Ergebnissen'?></button>
         </form>
     </div>
     </body>
