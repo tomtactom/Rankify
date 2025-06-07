@@ -9,7 +9,8 @@
   <meta name="description" content="<?=t('meta_description')?>">
   <meta name="author" content="Tom Aschmann">
   <meta name="copyright" content="&copy; <?=date('Y')?> Rankify">
-  <meta name="robots" content="index, follow">
+  <?php $robotsTag = isset($robots) ? $robots : 'index, follow'; ?>
+  <meta name="robots" content="<?=$robotsTag?>">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Language" content="<?=getLanguage()?>">

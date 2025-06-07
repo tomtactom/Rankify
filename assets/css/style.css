@@ -763,7 +763,8 @@ body.theme-dark .account-btn img { border-color: #4a5f85; background: #273050; }
 /* Responsive Offcanvas-Menü mit runden Ecken */
 @media (max-width: 991px) {
     .navbar-collapse {
-        background: inherit !important;
+        /* Ensure white mobile menu background across themes */
+        background: #fff !important;
         border-radius: 0 0 1.3rem 1.3rem;
         box-shadow: 0 10px 22px rgba(40,60,110,0.09);
         padding: 1.2em 0.8em;

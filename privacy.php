@@ -5,6 +5,7 @@ if (file_exists('settings.php')) {
 } else {
     include 'settings.php.bak';
 }
+$robots = 'noindex,nofollow';
 include 'navbar.php';
 ?>
 <div class="container py-4">
@@ -13,7 +14,7 @@ include 'navbar.php';
 
   <h3><?=t('privacy_heading_responsible')?></h3>
   <?php list($u,$d)=explode('@',$ADMIN_EMAIL,2); ?>
-  <p><?=htmlspecialchars($ADMIN_NAME)?><br><?=nl2br(htmlspecialchars($ADMIN_ADDRESS))?><br>E-Mail: <span class="obfuscated-email" data-user="<?=htmlspecialchars($u)?>" data-domain="<?=htmlspecialchars($d)?>" data-link="1">[email protected]</span></p>
+  <p><?=htmlspecialchars($ADMIN_NAME)?><br><span class="obfuscated-text" data-value="<?=base64_encode($ADMIN_ADDRESS)?>">[address protected]</span><br>E-Mail: <span class="obfuscated-email" data-user="<?=htmlspecialchars($u)?>" data-domain="<?=htmlspecialchars($d)?>" data-link="1">[email protected]</span></p>
 
   <h3><?=t('privacy_heading_usage')?></h3>
   <p><?=t('privacy_usage')?></p>

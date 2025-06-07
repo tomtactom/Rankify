@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Reveal obfuscated email addresses
     document.querySelectorAll('.obfuscated-email').forEach(function(el) {
         var user = el.dataset.user;
         var domain = el.dataset.domain;
@@ -8,6 +9,22 @@ document.addEventListener('DOMContentLoaded', function() {
             el.innerHTML = '<a href="mailto:' + email + '">' + email + '</a>';
         } else {
             el.textContent = email;
+        }
+    });
+
+    // Reveal generic obfuscated text (base64 encoded)
+    document.querySelectorAll('.obfuscated-text').forEach(function(el) {
+        var encoded = el.dataset.value;
+        if (!encoded) return;
+        try {
+            var decoded = atob(encoded);
+            if (el.dataset.link === 'mailto') {
+                el.innerHTML = '<a href="mailto:' + decoded + '">' + decoded + '</a>';
+            } else {
+                el.textContent = decoded;
+            }
+        } catch (e) {
+            console.error('Decode error', e);
         }
     });
 });

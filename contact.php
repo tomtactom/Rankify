@@ -6,6 +6,7 @@ if (file_exists('settings.php')) {
     include 'settings.php.bak';
 }
 include 'inc/email.php';
+$robots = 'noindex,nofollow';
 session_start();
 $sent = false;
 $error = '';
@@ -39,6 +40,9 @@ if (!$sent && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($captcha !== ($_SESSION['captcha_result'] ?? -1)) {
         $error = t('contact_error_captcha');
     } elseif ($name && $email && $msg) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = t('contact_error_fill');
+        } else {
         $token = bin2hex(random_bytes(16));
         @mkdir(__DIR__.'/data/contact', 0777, true);
         file_put_contents(__DIR__.'/data/contact/'.$token.'.json', json_encode([
@@ -50,6 +54,7 @@ if (!$sent && $_SERVER['REQUEST_METHOD'] === 'POST') {
         send_email($email, t('contact_email_subject'), $body);
         $sent = true;
         $stage = 'waiting';
+        }
     } else {
         $error = t('contact_error_fill');
     }
