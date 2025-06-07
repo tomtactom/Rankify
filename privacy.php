@@ -12,7 +12,8 @@ include 'navbar.php';
   <p>Der Schutz deiner Daten ist uns wichtig. Nachfolgend erkl&auml;ren wir, welche Informationen wir im Rahmen der Nutzung von Rankify verarbeiten und zu welchem Zweck dies geschieht.</p>
 
   <h3>Verantwortliche Stelle</h3>
-  <p><?=htmlspecialchars($ADMIN_NAME)?><br><?=nl2br(htmlspecialchars($ADMIN_ADDRESS))?><br>E-Mail: <a href="mailto:<?=htmlspecialchars($ADMIN_EMAIL)?>"><?=htmlspecialchars($ADMIN_EMAIL)?></a></p>
+  <?php list($u,$d)=explode('@',$ADMIN_EMAIL,2); ?>
+  <p><?=htmlspecialchars($ADMIN_NAME)?><br><?=nl2br(htmlspecialchars($ADMIN_ADDRESS))?><br>E-Mail: <span class="obfuscated-email" data-user="<?=htmlspecialchars($u)?>" data-domain="<?=htmlspecialchars($d)?>" data-link="1">[email protected]</span></p>
 
   <h3>Nutzungsdaten</h3>
   <p>Beim Aufruf dieser Webseite werden technisch bedingt Daten wie IP-Adresse und Zeitpunkt in Server-Logfiles gespeichert. Diese Daten ben&ouml;tigen wir, um den Dienst bereitzustellen und Angriffe abzuwehren. Eine Zusammenf&uuml;hrung mit anderen Daten erfolgt nicht.</p>
@@ -40,7 +41,8 @@ include 'navbar.php';
   <h3>Speicherdauer</h3>
   <p>Sitzungsdaten werden automatisch entfernt, sobald du das Browserfenster schlie&szlig;t oder das Set zur&uuml;cksetzt. Cookies bleiben bis zu einem Jahr gespeichert, k&ouml;nnen aber jederzeit von dir gel&ouml;scht werden.</p>
 
-  <p>Bei Fragen erreichst du uns unter <a href="mailto:<?=htmlspecialchars($ADMIN_EMAIL)?>"><?=htmlspecialchars($ADMIN_EMAIL)?></a>.</p>
+  <?php list($u2,$d2)=explode('@',$ADMIN_EMAIL,2); ?>
+  <p>Bei Fragen erreichst du uns unter <span class="obfuscated-email" data-user="<?=htmlspecialchars($u2)?>" data-domain="<?=htmlspecialchars($d2)?>" data-link="1">[email protected]</span>.</p>
 </div>
 <?php include 'footer.php'; ?>
 </body>

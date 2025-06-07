@@ -68,6 +68,7 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <script src="/assets/js/theme.js"></script>
   <script src="/assets/js/lang.js"></script>
+  <script src="/assets/js/email.js"></script>
 
 
   <!-- Progressive Enhancement / Accessibility (z.B. Schema.org, falls gewünscht) -->

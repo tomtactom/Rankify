@@ -10,9 +10,10 @@ include 'navbar.php';
 <div class="container py-4">
   <h1>Impressum</h1>
   <p>Angaben gem&auml;&szlig; &sect;5 TMG</p>
+  <?php list($u,$d)=explode('@',$ADMIN_EMAIL,2); ?>
   <p><?=htmlspecialchars($ADMIN_NAME)?><br>
      <?=nl2br(htmlspecialchars($ADMIN_ADDRESS))?><br>
-     E-Mail: <a href="mailto:<?=htmlspecialchars($ADMIN_EMAIL)?>"><?=htmlspecialchars($ADMIN_EMAIL)?></a></p>
+     E-Mail: <span class="obfuscated-email" data-user="<?=htmlspecialchars($u)?>" data-domain="<?=htmlspecialchars($d)?>" data-link="1">[email protected]</span></p>
   <p>Verantwortlich f&uuml;r den Inhalt nach &sect; 55 Abs. 2 RStV:<br>
      <?=htmlspecialchars($ADMIN_NAME)?>, <?=htmlspecialchars($ADMIN_ADDRESS)?></p>
 </div>
