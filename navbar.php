@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Grundlegende Meta-Tags -->
-  <meta name="description" content="Rankify unterstützt dich, persönliche Werte und Prioritäten transparent herauszufinden. Einfach, anonym und wissenschaftlich fundiert.">
+  <meta name="description" content="<?=t('meta_description')?>">
   <meta name="author" content="Tom Aschmann">
   <meta name="copyright" content="&copy; <?=date('Y')?> Rankify">
   <meta name="robots" content="index, follow">
@@ -18,16 +18,16 @@
   <link rel="canonical" href="https://rankify.tomaschmann.de<?=htmlspecialchars($_SERVER['REQUEST_URI'])?>">
 
   <!-- Open Graph / Facebook / LinkedIn -->
-  <meta property="og:title" content="Rankify – Finde deine Prioritäten">
-  <meta property="og:description" content="Ranke und vergleiche deine Werte, Entscheidungen oder Ziele. Kostenlos & anonym.">
+  <meta property="og:title" content="<?=t('meta_og_title')?>">
+  <meta property="og:description" content="<?=t('meta_og_description')?>">
   <meta property="og:image" content="https://rankify.tomaschmann.de/assets/img/rankifmy-logo.png">
   <meta property="og:url" content="https://rankify.tomaschmann.de<?=htmlspecialchars($_SERVER['REQUEST_URI'])?>">
   <meta property="og:type" content="website">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Rankify – Finde deine Prioritäten">
-  <meta name="twitter:description" content="Ranke und vergleiche deine Werte, Entscheidungen oder Ziele. Kostenlos & anonym.">
+  <meta name="twitter:title" content="<?=t('meta_twitter_title')?>">
+  <meta name="twitter:description" content="<?=t('meta_twitter_description')?>">
   <meta name="twitter:image" content="https://rankify.tomaschmann.de/assets/img/rankifmy-logo.png">
 
   <!-- Theme Colors -->
@@ -92,7 +92,7 @@
             Rankify
         </a>
         <span class="navbar-text d-none d-md-inline mx-2 nav-claim" style="color:#6383e0;font-size:1em;">
-            Deine Reihenfolge, deine Entscheidung
+            <?=t('slogan')?>
         </span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Menü öffnen/schließen">

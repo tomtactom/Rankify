@@ -21,13 +21,13 @@ if (isset($_GET['confirm'])) {
             $body  = '<p><strong>Name:</strong> '.htmlspecialchars($data['name']).'</p>';
             $body .= '<p><strong>Email:</strong> '.htmlspecialchars($data['email']).'</p>';
             $body .= '<p>'.nl2br(htmlspecialchars($data['message'])).'</p>';
-            send_email($ADMIN_EMAIL, 'Rankify Kontakt', $body);
+            send_email($ADMIN_EMAIL, t('contact_admin_subject'), $body);
             unlink($file);
             $sent = true;
             $stage = 'confirmed';
         }
     }
-    if (!$sent) $error = 'Ungültiger oder abgelaufener Bestätigungslink.';
+    if (!$sent) $error = t('contact_error_token');
 }
 
 // Formularversand
@@ -37,7 +37,7 @@ if (!$sent && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $msg = trim($_POST['message'] ?? '');
     $captcha = intval($_POST['captcha'] ?? 0);
     if ($captcha !== ($_SESSION['captcha_result'] ?? -1)) {
-        $error = 'Captcha falsch.';
+        $error = t('contact_error_captcha');
     } elseif ($name && $email && $msg) {
         $token = bin2hex(random_bytes(16));
         @mkdir(__DIR__.'/data/contact', 0777, true);
@@ -46,13 +46,12 @@ if (!$sent && $_SERVER['REQUEST_METHOD'] === 'POST') {
         ]));
         $link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']!=='off'? 'https':'http').
             '://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?confirm='.$token;
-        $body = '<p>Bitte bestätige deine Anfrage für Rankify, indem du auf folgenden Link klickst:</p>'.
-                '<p><a href="'.$link.'">Nachricht bestätigen</a></p>';
-        send_email($email, 'Bitte Kontakt bestätigen', $body);
+        $body = langf(t('contact_email_body'), $link);
+        send_email($email, t('contact_email_subject'), $body);
         $sent = true;
         $stage = 'waiting';
     } else {
-        $error = 'Bitte alle Felder ausfüllen.';
+        $error = t('contact_error_fill');
     }
 }
 
@@ -65,34 +64,34 @@ if (!isset($_SESSION['captcha_result']) || $sent) {
 include 'navbar.php';
 ?>
 <div class="container py-4">
-  <h1>Kontakt</h1>
-  <p class="lead">Fragen, Feedback oder wissenschaftliche Anregungen? Wir freuen uns auf deine Nachricht.</p>
+  <h1><?=t('contact_title')?></h1>
+  <p class="lead"><?=t('contact_intro')?></p>
   <?php if($sent): ?>
     <?php if($stage=='waiting'): ?>
-      <div class="alert alert-success">Bitte bestätige deine Nachricht über den Link in der zugesandten E-Mail.</div>
+      <div class="alert alert-success"><?=t('contact_waiting')?></div>
     <?php else: ?>
-      <div class="alert alert-success">Deine Nachricht wurde verschickt.</div>
+      <div class="alert alert-success"><?=t('contact_sent')?></div>
     <?php endif; ?>
   <?php else: ?>
     <?php if($error): ?><div class="alert alert-danger"><?=$error?></div><?php endif; ?>
     <form method="post">
       <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
+        <label for="name" class="form-label"><?=t('contact_label_name')?></label>
         <input type="text" class="form-control" id="name" name="name" required>
       </div>
       <div class="mb-3">
-        <label for="email" class="form-label">E-Mail</label>
+        <label for="email" class="form-label"><?=t('contact_label_email')?></label>
         <input type="email" class="form-control" id="email" name="email" required>
       </div>
       <div class="mb-3">
-        <label for="message" class="form-label">Nachricht</label>
+        <label for="message" class="form-label"><?=t('contact_label_message')?></label>
         <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
       </div>
       <div class="mb-3">
         <label for="captcha" class="form-label"><?=$_SESSION['captcha_question']?></label>
         <input type="number" class="form-control" id="captcha" name="captcha" required>
       </div>
-      <button type="submit" class="btn btn-primary">Senden</button>
+      <button type="submit" class="btn btn-primary"><?=t('contact_send')?></button>
     </form>
   <?php endif; ?>
 </div>
