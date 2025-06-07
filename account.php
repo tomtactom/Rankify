@@ -21,10 +21,10 @@ function loadCardTitles($setPath) {
 }
 ?>
 <div class="container py-4">
-  <h1>Dein Profil</h1>
-  <p class="lead">Hier findest du eine spielerische &Uuml;bersicht deiner gespeicherten Ergebnisse.</p>
+  <h1><?=t('account_title')?></h1>
+  <p class="lead"><?=t('account_lead')?></p>
   <?php if(empty($history)): ?>
-    <p>Noch keine Ergebnisse gespeichert.</p>
+    <p><?=t('account_none')?></p>
   <?php else: ?>
     <?php $hist = array_reverse($history); foreach($hist as $idx => $entry): ?>
       <?php $cards = loadCardTitles($entry['set']); ?>
@@ -42,7 +42,7 @@ function loadCardTitles($setPath) {
         <div class="card-body">
           <?php $firstId = array_key_first($entry['scores']); ?>
           <?php if(isset($cards[$firstId])): ?>
-            <p class="card-text">Höchster Wert: <b><?=htmlspecialchars($cards[$firstId]['title'])?></b></p>
+            <p class="card-text"><?=t('account_highest')?>: <b><?=htmlspecialchars($cards[$firstId]['title'])?></b></p>
           <?php endif; ?>
           <a href="download.php?index=<?=$idx?>&format=apa" class="btn btn-outline-secondary btn-sm">APA</a>
           <a href="download.php?index=<?=$idx?>&format=json" class="btn btn-outline-secondary btn-sm">JSON</a>
