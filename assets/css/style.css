@@ -110,6 +110,9 @@ h1, h2, h3, .fw-bold { letter-spacing: 0.02em; }
         top: 64px;
         z-index: 1205;
     }
+    #navbarNavDropdown {
+        background: #fff; /* Ensures visible menu background on mobile */
+    }
     .navbar-nav { flex-direction: column !important; width: 100%; }
     .navbar-nav .nav-link, .navbar-nav .switch-btn, .navbar-nav .lang-btn {
         width: 95%; margin: 0.18em auto 0.18em auto; text-align: center;
