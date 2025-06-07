@@ -181,6 +181,13 @@ foreach($antworten as $a) {
 arsort($scores);
 $maxScore = max($scores);
 
+// Ergebnisse im Cookie speichern
+$hist = isset($_COOKIE['rankify_history']) ? json_decode($_COOKIE['rankify_history'], true) : [];
+if (!is_array($hist)) $hist = [];
+$hist[] = ['time'=>date('c'),'set'=>$kartensetPfad,'scores'=>$scores];
+if (count($hist) > 10) $hist = array_slice($hist, -10);
+setcookie('rankify_history', json_encode($hist), time()+365*24*3600, '/');
+
 // Viele Figuren (SVG/Emoji)
 $figuren = [
     0=>"🦁", 1=>"🦉", 2=>"🐧", 3=>"🐢", 4=>"🐱", 5=>"🦊", 6=>"🐼", 7=>"🐸", 8=>"🦄", 9=>"🐯",
@@ -414,10 +421,11 @@ include 'navbar.php';
                         <span style="color:#666;font-size:.98em;">Abstimmungen: <?=implode(" · ", $countstr)?></span>
                     </div>
                 </div>
-            <?php endforeach; ?>
+<?php endforeach; ?>
         </div>
     <?php endif; ?>
 
 </div>
+<?php include 'footer.php'; ?>
 </body>
 </html>

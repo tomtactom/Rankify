@@ -61,6 +61,7 @@ include 'navbar.php';
 <div class="container py-4">
 
     <h1 class="mb-4"><?=t('sets_overview')?></h1>
+    <p class="lead">Nutze wissenschaftlich erprobte Paarvergleiche, um deine persönlichen Prioritäten herauszufinden. Wähle ein Set und starte direkt.</p>
 
     <?php if(empty($kartensets)): ?>
         <div class="alert alert-warning"><?=t('error_no_set')?></div>
@@ -81,8 +82,9 @@ include 'navbar.php';
             </div>
         <?php endforeach; ?>
         </div>
-    <?php endif; ?>
+<?php endif; ?>
 
 </div>
+<?php include 'footer.php'; ?>
 </body>
 </html>

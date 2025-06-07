@@ -260,5 +260,6 @@ include 'navbar.php';
         <a href="index.php" class="btn btn-secondary"><?=t('back_to_sets')?></a>
     </div>
 </div>
+<?php include 'footer.php'; ?>
 </body>
 </html>
