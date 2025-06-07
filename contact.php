@@ -16,32 +16,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         @mail($ADMIN_EMAIL, 'Rankify Kontakt', $msg, $headers);
         $sent = true;
     } else {
-        $error = 'Bitte alle Felder ausfüllen.';
+        $error = t('contact_error');
     }
 }
 include 'navbar.php';
 ?>
 <div class="container py-4">
-  <h1>Kontakt</h1>
-  <p class="lead">Fragen, Feedback oder wissenschaftliche Anregungen? Wir freuen uns auf deine Nachricht.</p>
+  <h1><?=t('contact_title')?></h1>
+  <p class="lead"><?=t('contact_lead')?></p>
   <?php if($sent): ?>
-    <div class="alert alert-success">Deine Nachricht wurde verschickt.</div>
+    <div class="alert alert-success"><?=t('contact_sent')?></div>
   <?php else: ?>
     <?php if($error): ?><div class="alert alert-danger"><?=$error?></div><?php endif; ?>
     <form method="post">
       <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
+        <label for="name" class="form-label"><?=t('contact_name')?></label>
         <input type="text" class="form-control" id="name" name="name" required>
       </div>
       <div class="mb-3">
-        <label for="email" class="form-label">E-Mail</label>
+        <label for="email" class="form-label"><?=t('contact_email')?></label>
         <input type="email" class="form-control" id="email" name="email" required>
       </div>
       <div class="mb-3">
-        <label for="message" class="form-label">Nachricht</label>
+        <label for="message" class="form-label"><?=t('contact_message')?></label>
         <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
       </div>
-      <button type="submit" class="btn btn-primary">Senden</button>
+      <button type="submit" class="btn btn-primary"><?=t('contact_submit')?></button>
     </form>
   <?php endif; ?>
 </div>

@@ -91,10 +91,10 @@
             Rankify
         </a>
         <span class="navbar-text d-none d-md-inline mx-2 nav-claim" style="color:#6383e0;font-size:1em;">
-            Deine Reihenfolge, deine Entscheidung
+            <?=t('slogan')?>
         </span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Menü öffnen/schließen">
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="<?=t('nav_toggle')?>">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse flex-grow-0" id="navbarNavDropdown">
@@ -103,35 +103,35 @@
                 <a class="nav-link" href="index.php"><?=t('sets_overview') ?? 'Übersicht'?></a>
             </li>
             <li class="nav-item d-none d-md-inline">
-                <a class="nav-link" href="faq.php">FAQ</a>
+                <a class="nav-link" href="faq.php"><?=t('faq')?></a>
             </li>
             <li class="nav-item d-none d-md-inline">
-                <a class="nav-link" href="contact.php">Kontakt</a>
+                <a class="nav-link" href="contact.php"><?=t('contact')?></a>
             </li>
             <?php if(isset($background_audio) && $background_audio == true) { ?>
             <!-- Lautsprecher Emoji: 🔊  (Ton an)  /  🔇  (Ton aus) -->
             <li class="nav-item mx-1">
-              <button id="musicToggle" class="nav-bubble" title="Musik an/aus" aria-label="Musik an/aus" style="font-size:1.03em; padding:.2em .9em;">
+              <button id="musicToggle" class="nav-bubble" title="<?=t('music_toggle')?>" aria-label="<?=t('music_toggle')?>" style="font-size:1.03em; padding:.2em .9em;">
                 <span id="musicIcon">🔊</span>
               </button>
             </li>
             <?php } ?>
             <!-- Theme-Switcher -->
             <li class="nav-item mx-1">
-                <button class="switch-btn" id="themeSwitcher" aria-label="Theme wechseln" title="Theme wechseln">
+                <button class="switch-btn" id="themeSwitcher" aria-label="<?=t('theme_toggle')?>" title="<?=t('theme_toggle')?>">
                     <span id="themeIcon" style="font-size:1.25em;">🌞</span>
                 </button>
             </li>
             <!-- Language Switcher -->
             <li class="nav-item mx-1">
-                <button class="lang-btn" id="langSwitcher" aria-label="Sprache wechseln" title="Sprache wechseln">
+                <button class="lang-btn" id="langSwitcher" aria-label="<?=t('lang_toggle')?>" title="<?=t('lang_toggle')?>">
                     <span style="font-size:1.08em; margin-right:0.16em;">🌐</span>
                     <span id="langLabel"><?= strtoupper(getLanguage()) ?></span>
                 </button>
             </li>
             <!-- Account-Icon -->
             <li class="nav-item mx-1">
-                <a class="account-btn" href="account.php" title="Account/Profil" aria-label="Account/Profil">
+                <a class="account-btn" href="account.php" title="<?=t('account_title')?>" aria-label="<?=t('account_title')?>">
                     <?php if(file_exists("assets/img/avatar.png")): ?>
                         <img src="assets/img/avatar.png" alt="Account" width="32" height="32">
                     <?php else: ?>

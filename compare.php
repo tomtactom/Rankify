@@ -174,9 +174,9 @@ include 'navbar.php';
         echo "</div>";
         ?>
         <div class="alert alert-danger mt-5">
-            <b>Fehler:</b> Die Vergleichspaare sind ungültig oder unvollständig.<br>
-            Bitte <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1">Set neu starten</a>.<br>
-            Falls das Problem weiterhin auftritt, prüfe die CSV-Datei und lösche ggf. die gespeicherten Sitzungsdaten dieses Sets.
+            <b><?=t('error_invalid_pairs')?></b><br>
+            <?=t('error_invalid_restart')?> <a href="compare.php?set=<?=urlencode($kartensetPfad)?>&reset=1">Set</a>.<br>
+            <?=t('error_invalid_tip')?>
         </div>
         </body></html>
         <?php exit;
