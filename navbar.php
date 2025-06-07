@@ -104,10 +104,10 @@
                 <a class="nav-link" href="index.php"><?=t('sets_overview') ?? 'Übersicht'?></a>
             </li>
             <li class="nav-item d-none d-md-inline">
-                <a class="nav-link" href="faq.php">FAQ</a>
+                <a class="nav-link" href="faq.php"><?=t('faq')?></a>
             </li>
             <li class="nav-item d-none d-md-inline">
-                <a class="nav-link" href="contact.php">Kontakt</a>
+                <a class="nav-link" href="contact.php"><?=t('contact')?></a>
             </li>
             <?php if(isset($background_audio) && $background_audio == true) { ?>
             <!-- Lautsprecher Emoji: 🔊  (Ton an)  /  🔇  (Ton aus) -->
