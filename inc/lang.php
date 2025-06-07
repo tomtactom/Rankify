@@ -345,6 +345,8 @@ References: %s",
     'account_no_results_en' => 'No results saved yet.',
     'account_highest_value_de' => 'Höchster Wert',
     'account_highest_value_en' => 'Highest value',
+    'account_clear_history_de' => 'Verlauf löschen',
+    'account_clear_history_en' => 'Clear history',
 
     // ------ Legal Notice ------
     'legal_title_de' => 'Impressum',

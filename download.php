@@ -15,6 +15,7 @@ if (!is_array($history) || !isset($history[$index])) {
 }
 $entry = $history[$index];
 $set   = $entry['set'];
+$setName = preg_replace('/(_[a-z]{2})?\.csv$/','', basename($set));
 $scores = $entry['scores'];
 $file = __DIR__.'/data/'.$set;
 if (!file_exists($file)) {
@@ -31,25 +32,26 @@ foreach ($rows as $r) {
 }
 // helper to create result text
 function build_text($cards, $scores) {
-    $out = ""; $rank = 1;
+    $parts = [];
+    $rank = 1;
     foreach ($scores as $id=>$score) {
         if (!isset($cards[$id])) continue;
         $c = $cards[$id];
-        $out .= $rank.'. '.$c['title'].' ('.$c['subtitle'].') – '.$score."\n";
+        $parts[] = "$rank. {$c['title']} ({$c['subtitle']}, Score=$score)";
         $rank++;
     }
-    return $out;
+    return 'The items were ranked as follows: '.implode('; ', $parts).'.';
 }
 $text = build_text($cards, $scores);
 switch($format) {
     case 'json':
         header('Content-Type: application/json');
-        header('Content-Disposition: attachment; filename="rankify_results.json"');
+        header('Content-Disposition: attachment; filename="'.$setName.'_results.json"');
         echo json_encode(['set'=>$set,'scores'=>$scores,'generated'=>date('c')], JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE);
         break;
     case 'apa':
         header('Content-Type: text/plain; charset=utf-8');
-        header('Content-Disposition: attachment; filename="rankify_results.txt"');
+        header('Content-Disposition: attachment; filename="'.$setName.'_results.txt"');
         echo $text;
         break;
     case 'png':
@@ -65,7 +67,7 @@ switch($format) {
             $y+=20;
         }
         header('Content-Type: image/png');
-        header('Content-Disposition: attachment; filename="rankify_results.png"');
+        header('Content-Disposition: attachment; filename="'.$setName.'_results.png"');
         imagepng($im);
         imagedestroy($im);
         break;
@@ -81,8 +83,8 @@ switch($format) {
             $pdf->Cell(0,8,$line,0,1);
         }
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="rankify_results.pdf"');
-        $pdf->Output('D','rankify_results.pdf');
+        header('Content-Disposition: attachment; filename="'.$setName.'_results.pdf"');
+        $pdf->Output('D', $setName.'_results.pdf');
         break;
     default:
         http_response_code(400);

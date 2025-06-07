@@ -5,10 +5,11 @@ document.addEventListener('DOMContentLoaded', function() {
         var domain = el.dataset.domain;
         if (!user || !domain) return;
         var email = user + '@' + domain;
+        var display = user + ' [\u00e4t] ' + domain;
         if (el.dataset.link) {
-            el.innerHTML = '<a href="mailto:' + email + '">' + email + '</a>';
+            el.innerHTML = '<a href="mailto:' + email + '">' + display + '</a>';
         } else {
-            el.textContent = email;
+            el.textContent = display;
         }
     });
 
