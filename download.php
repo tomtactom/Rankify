@@ -1,5 +1,6 @@
 <?php
 // Download helper for Rankify history entries
+include __DIR__.'/inc/lang.php';
 if (!isset($_GET['index']) || !isset($_GET['format'])) {
     http_response_code(400);
     echo 'Missing parameters';
@@ -32,15 +33,19 @@ foreach ($rows as $r) {
 }
 // helper to create result text
 function build_text($cards, $scores) {
+    $lang = getLanguage();
     $parts = [];
     $rank = 1;
-    foreach ($scores as $id=>$score) {
+    foreach ($scores as $id => $score) {
         if (!isset($cards[$id])) continue;
         $c = $cards[$id];
-        $parts[] = "$rank. {$c['title']} ({$c['subtitle']}, Score=$score)";
+        if ($lang === 'de')
+            $parts[] = "$rank. {$c['title']} ({$c['subtitle']}) – {$score} Punkte";
+        else
+            $parts[] = "$rank. {$c['title']} ({$c['subtitle']}) – {$score} points";
         $rank++;
     }
-    return 'The items were ranked as follows: '.implode('; ', $parts).'.';
+    return t('apa_ranking_head') . ' ' . implode('; ', $parts) . '.';
 }
 $text = build_text($cards, $scores);
 switch($format) {
@@ -55,16 +60,19 @@ switch($format) {
         echo $text;
         break;
     case 'png':
-        $im = imagecreatetruecolor(800, 20*(count($scores)+2));
-        $bg = imagecolorallocate($im, 255,255,255); imagefill($im,0,0,$bg);
-        $color = imagecolorallocate($im, 0,0,0);
-        $y=20; imagefttext($im, 12,0,20,$y,$color,'/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf','Rankify Ergebnisse');
-        $y+=20;
-        foreach ($scores as $id=>$score) {
+        $height = 20 * (count($scores) + 2);
+        $im = imagecreatetruecolor(800, $height);
+        $bg = imagecolorallocate($im, 255, 255, 255);
+        imagefill($im, 0, 0, $bg);
+        $color = imagecolorallocate($im, 0, 0, 0);
+        $y = 5;
+        imagestring($im, 5, 20, $y, t('results'), $color);
+        $y += 20;
+        foreach ($scores as $id => $score) {
             if (!isset($cards[$id])) continue;
-            $line = $cards[$id]['title'].' - '.$score;
-            imagefttext($im, 10,0,20,$y,$color,'/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',$line);
-            $y+=20;
+            $line = $cards[$id]['title'] . ' - ' . $score;
+            imagestring($im, 3, 20, $y, $line, $color);
+            $y += 15;
         }
         header('Content-Type: image/png');
         header('Content-Disposition: attachment; filename="'.$setName.'_results.png"');
@@ -75,8 +83,8 @@ switch($format) {
         require_once(__DIR__.'/lib/fpdf.php');
         $pdf = new FPDF();
         $pdf->AddPage();
-        $pdf->SetFont('Arial','',12);
-        $pdf->Cell(0,10,'Rankify Ergebnisse',0,1);
+        $pdf->SetFont('Helvetica','',12);
+        $pdf->Cell(0,10,t('results'),0,1);
         foreach ($scores as $id=>$score) {
             if (!isset($cards[$id])) continue;
             $line = $cards[$id]['title'].' - '.$score;
