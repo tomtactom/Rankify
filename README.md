@@ -32,6 +32,7 @@ generate example results:
 ```bash
 php scripts/generate_demo_data.php
 ```
+Run this command from the terminal rather than accessing the PHP file through the browser to avoid timeouts.
 
 This populates `data/rankify.sqlite` with random scores for every card set so
 that the norm tables become visible.
