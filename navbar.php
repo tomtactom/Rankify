@@ -1,3 +1,4 @@
+<?php require_once __DIR__."/inc/config.php"; ?>
 <!DOCTYPE html>
 <html lang="<?=getLanguage()?>">
 <head>
