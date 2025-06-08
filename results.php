@@ -75,7 +75,11 @@ function getDemographicCookie() {
     return json_decode($_COOKIE['rankifmy_demografie'], true);
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['demografie'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['skip_demografie'])) {
+    $_SESSION['demografie_skipped'] = true;
+    header("Location: results.php?set=" . urlencode($kartensetPfad));
+    exit;
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['demografie'])) {
     csrf_check();
     $data = [
         'alter'      => trim($_POST['alter'] ?? ''),
@@ -95,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['demografie'])) {
     exit;
 }
 
-if (!hasDemographicCookie()) {
+if (!hasDemographicCookie() && empty($_SESSION['demografie_skipped'])) {
     include('navbar.php');
 ?>
     <div class="demografie-form">
@@ -130,8 +134,10 @@ if (!hasDemographicCookie()) {
                     <option value="sonst"><?=t('demographic_edu_other') ?? 'Sonstiger Abschluss'?></option>
                 </select>
             </div>
+            <p class="small text-muted mb-2"><?=t('demographic_privacy') ?? 'Die Angaben werden anonym gespeichert und ausschlie\u00dflich f\u00fcr Forschungszwecke genutzt.'?></p>
             <input type="hidden" name="demografie" value="1">
-            <button type="submit" class="btn btn-primary demografie-btn"><?=t('demographic_submit') ?? 'Weiter zu den Ergebnissen'?></button>
+            <button type="submit" class="btn btn-primary demografie-btn me-2"><?=t('demographic_submit') ?? 'Weiter zu den Ergebnissen'?></button>
+            <button type="submit" name="skip_demografie" value="1" class="btn btn-secondary"><?=t('demographic_skip') ?? 'Ohne Angaben fortfahren'?></button>
         </form>
     </div>
     </body>
@@ -212,6 +218,18 @@ setcookie('rankify_history', json_encode($hist), [
     'httponly' => true,
     'samesite' => 'Lax',
 ]);
+
+require_once 'inc/db.php';
+$demoData = getDemographicCookie();
+$skippedDemo = !hasDemographicCookie() && !empty($_SESSION['demografie_skipped']);
+if (empty($progress['saved_to_db'])) {
+    save_result_db($kartensetPfad, $scores, $demoData, $skippedDemo);
+    $progress['saved_to_db'] = true;
+    saveProgress($kartensetPfad, $progress);
+}
+
+$normData = fetch_normative($kartensetPfad, $demoData);
+$normGlobal = fetch_normative($kartensetPfad, null);
 
 // Viele Figuren (SVG/Emoji)
 $figuren = [
@@ -368,6 +386,27 @@ include 'navbar.php';
         </div>
     <?php $rank++; endforeach; ?>
     </div>
+
+    <?php if($normData): ?>
+    <div class="norm-box mb-5">
+        <h4><?=t('norm_comparison_title') ?? 'Normwerte (deine Gruppe)'?> (n=<?=$normData['n']?>)</h4>
+        <ol>
+        <?php $r=1; foreach($normData['scores'] as $cid=>$val): $c=$karten[$cid]; ?>
+            <li>#<?=$r++?> <?=htmlspecialchars($c['title'])?></li>
+        <?php endforeach; ?>
+        </ol>
+    </div>
+    <?php endif; ?>
+    <?php if($normGlobal): ?>
+    <div class="norm-box mb-5">
+        <h4><?=t('norm_public_title') ?? 'Öffentliche Statistik'?> (n=<?=$normGlobal['n']?>)</h4>
+        <ol>
+        <?php $r=1; foreach($normGlobal['scores'] as $cid=>$val): $c=$karten[$cid]; if($r>5) break;?>
+            <li>#<?=$r++?> <?=htmlspecialchars($c['title'])?></li>
+        <?php endforeach; ?>
+        </ol>
+    </div>
+    <?php endif; ?>
 
     <!-- BUTTONS -->
     <div class="results-btns">

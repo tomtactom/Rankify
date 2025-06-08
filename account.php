@@ -65,6 +65,15 @@ function loadCardTitles($setPath) {
           <a href="download.php?index=<?=$idx?>&format=json" class="btn btn-outline-secondary btn-sm">JSON</a>
           <a href="download.php?index=<?=$idx?>&format=png" class="btn btn-outline-secondary btn-sm">PNG</a>
           <a href="download.php?index=<?=$idx?>&format=pdf" class="btn btn-outline-secondary btn-sm">PDF</a>
+          <?php
+            require_once 'inc/db.php';
+            $norm = fetch_normative($entry['set'], null);
+            if($norm){
+              echo '<div class="mt-3"><b>'.t('norm_public_title').'</b> (n='.$norm['n'].')<ol style="margin-bottom:0">';
+              $r=1; foreach($norm['scores'] as $cid=>$v){ if($r>3) break; $title=$cards[$cid]['title']??$cid; echo '<li>#'.$r.' '.htmlspecialchars($title).'</li>'; $r++; }
+              echo '</ol></div>';
+            }
+          ?>
         </div>
       </div>
     <?php endforeach; ?>

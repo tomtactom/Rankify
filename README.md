@@ -16,7 +16,9 @@ models (e.g. Thurstone, Bradley–Terry) and presents an ordered list of your pr
 3. Run a local server with `php -S localhost:8000` in the project directory.
 4. Open `http://localhost:8000` in your browser.
 
-No database is required; results are stored locally in the browser.
+The application uses a local SQLite database (`data/rankify.sqlite`) to store
+anonymous results and demographic information. The database is created
+automatically on first run.
 
 ### Maintenance
 Confirmation links generated through the contact form are stored in `data/contact`.
