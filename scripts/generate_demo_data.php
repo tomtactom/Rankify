@@ -13,13 +13,23 @@ if (PHP_SAPI !== 'cli') {
     if (function_exists('set_time_limit')) {
         set_time_limit(0);
     }
+
+    // Determine whether we can flush the request using fastcgi_finish_request
+    $hasFastcgiFinish = function_exists('fastcgi_finish_request');
+
     header('Content-Type: text/plain; charset=utf-8');
+    if (!$hasFastcgiFinish) {
+        // Ensure the connection is closed before spawning the background process
+        header('Connection: close');
+    }
+
     echo "Starting demo data generation. This may take a while...\n";
     if (function_exists('ob_implicit_flush')) {
         ob_implicit_flush(true);
     }
+
     // finish the HTTP request so the browser doesn't time out
-    if (function_exists('fastcgi_finish_request')) {
+    if ($hasFastcgiFinish) {
         debug_log('Calling fastcgi_finish_request');
         fastcgi_finish_request();
     } else {
@@ -28,7 +38,6 @@ if (PHP_SAPI !== 'cli') {
         $cmd = 'php '.escapeshellarg(__FILE__).' cli > /dev/null 2>&1 &';
         debug_log('fastcgi_finish_request not available, launching background process: '.$cmd);
         pclose(popen($cmd, 'r'));
-        header('Connection: close');
         flush();
         exit;
     }
