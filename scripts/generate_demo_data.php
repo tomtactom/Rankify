@@ -4,14 +4,23 @@ require_once __DIR__.'/../inc/kartenset_loader.php';
 
 // Allow the script to run via web server without timing out
 if (PHP_SAPI !== 'cli') {
-    // Disable execution time limit when called from the browser
+    // keep running even if the client disconnects
+    if (function_exists('ignore_user_abort')) {
+        ignore_user_abort(true);
+    }
     if (function_exists('set_time_limit')) {
         set_time_limit(0);
     }
     header('Content-Type: text/plain; charset=utf-8');
-    // Send output immediately to avoid proxy timeouts
+    echo "Starting demo data generation. This may take a while...\n";
     if (function_exists('ob_implicit_flush')) {
         ob_implicit_flush(true);
+    }
+    // finish the HTTP request so the browser doesn't time out
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    } else {
+        flush();
     }
 }
 
@@ -60,3 +69,6 @@ foreach ($sets as $set) {
 }
 
 echo "Demo data generated in " . DB_FILE . "\n";
+if (PHP_SAPI !== 'cli') {
+    error_log('[Rankify] Demo data generation finished at '.date('c'));
+}
