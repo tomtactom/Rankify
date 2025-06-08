@@ -1,6 +1,7 @@
 <?php
 // Download helper for Rankify history entries
 include __DIR__.'/inc/lang.php';
+include __DIR__.'/inc/validate.php';
 if (!isset($_GET['index']) || !isset($_GET['format'])) {
     http_response_code(400);
     echo 'Missing parameters';
@@ -15,7 +16,12 @@ if (!is_array($history) || !isset($history[$index])) {
     exit;
 }
 $entry = $history[$index];
-$set   = $entry['set'];
+$set   = validate_set_path($entry['set']);
+if (!$set) {
+    http_response_code(400);
+    echo 'Invalid set';
+    exit;
+}
 $setName = preg_replace('/(_[a-z]{2})?\.csv$/','', basename($set));
 $scores = $entry['scores'];
 $file = __DIR__.'/data/'.$set;
