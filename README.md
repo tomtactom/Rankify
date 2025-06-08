@@ -20,3 +20,6 @@ No database is required; results are stored locally in the browser.
 
 ## License
 This project is released under the MIT License. See `LICENSE` for details.
+
+Fonts are licensed separately under the DejaVu Fonts License. See
+`assets/fonts/LICENSE-DejaVu.txt` for the full text.
