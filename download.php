@@ -60,19 +60,33 @@ switch($format) {
         echo $text;
         break;
     case 'png':
-        $height = 20 * (count($scores) + 2);
-        $im = imagecreatetruecolor(800, $height);
+        $barHeight = 20;
+        $padding   = 20;
+        $lineHeight = $barHeight + 20;
+        $width  = 800;
+        $height = $lineHeight * count($scores) + $padding * 2;
+        $im = imagecreatetruecolor($width, $height);
         $bg = imagecolorallocate($im, 255, 255, 255);
         imagefill($im, 0, 0, $bg);
-        $color = imagecolorallocate($im, 0, 0, 0);
-        $y = 5;
-        imagestring($im, 5, 20, $y, t('results'), $color);
-        $y += 20;
+        $black = imagecolorallocate($im, 0, 0, 0);
+        $barColor = imagecolorallocate($im, 40, 215, 174); // #28d7ae
+        $fontBold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
+        $font = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
+
+        // Header
+        imagettftext($im, 16, 0, $padding, $padding, $black, $fontBold, t('results'));
+        $y = $padding + 10;
+        $maxScore = max($scores);
+        $rank = 1;
         foreach ($scores as $id => $score) {
             if (!isset($cards[$id])) continue;
-            $line = $cards[$id]['title'] . ' - ' . $score;
-            imagestring($im, 3, 20, $y, $line, $color);
-            $y += 15;
+            $title = $cards[$id]['title'];
+            $barWidth = $maxScore > 0 ? ($score / $maxScore) * ($width - 250) : 0;
+            imagettftext($im, 12, 0, $padding, $y + $barHeight - 4, $black, $fontBold, $rank.'. '.$title);
+            imagefilledrectangle($im, 200, $y, 200 + $barWidth, $y + $barHeight, $barColor);
+            imagettftext($im, 12, 0, 210 + $barWidth, $y + $barHeight - 4, $black, $font, (string)$score);
+            $y += $lineHeight;
+            $rank++;
         }
         header('Content-Type: image/png');
         header('Content-Disposition: attachment; filename="'.$setName.'_results.png"');
@@ -83,13 +97,26 @@ switch($format) {
         require_once(__DIR__.'/lib/fpdf.php');
         $pdf = new FPDF();
         $pdf->AddPage();
+        $pdf->SetFont('Helvetica','B',16);
+        $pdf->Cell(0,10,t('results'),0,1,'C');
+        $pdf->Ln(5);
+
+        $pdf->SetFont('Helvetica','B',12);
+        $pdf->SetFillColor(224,235,255);
+        $pdf->Cell(10,8,'#',1,0,'C',true);
+        $pdf->Cell(140,8,'Item',1,0,'L',true);
+        $pdf->Cell(20,8,'Score',1,1,'C',true);
+
         $pdf->SetFont('Helvetica','',12);
-        $pdf->Cell(0,10,t('results'),0,1);
+        $rank = 1;
         foreach ($scores as $id=>$score) {
             if (!isset($cards[$id])) continue;
-            $line = $cards[$id]['title'].' - '.$score;
-            $pdf->Cell(0,8,$line,0,1);
+            $pdf->Cell(10,8,$rank,1,0,'C');
+            $pdf->Cell(140,8,$cards[$id]['title'],1,0,'L');
+            $pdf->Cell(20,8,$score,1,1,'C');
+            $rank++;
         }
+
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="'.$setName.'_results.pdf"');
         $pdf->Output('D', $setName.'_results.pdf');
