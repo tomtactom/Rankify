@@ -23,8 +23,14 @@ if (PHP_SAPI !== 'cli') {
         debug_log('Calling fastcgi_finish_request');
         fastcgi_finish_request();
     } else {
-        debug_log('fastcgi_finish_request not available, flushing output');
+        // If the function is unavailable (e.g. on shared hosting), run the
+        // script again via CLI in the background so the HTTP request can finish
+        $cmd = 'php '.escapeshellarg(__FILE__).' cli > /dev/null 2>&1 &';
+        debug_log('fastcgi_finish_request not available, launching background process: '.$cmd);
+        pclose(popen($cmd, 'r'));
+        header('Connection: close');
         flush();
+        exit;
     }
 }
 
