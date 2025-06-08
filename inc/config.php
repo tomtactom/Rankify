@@ -7,7 +7,7 @@ const DEV_MODE = false;
 const DEBUG_LOG_FILE = __DIR__ . '/../logs/debug.log';
 
 // Base URL of the application (no trailing slash)
-const BASE_URL = 'https://example.com';
+const BASE_URL = 'https://rankify.tomaschmann.de';
 
 // Path to SQLite database file
 const DB_FILE = __DIR__ . '/../data/rankify.sqlite';
