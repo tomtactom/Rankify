@@ -76,8 +76,12 @@ foreach ($sets as $set) {
                         'geschlecht' => $gender,
                         'abschluss' => $edu
                     ];
+                    // Ensure the stored path matches the format used by the
+                    // application when saving real user results. Use realpath
+                    // to normalize the file path before stripping the data
+                    // directory prefix.
                     $dataRoot = realpath(__DIR__.'/../data');
-                    $relPath = str_replace($dataRoot.'/', '', $set['path']);
+                    $relPath = str_replace($dataRoot.'/', '', realpath($set['path']));
                     save_result_db($relPath, $scores, $demo, false);
                 }
             }

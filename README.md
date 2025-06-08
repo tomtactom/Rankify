@@ -34,9 +34,14 @@ php scripts/generate_demo_data.php
 ```
 
 This populates `data/rankify.sqlite` with random scores for every card set so
-that the norm tables become visible. If you prefer to trigger the generation via
-your browser, simply open `scripts/generate_demo_data.php` in a web browser. The
-script immediately responds while the data is created in the background.
+that the norm tables become visible. Make sure the PHP CLI is available and the
+`pdo_sqlite` extension is installed.
+
+If you prefer to trigger the generation via your browser, simply open
+`scripts/generate_demo_data.php` in a web browser. The script immediately
+responds while the data is created in the background. On some hosting systems
+the required shell commands may be disabled; in that case run the script from
+the command line instead.
 
 ## License
 This project is released under the MIT License. See `LICENSE` for details.
