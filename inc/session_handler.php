@@ -3,7 +3,16 @@
 
 // Einfacher, dateibasierter oder Cookie-basierter Progress
 // Du kannst dies auf SESSION oder COOKIE umstellen. Hier: SESSION (am wenigsten problematisch)
-if(session_status() !== PHP_SESSION_ACTIVE) session_start();
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+    session_start();
+}
 
 /**
  * Lädt den aktuellen Bearbeitungsstand für ein Kartenset aus der SESSION.

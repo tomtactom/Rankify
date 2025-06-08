@@ -6,8 +6,10 @@ if (file_exists('settings.php')) {
     include 'settings.php.bak';
 }
 include 'inc/email.php';
+include 'inc/config.php';
 $robots = 'noindex,nofollow';
 session_start();
+include 'inc/csrf.php';
 $sent = false;
 $error = '';
 $stage = '';
@@ -33,6 +35,7 @@ if (isset($_GET['confirm'])) {
 
 // Formularversand
 if (!$sent && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_check();
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $msg = trim($_POST['message'] ?? '');
@@ -46,10 +49,9 @@ if (!$sent && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $token = bin2hex(random_bytes(16));
         @mkdir(__DIR__.'/data/contact', 0777, true);
         file_put_contents(__DIR__.'/data/contact/'.$token.'.json', json_encode([
-            'name'=>$name,'email'=>$email,'message'=>$msg
+            'name'=>$name,'email'=>$email,'message'=>$msg,'time'=>time()
         ]));
-        $link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']!=='off'? 'https':'http').
-            '://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?confirm='.$token;
+        $link = BASE_URL.'/contact.php?confirm='.$token;
         $body = langf(t('contact_email_body'), $link);
         send_email($email, t('contact_email_subject'), $body);
         $sent = true;
@@ -80,6 +82,7 @@ include 'navbar.php';
   <?php else: ?>
     <?php if($error): ?><div class="alert alert-danger"><?=$error?></div><?php endif; ?>
     <form method="post">
+      <input type="hidden" name="csrf_token" value="<?=csrf_token()?>">
       <div class="mb-3">
         <label for="name" class="form-label"><?=t('contact_label_name')?></label>
         <input type="text" class="form-control" id="name" name="name" required>

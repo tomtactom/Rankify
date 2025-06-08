@@ -56,6 +56,7 @@ include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
+include 'inc/csrf.php';
 
 if (!function_exists('langf')) {
     function langf($text, ...$args) { return vsprintf($text, $args); }
@@ -75,6 +76,7 @@ function getDemographicCookie() {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['demografie'])) {
+    csrf_check();
     $data = [
         'alter'      => trim($_POST['alter'] ?? ''),
         'geschlecht' => $_POST['geschlecht'] ?? '',
@@ -82,7 +84,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['demografie'])) {
         'ip'         => $_SERVER['REMOTE_ADDR'],
     ];
     // Optional: Geo-IP-API hier ergänzen
-    setcookie('rankifmy_demografie', json_encode($data), time()+365*24*3600, '/');
+    setcookie('rankifmy_demografie', json_encode($data), [
+        'expires' => time()+365*24*3600,
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
     header("Location: results.php?set=" . urlencode($kartensetPfad));
     exit;
 }
@@ -94,6 +102,7 @@ if (!hasDemographicCookie()) {
         <h2><?=t('demographic_title') ?? 'Kurz vor dem Ergebnis...'?></h2>
         <p class="demografie-hinweis"><?=t('demographic_note') ?? 'Diese Angaben sind freiwillig und werden nur pseudonymisiert zur Verbesserung der Vergleichswerte verwendet.'?></p>
         <form method="post">
+            <input type="hidden" name="csrf_token" value="<?=csrf_token()?>">
             <div class="mb-3">
                 <label for="alter" class="form-label"><?=t('demographic_age') ?? 'Wie alt bist du?'?></label>
                 <input type="number" min="6" max="99" class="form-control" name="alter" id="alter" required placeholder="z.B. 27">
@@ -196,7 +205,13 @@ $hist = isset($_COOKIE['rankify_history']) ? json_decode($_COOKIE['rankify_histo
 if (!is_array($hist)) $hist = [];
 $hist[] = ['time'=>date('c'),'set'=>$kartensetPfad,'scores'=>$scores];
 if (count($hist) > 10) $hist = array_slice($hist, -10);
-setcookie('rankify_history', json_encode($hist), time()+365*24*3600, '/');
+setcookie('rankify_history', json_encode($hist), [
+    'expires' => time()+365*24*3600,
+    'path' => '/',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
 
 // Viele Figuren (SVG/Emoji)
 $figuren = [

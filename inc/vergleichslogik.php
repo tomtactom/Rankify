@@ -24,9 +24,11 @@ function alleVergleichspaare($ids, $wiederholungen = 1, $seed = null) {
     }
     // Shuffle (optional mit Seed für Konsistenz)
     if ($seed !== null) {
-        srand($seed);
-        shuffle($paare);
-        srand(); // Reset random seed
+        for ($i = count($paare) - 1; $i > 0; $i--) {
+            $seed = ($seed * 1103515245 + 12345) & 0x7fffffff;
+            $j = $seed % ($i + 1);
+            [$paare[$i], $paare[$j]] = [$paare[$j], $paare[$i]];
+        }
     } else {
         shuffle($paare);
     }
@@ -38,6 +40,24 @@ function alleVergleichspaare($ids, $wiederholungen = 1, $seed = null) {
  * Noch nicht implementiert, hier nur als Platzhalter!
  */
 function adaptiveVergleichspaare($ids, $antworten, $wiederholungen = 1) {
-    // TODO: Adaptive Logik, falls gewünscht
-    return alleVergleichspaare($ids, $wiederholungen);
+    $pairs = alleVergleichspaare($ids, $wiederholungen);
+    $stats = [];
+    foreach ($antworten as $a) {
+        $pair = [$a['id1'], $a['id2']];
+        sort($pair);
+        $key = implode('_', $pair);
+        if (!isset($stats[$key])) $stats[$key] = ['a'=>0,'b'=>0];
+        if (in_array($a['bewertung'], [1,2])) $stats[$key]['a']++;
+        elseif (in_array($a['bewertung'], [3,4])) $stats[$key]['b']++;
+    }
+    usort($pairs, function($x, $y) use ($stats) {
+        $px = $x; sort($px); $kx = implode('_', $px);
+        $py = $y; sort($py); $ky = implode('_', $py);
+        $sx = $stats[$kx] ?? ['a'=>0,'b'=>0];
+        $sy = $stats[$ky] ?? ['a'=>0,'b'=>0];
+        $ux = ($sx['a']+$sx['b'])>0 ? 1 - abs($sx['a']-$sx['b'])/($sx['a']+$sx['b']) : 1;
+        $uy = ($sy['a']+$sy['b'])>0 ? 1 - abs($sy['a']-$sy['b'])/($sy['a']+$sy['b']) : 1;
+        return $uy <=> $ux;
+    });
+    return $pairs;
 }

@@ -12,6 +12,7 @@ include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
 include 'inc/vergleichslogik.php';
+include 'inc/csrf.php';
 
 // Reset-Logik
 if (isset($_GET['reset'])) {
@@ -84,6 +85,8 @@ if (empty($paare) && !empty($antworten)) {
 
 function now_millis() { return round(microtime(true) * 1000); }
 
+csrf_check();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['instruktion_gelesen'])) {
         $instruktion_gelesen = true;
@@ -153,6 +156,7 @@ include 'navbar.php';
     <!-- Instruktionsphase -->
     <?php if (!$instruktion_gelesen): ?>
         <form method="post">
+            <input type="hidden" name="csrf_token" value="<?=csrf_token()?>">
             <div class="alert alert-info" style="font-size:1.15em;">
                 <b><?=t('instructions_title') ?? "Instruktionen"?></b><br>
                 <?=t('instructions_text') ?? ""?>
@@ -175,7 +179,11 @@ include 'navbar.php';
         $debugData = "paare: " . print_r($paare, true) .
                      "karten: " . print_r($karten, true) .
                      "ids: " . print_r($ids, true);
-        file_put_contents(DEBUG_LOG_FILE, '['.date('c')."]\n".$debugData."\n\n", FILE_APPEND);
+        $dir = dirname(DEBUG_LOG_FILE);
+        if (!is_dir($dir)) { @mkdir($dir, 0777, true); }
+        if (is_writable($dir)) {
+            file_put_contents(DEBUG_LOG_FILE, '['.date('c')."]\n".$debugData."\n\n", FILE_APPEND);
+        }
         if (DEV_MODE) {
             echo "<div style='background:#fff3cd;color:#856404;padding:1.2em;margin:2em 0;border-radius:10px;font-family:monospace;'>";
             echo "<b>Debug-Infos:</b><br>";
@@ -210,6 +218,7 @@ include 'navbar.php';
           </div>
         </div>
         <form method="post" class="likert-vertical" autocomplete="off" style="width:100%;max-width:380px;margin:auto;">
+          <input type="hidden" name="csrf_token" value="<?=csrf_token()?>">
           <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
           <input type="hidden" name="id2" value="<?=htmlspecialchars($karte2['id'])?>">
           <input type="hidden" name="show_left" value="<?=htmlspecialchars($show_left)?>">
@@ -230,6 +239,7 @@ include 'navbar.php';
       <!-- DESKTOP: horizontal -->
       <div class="d-none d-md-block">
         <form method="post" class="mb-5" autocomplete="off">
+          <input type="hidden" name="csrf_token" value="<?=csrf_token()?>">
           <input type="hidden" name="id1" value="<?=htmlspecialchars($karte1['id'])?>">
           <input type="hidden" name="id2" value="<?=htmlspecialchars($karte2['id'])?>">
           <input type="hidden" name="show_left" value="<?=htmlspecialchars($show_left)?>">

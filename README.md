@@ -18,6 +18,11 @@ models (e.g. Thurstone, Bradley–Terry) and presents an ordered list of your pr
 
 No database is required; results are stored locally in the browser.
 
+### Maintenance
+Confirmation links generated through the contact form are stored in `data/contact`.
+Run `php scripts/cleanup_tokens.php` periodically (e.g. daily via cron) to remove
+expired tokens.
+
 ## License
 This project is released under the MIT License. See `LICENSE` for details.
 

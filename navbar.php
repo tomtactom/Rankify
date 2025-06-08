@@ -16,20 +16,20 @@
   <meta http-equiv="Content-Language" content="<?=getLanguage()?>">
 
   <!-- SEO: Canonical, Language (für Mehrsprachigkeit) -->
-  <link rel="canonical" href="https://rankify.tomaschmann.de<?=htmlspecialchars($_SERVER['REQUEST_URI'])?>">
+  <link rel="canonical" href="<?=BASE_URL?><?=htmlspecialchars($_SERVER['REQUEST_URI'])?>">
 
   <!-- Open Graph / Facebook / LinkedIn -->
   <meta property="og:title" content="<?=t('meta_og_title')?>">
   <meta property="og:description" content="<?=t('meta_og_description')?>">
-  <meta property="og:image" content="https://rankify.tomaschmann.de/assets/img/rankifmy-logo.png">
-  <meta property="og:url" content="https://rankify.tomaschmann.de<?=htmlspecialchars($_SERVER['REQUEST_URI'])?>">
+  <meta property="og:image" content="<?=BASE_URL?>/assets/img/rankifmy-logo.png">
+  <meta property="og:url" content="<?=BASE_URL?><?=htmlspecialchars($_SERVER['REQUEST_URI'])?>">
   <meta property="og:type" content="website">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<?=t('meta_twitter_title')?>">
   <meta name="twitter:description" content="<?=t('meta_twitter_description')?>">
-  <meta name="twitter:image" content="https://rankify.tomaschmann.de/assets/img/rankifmy-logo.png">
+  <meta name="twitter:image" content="<?=BASE_URL?>/assets/img/rankifmy-logo.png">
 
   <!-- Theme Colors -->
   <meta name="theme-color" content="#2E5BDA" id="meta-theme-color">
@@ -78,7 +78,7 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Rankify",
-    "url": "https://rankify.tomaschmann.de",
+    "url": "<?=BASE_URL?>",
     "applicationCategory": "ProductivityApplication",
     "operatingSystem": "All",
     "description": "Transparente Wert- und Prioritätenfindung – wissenschaftlich fundiert."
