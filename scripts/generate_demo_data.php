@@ -4,6 +4,11 @@ require_once __DIR__.'/../inc/kartenset_loader.php';
 
 $sets = getKartensets(__DIR__ . '/../data');
 
+// Demographic categories used for generating example norms
+$genders = ['w', 'm', 'd'];
+$educations = ['kein','hs','re','abi','beruf','stud','phd','sonst'];
+$ageGroups = [10,20,30,40,50,60];
+
 foreach ($sets as $set) {
     $file = $set['path'];
     if (!file_exists($file)) continue;
@@ -14,17 +19,23 @@ foreach ($sets as $set) {
         $parts = str_getcsv($line, ';');
         if (count($parts) >= 3) $ids[] = $parts[0];
     }
-    for ($i = 0; $i < NORM_MIN_COUNT; $i++) {
-        $scores = [];
-        foreach ($ids as $id) {
-            $scores[$id] = mt_rand(1, 100);
+    foreach ($ageGroups as $ageGroup) {
+        foreach ($genders as $gender) {
+            foreach ($educations as $edu) {
+                for ($i = 0; $i < NORM_MIN_COUNT; $i++) {
+                    $scores = [];
+                    foreach ($ids as $id) {
+                        $scores[$id] = mt_rand(1, 100);
+                    }
+                    $demo = [
+                        'alter' => $ageGroup + mt_rand(0, 9),
+                        'geschlecht' => $gender,
+                        'abschluss' => $edu
+                    ];
+                    save_result_db($set['path'], $scores, $demo, false);
+                }
+            }
         }
-        $demo = [
-            'alter' => mt_rand(18, 60),
-            'geschlecht' => (mt_rand(0,1) ? 'm' : 'w'),
-            'abschluss' => 'Bachelor'
-        ];
-        save_result_db($set['path'], $scores, $demo, false);
     }
 }
 
