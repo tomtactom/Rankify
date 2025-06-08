@@ -1,7 +1,12 @@
 <?php
 $WIEDERHOLUNGEN = 1;
 
-$kartensetPfad = $_GET['set'] ?? '';
+include 'inc/validate.php';
+$kartensetPfad = validate_set_path($_GET['set'] ?? '');
+if (!$kartensetPfad) {
+    http_response_code(400);
+    exit('Invalid set');
+}
 include 'inc/lang.php';
 include 'inc/kartenset_loader.php';
 include 'inc/session_handler.php';
