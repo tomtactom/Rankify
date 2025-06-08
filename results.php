@@ -396,6 +396,10 @@ include 'navbar.php';
         <?php endforeach; ?>
         </ol>
     </div>
+    <?php else: ?>
+    <div class="norm-box mb-5 alert alert-info" role="alert">
+        <?=t('norm_not_available') ?? 'Noch keine Normwerte verfügbar.'?>
+    </div>
     <?php endif; ?>
     <?php if($normGlobal): ?>
     <div class="norm-box mb-5">

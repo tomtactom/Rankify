@@ -251,6 +251,8 @@ References: %s",
     'norm_comparison_title_en' => 'Norm values for your group',
     'norm_public_title_de' => 'Öffentliche Statistik',
     'norm_public_title_en' => 'Public statistics',
+    'norm_not_available_de' => 'Noch nicht genügend Daten für Normwerte.',
+    'norm_not_available_en' => 'Not enough data yet for norm values.',
 
     // ------ FAQ ------
     'faq_title_de'  => 'Häufige Fragen',

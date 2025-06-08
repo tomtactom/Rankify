@@ -25,6 +25,17 @@ Confirmation links generated through the contact form are stored in `data/contac
 Run `php scripts/cleanup_tokens.php` periodically (e.g. daily via cron) to remove
 expired tokens.
 
+### Demo data
+To test the normative tables without collecting real responses you can
+generate example results:
+
+```bash
+php scripts/generate_demo_data.php
+```
+
+This populates `data/rankify.sqlite` with random scores for every card set so
+that the norm tables become visible.
+
 ## License
 This project is released under the MIT License. See `LICENSE` for details.
 
