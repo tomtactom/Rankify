@@ -46,7 +46,9 @@ foreach ($sets as $set) {
                         'geschlecht' => $gender,
                         'abschluss' => $edu
                     ];
-                    save_result_db($set['path'], $scores, $demo, false);
+                    $dataRoot = realpath(__DIR__.'/../data');
+                    $relPath = str_replace($dataRoot.'/', '', $set['path']);
+                    save_result_db($relPath, $scores, $demo, false);
                 }
             }
         }

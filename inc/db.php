@@ -17,6 +17,9 @@ function get_db() {
             skipped INTEGER DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )');
+        // Indexes to speed up normative queries
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_results_set ON results(set_path)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_results_demo ON results(set_path, age_group, gender, education, skipped)');
     }
     return $pdo;
 }
