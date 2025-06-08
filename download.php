@@ -23,6 +23,7 @@ if (!$set) {
     exit;
 }
 $setName = preg_replace('/(_[a-z]{2})?\.csv$/','', basename($set));
+$generated = isset($entry['time']) ? strtotime($entry['time']) : time();
 $scores = $entry['scores'];
 $file = __DIR__.'/data/'.$set;
 if (!file_exists($file)) {
@@ -72,7 +73,8 @@ switch($format) {
         $padding   = 20;
         $lineHeight = $barHeight + 18;
         $width  = 800;
-        $height = $lineHeight * count($scores) + $padding * 2;
+        $headerLines = 3;
+        $height = $lineHeight * count($scores) + $padding * 2 + ($fontH + 6) * $headerLines;
         $im = imagecreatetruecolor($width, $height);
         $bg = imagecolorallocate($im, 255, 255, 255);
         imagefill($im, 0, 0, $bg);
@@ -81,7 +83,11 @@ switch($format) {
 
         // Header
         imagestring($im, $font, $padding, $padding, utf8_decode(t('results')), $black);
-        $y = $padding + 10;
+        $y = $padding + $fontH + 6;
+        imagestring($im, $font, $padding, $y, utf8_decode($setName), $black);
+        $y += $fontH + 4;
+        imagestring($im, $font, $padding, $y, date('Y-m-d H:i', $generated), $black);
+        $y += 10;
         $maxScore = max($scores);
         $rank = 1;
         foreach ($scores as $id => $score) {
@@ -103,8 +109,12 @@ switch($format) {
         require_once(__DIR__.'/lib/fpdf.php');
         $pdf = new FPDF();
         $pdf->AddPage();
+        $pdf->SetFont('Helvetica','B',20);
+        $pdf->Cell(0,10,'Rankify',0,1,'C');
         $pdf->SetFont('Helvetica','B',16);
-        $pdf->Cell(0,10,iconv('UTF-8','CP1252//TRANSLIT',t('results')),0,1,'C');
+        $pdf->Cell(0,8,iconv('UTF-8','CP1252//TRANSLIT',$setName),0,1,'C');
+        $pdf->SetFont('Helvetica','',12);
+        $pdf->Cell(0,6,date('Y-m-d H:i',$generated),0,1,'C');
         $pdf->Ln(5);
 
         $pdf->SetFont('Helvetica','B',12);
@@ -114,12 +124,15 @@ switch($format) {
         $pdf->Cell(20,8,'Score',1,1,'C',true);
 
         $pdf->SetFont('Helvetica','',12);
+        $pdf->SetFillColor(245,245,245);
+        $fill = false;
         $rank = 1;
         foreach ($scores as $id=>$score) {
             if (!isset($cards[$id])) continue;
-            $pdf->Cell(10,8,$rank,1,0,'C');
-            $pdf->Cell(140,8,iconv('UTF-8','CP1252//TRANSLIT',$cards[$id]['title']),1,0,'L');
-            $pdf->Cell(20,8,$score,1,1,'C');
+            $pdf->Cell(10,8,$rank,1,0,'C',$fill);
+            $pdf->Cell(140,8,iconv('UTF-8','CP1252//TRANSLIT',$cards[$id]['title']),1,0,'L',$fill);
+            $pdf->Cell(20,8,$score,1,1,'C',$fill);
+            $fill = !$fill;
             $rank++;
         }
 
