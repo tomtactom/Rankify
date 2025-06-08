@@ -1,25 +1,32 @@
 <?php
 require_once __DIR__.'/config.php';
+require_once __DIR__.'/log.php';
 
 function get_db() {
     static $pdo = null;
     if ($pdo === null) {
-        $pdo = new PDO('sqlite:' . DB_FILE);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE IF NOT EXISTS results (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            set_path TEXT NOT NULL,
-            scores TEXT NOT NULL,
-            age INTEGER,
-            age_group INTEGER,
-            gender TEXT,
-            education TEXT,
-            skipped INTEGER DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )');
-        // Indexes to speed up normative queries
-        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_results_set ON results(set_path)');
-        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_results_demo ON results(set_path, age_group, gender, education, skipped)');
+        try {
+            $pdo = new PDO('sqlite:' . DB_FILE);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->exec('CREATE TABLE IF NOT EXISTS results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                set_path TEXT NOT NULL,
+                scores TEXT NOT NULL,
+                age INTEGER,
+                age_group INTEGER,
+                gender TEXT,
+                education TEXT,
+                skipped INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )');
+            // Indexes to speed up normative queries
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_results_set ON results(set_path)');
+            $pdo->exec('CREATE INDEX IF NOT EXISTS idx_results_demo ON results(set_path, age_group, gender, education, skipped)');
+            debug_log('Database initialized at '.DB_FILE);
+        } catch (Exception $e) {
+            debug_log('DB error: '.$e->getMessage());
+            throw $e;
+        }
     }
     return $pdo;
 }
@@ -32,6 +39,7 @@ function save_result_db($setPath, $scores, $demo=null, $skipped=false) {
     $edu = $demo['abschluss'] ?? null;
     $stmt = $pdo->prepare('INSERT INTO results (set_path,scores,age,age_group,gender,education,skipped) VALUES (?,?,?,?,?,?,?)');
     $stmt->execute([$setPath, json_encode($scores), $age, $ageGroup, $gender, $edu, $skipped ? 1 : 0]);
+    debug_log('Saved result for '.$setPath.' age='.$age.' gender='.$gender.' edu='.$edu.' skipped='.(int)$skipped);
 }
 
 function fetch_normative($setPath, $demo=null) {
