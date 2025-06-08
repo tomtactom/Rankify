@@ -1,4 +1,11 @@
 <?php
+// Only run from the command line to avoid web timeouts
+if (php_sapi_name() !== 'cli') {
+    header('HTTP/1.1 403 Forbidden');
+    echo "This script must be executed from the command line.";
+    exit;
+}
+
 require_once __DIR__.'/../inc/db.php';
 require_once __DIR__.'/../inc/kartenset_loader.php';
 
@@ -25,6 +32,8 @@ if (PHP_SAPI !== 'cli') {
 }
 
 $sets = getKartensets(__DIR__ . '/../data');
+$pdo = get_db();
+$pdo->beginTransaction();
 
 // Demographic categories used for generating example norms
 $genders = ['w', 'm', 'd'];
@@ -68,6 +77,7 @@ foreach ($sets as $set) {
     }
 }
 
+$pdo->commit();
 echo "Demo data generated in " . DB_FILE . "\n";
 if (PHP_SAPI !== 'cli') {
     error_log('[Rankify] Demo data generation finished at '.date('c'));
