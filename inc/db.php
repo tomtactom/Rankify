@@ -42,21 +42,23 @@ function fetch_normative($setPath, $demo=null) {
         $params[':gender'] = $demo['geschlecht'];
         $params[':edu'] = $demo['abschluss'];
     }
-    $stmt = $pdo->prepare("SELECT scores FROM results WHERE $where");
+    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM results WHERE $where");
+    $countStmt->execute($params);
+    $count = (int)$countStmt->fetchColumn();
+    if ($count < NORM_MIN_COUNT) return null;
+
+    $query = "SELECT key, AVG(value) as avg_score
+              FROM results, json_each(scores)
+              WHERE $where
+              GROUP BY key";
+    $stmt = $pdo->prepare($query);
     $stmt->execute($params);
-    $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    if (count($rows) < NORM_MIN_COUNT) return null;
-    $acc = [];
-    foreach ($rows as $json) {
-        $sc = json_decode($json, true);
-        if (!is_array($sc)) continue;
-        foreach ($sc as $k=>$v) {
-            if (!isset($acc[$k])) $acc[$k] = 0;
-            $acc[$k] += $v;
-        }
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!$rows) return null;
+    $scores = [];
+    foreach ($rows as $row) {
+        $scores[$row['key']] = (float)$row['avg_score'];
     }
-    $count = count($rows);
-    foreach ($acc as $k=>$v) $acc[$k] = $v / $count;
-    arsort($acc);
-    return ['scores'=>$acc, 'n'=>$count];
+    arsort($scores);
+    return ['scores'=>$scores, 'n'=>$count];
 }
