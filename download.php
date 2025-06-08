@@ -66,9 +66,11 @@ switch($format) {
         echo $text;
         break;
     case 'png':
-        $barHeight = 20;
+        $font      = 5; // built-in GD font (highest resolution)
+        $fontH     = imagefontheight($font);
+        $barHeight = $fontH + 4;
         $padding   = 20;
-        $lineHeight = $barHeight + 20;
+        $lineHeight = $barHeight + 18;
         $width  = 800;
         $height = $lineHeight * count($scores) + $padding * 2;
         $im = imagecreatetruecolor($width, $height);
@@ -76,11 +78,9 @@ switch($format) {
         imagefill($im, 0, 0, $bg);
         $black = imagecolorallocate($im, 0, 0, 0);
         $barColor = imagecolorallocate($im, 40, 215, 174); // #28d7ae
-        $fontBold = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
-        $font = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 
         // Header
-        imagettftext($im, 16, 0, $padding, $padding, $black, $fontBold, t('results'));
+        imagestring($im, $font, $padding, $padding, utf8_decode(t('results')), $black);
         $y = $padding + 10;
         $maxScore = max($scores);
         $rank = 1;
@@ -88,9 +88,9 @@ switch($format) {
             if (!isset($cards[$id])) continue;
             $title = $cards[$id]['title'];
             $barWidth = $maxScore > 0 ? ($score / $maxScore) * ($width - 250) : 0;
-            imagettftext($im, 12, 0, $padding, $y + $barHeight - 4, $black, $fontBold, $rank.'. '.$title);
+            imagestring($im, $font, $padding, $y, utf8_decode($rank.'. '.$title), $black);
             imagefilledrectangle($im, 200, $y, 200 + $barWidth, $y + $barHeight, $barColor);
-            imagettftext($im, 12, 0, 210 + $barWidth, $y + $barHeight - 4, $black, $font, (string)$score);
+            imagestring($im, $font, 210 + $barWidth, $y, (string)$score, $black);
             $y += $lineHeight;
             $rank++;
         }
@@ -104,7 +104,7 @@ switch($format) {
         $pdf = new FPDF();
         $pdf->AddPage();
         $pdf->SetFont('Helvetica','B',16);
-        $pdf->Cell(0,10,t('results'),0,1,'C');
+        $pdf->Cell(0,10,iconv('UTF-8','CP1252//TRANSLIT',t('results')),0,1,'C');
         $pdf->Ln(5);
 
         $pdf->SetFont('Helvetica','B',12);
@@ -118,7 +118,7 @@ switch($format) {
         foreach ($scores as $id=>$score) {
             if (!isset($cards[$id])) continue;
             $pdf->Cell(10,8,$rank,1,0,'C');
-            $pdf->Cell(140,8,$cards[$id]['title'],1,0,'L');
+            $pdf->Cell(140,8,iconv('UTF-8','CP1252//TRANSLIT',$cards[$id]['title']),1,0,'L');
             $pdf->Cell(20,8,$score,1,1,'C');
             $rank++;
         }
