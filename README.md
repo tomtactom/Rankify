@@ -26,6 +26,7 @@ Run `php scripts/cleanup_tokens.php` periodically (e.g. daily via cron) to remov
 expired tokens.
 
 ### Demo data
+Try it out: https://rankify.tomaschmann.de
 To test the normative tables without collecting real responses you can
 generate example results:
 
